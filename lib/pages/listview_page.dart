@@ -18,32 +18,21 @@ class ListViewPage extends StatefulWidget {
 }
 
 class _ListViewPage extends State<ListViewPage> {
-  late FToast fToast;
-
-  DateTime _billdate = DateTime.now();
-  num _amount = 0;
-  int _kwh = 0;
-
-  dynamic _data = null;
-
-  final _ctrlBillDate = TextEditingController();
-  final _ctrlAmount = TextEditingController();
-  final _ctrlKwh = TextEditingController();
-
+  late FToast fToast = FToast();
+  dynamic _data;
   late final Stream<QuerySnapshot> _listStream;
+  String _quantification = '';
+  String _collectionName = '';
 
   @override
   void initState() {
     super.initState();
-    fToast = FToast();
     fToast.init(context);
-
     _getlist();
 
     setState(() {
-      _ctrlBillDate.text = _billdate.format(dateOnly: true);
-      _ctrlAmount.text = _amount.toString();
-      _ctrlKwh.text = _kwh.toString();
+      _collectionName = widget.title.toLowerCase();
+      _quantification = _collectionName == 'electricity' ? 'kwh' : 'cu.m';
     });
   }
 
@@ -79,7 +68,7 @@ class _ListViewPage extends State<ListViewPage> {
       stream: _listStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return Center(child: Text('Something went wrong'));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -109,7 +98,7 @@ class _ListViewPage extends State<ListViewPage> {
                           textAlign: TextAlign.right,
                           style: TextStyle(fontSize: 20, color: widget.color),
                         ),
-                        Text('${data['kwh']} kwh',
+                        Text('${data[_quantification]} $_quantification',
                             textAlign: TextAlign.right,
                             style: TextStyle(fontWeight: FontWeight.w200)),
                       ],
@@ -127,10 +116,8 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   Future _getlist() async {
-    String collection = widget.title.toLowerCase();
-
     var list = FirebaseFirestore.instance
-        .collection(collection)
+        .collection(_collectionName)
         .orderBy('bill_date', descending: true)
         .snapshots();
 

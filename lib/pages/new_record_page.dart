@@ -30,10 +30,11 @@ class Management extends StatefulWidget {
 }
 
 class _ManagementState extends State<Management> {
-  late FToast fToast;
+  late FToast fToast = FToast();
 
-  DateTime _firstdate = DateTime(DateTime.now().year - 2);
-  DateTime _billdate = DateTime.now();
+  final DateTime _firstdate = DateTime(DateTime.now().year - 2);
+  final DateTime _lastdate = DateTime.now();
+  DateTime? _billdate = DateTime.now();
   num _amount = 0;
   int _kwh = 0;
 
@@ -42,14 +43,17 @@ class _ManagementState extends State<Management> {
   final _ctrlAmount = TextEditingController();
   final _ctrlKwh = TextEditingController();
 
+  String _quantification = '';
+
   @override
   void initState() {
     super.initState();
-    fToast = FToast();
     fToast.init(context);
+    _quantification =
+        widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
 
     setState(() {
-      _ctrlBillDate.text = _billdate.format(dateOnly: true);
+      _ctrlBillDate.text = _billdate!.format(dateOnly: true);
       _ctrlAmount.text = _amount.toString();
       _ctrlKwh.text = _kwh.toString();
     });
@@ -60,7 +64,7 @@ class _ManagementState extends State<Management> {
     String titleLast =
         widget.title.substring(widget.title.length - 1, widget.title.length);
     bool isLastS = titleLast == 's';
-    String title = isLastS
+    String _title = isLastS
         ? widget.title.substring(0, widget.title.length - 1)
         : widget.title;
 
@@ -108,7 +112,8 @@ class _ManagementState extends State<Management> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Kwh', hintText: 'Kwh'),
+                decoration: InputDecoration(
+                    labelText: _quantification, hintText: _quantification),
                 controller: _ctrlKwh,
                 onChanged: (value) {
                   setState(() {
@@ -140,41 +145,47 @@ class _ManagementState extends State<Management> {
                     style: TextStyle(color: widget.color),
                   ))),
           Expanded(
-            child: FlatButton(
+            child: TextButton(
               child: Text('Save'),
-              color: widget.color,
-              textColor: Colors.white,
+              style: TextButton.styleFrom(
+                  primary: Colors.white, backgroundColor: widget.color),
+              // ButtonStyle(
+              //   backgroundColor: MaterialStateProperty.all(widget.color),
+              //   ),
+              // color: widget.color,
+              // textColor: Colors.white,
               onPressed: _saveRecord,
             ),
           )
         ],
-        header: 'Add $title');
+        header: 'Add $_title');
   }
 
   _getDate() async {
     var date = await showDatePicker(
       context: context,
-      initialDate: _billdate,
+      initialDate: _billdate ?? _lastdate,
       firstDate: _firstdate,
-      lastDate: _billdate,
+      lastDate: _lastdate,
     );
     if (date != null) {
       setState(() {
         _billdate = DateTime(date.year, date.month, date.day);
-        _ctrlBillDate.text = _billdate.format(dateOnly: true);
+        _ctrlBillDate.text = _billdate!.format(dateOnly: true);
       });
     }
   }
 
   Future<void> _saveRecord() {
-    CollectionReference collection =
-        FirebaseFirestore.instance.collection('electricity');
+    String collection = widget.title.toLowerCase();
+    CollectionReference list =
+        FirebaseFirestore.instance.collection(collection);
 
-    return collection
+    return list
         .add({
-          'bill_date': _billdate.millisecondsSinceEpoch,
+          'bill_date': _billdate!.millisecondsSinceEpoch,
           'amount': _amount,
-          'kwh': _kwh,
+          _quantification: _kwh,
           'created_on': DateTime.now().millisecondsSinceEpoch
         })
         .then((value) => print("Bill added."))
