@@ -27,7 +27,7 @@
     <string msgid="2650565705514630347" name="abc_shareactionprovider_share_with">"שיתוף עם"</string>
     <string msgid="9009661856846212431" name="abc_shareactionprovider_share_with_application">"שיתוף עם <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="6389460216547290468" name="abc_toolbar_collapse_description">"כיווץ"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">יש לבקר בכתובת facebook.com/device&lt;/b&amp;gt ולהזין את הקוד המוצג למעלה</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">יש לבקר בכתובת facebook.com/device&lt;/b&amp;gt ולהזין את הקוד המוצג למעלה.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">שגיאה לא צפויה במהלך הורדת תמונה.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">התחברות WebView דורשת הרשאת אינטרנט</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">שגיאת AndroidManifest</string>
@@ -35,7 +35,7 @@
     <string gender="unknown" name="com_facebook_like_button_not_liked">לייק</string>
     <string gender="unknown" name="com_facebook_loading">טוען...</string>
     <string gender="unknown" name="com_facebook_loginview_cancel_action">ביטול</string>
-    <string gender="unknown" name="com_facebook_loginview_log_in_button">התחבר</string>
+    <string gender="unknown" name="com_facebook_loginview_log_in_button">התחבר/י</string>
     <string gender="unknown" name="com_facebook_loginview_log_in_button_continue">המשך/המשיכי עם פייסבוק</string>
     <string gender="unknown" name="com_facebook_loginview_log_in_button_long">התחברות באמצעות פייסבוק</string>
     <string gender="unknown" name="com_facebook_loginview_log_out_action">התנתק/י</string>
@@ -68,6 +68,10 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"פתח בטלפון"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"כניסה"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"‏היכנס באמצעות Google"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"הקישור הועתק ללוח"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"להעתקת הקישור"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"פתיחה בדפדפן"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"לשיתוף הקישור"</string>
     <string msgid="730395136688082741" name="search_menu_title">"חיפוש"</string>
-    <string msgid="8106346172024741305" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
 </resources>

@@ -29,7 +29,7 @@
     <string msgid="6389460216547290468" name="abc_toolbar_collapse_description">"Komprimera"</string>
     <string gender="unknown" name="com_facebook_device_auth_instructions">Gå till &lt;b>facebook.com/device&lt;/b> och skriv in koden som visas ovan.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Ett oväntat fel inträffade när en bild skulle laddas ned.</string>
-    <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView-inloggning kräver INTERNET-åtkomst</string>
+    <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView-inloggning kräver INTERNET-behörighet</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest-fel</string>
     <string gender="unknown" name="com_facebook_like_button_liked">Gillat</string>
     <string gender="unknown" name="com_facebook_like_button_not_liked">Gilla</string>
@@ -44,7 +44,7 @@
     <string gender="unknown" name="com_facebook_loginview_logged_in_using_facebook">Inloggad med Facebook</string>
     <string gender="unknown" name="com_facebook_send_button_text">Skicka</string>
     <string gender="unknown" name="com_facebook_share_button_text">Dela</string>
-    <string gender="unknown" name="com_facebook_smart_device_instructions">Koppla ditt konto genom att öppna Facebook-appen på din mobila enhet och leta efter aviseringar.</string>
+    <string gender="unknown" name="com_facebook_smart_device_instructions">Anslut ditt konto genom att öppna Facebook-appen på din mobila enhet och leta efter aviseringar.</string>
     <string gender="unknown" name="com_facebook_smart_device_instructions_or">- ELLER -</string>
     <string gender="unknown" name="com_facebook_smart_login_confirmation_cancel">Inte du?</string>
     <string gender="unknown" name="com_facebook_smart_login_confirmation_continue_as">Fortsätt som %1$s</string>
@@ -68,6 +68,10 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"Öppna på mobilen"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"Logga in"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Logga in med Google"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"Länk kopierad till Urklipp"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Kopiera länk"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Öppna i webbläsaren"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Dela länk"</string>
     <string msgid="730395136688082741" name="search_menu_title">"Sök"</string>
-    <string msgid="8106346172024741305" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
 </resources>

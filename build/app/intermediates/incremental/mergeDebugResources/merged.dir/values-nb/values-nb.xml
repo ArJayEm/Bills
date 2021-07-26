@@ -38,8 +38,8 @@
     <string gender="unknown" name="com_facebook_loginview_log_in_button">Logg inn</string>
     <string gender="unknown" name="com_facebook_loginview_log_in_button_continue">Fortsett med Facebook</string>
     <string gender="unknown" name="com_facebook_loginview_log_in_button_long">Logg inn med Facebook</string>
-    <string gender="unknown" name="com_facebook_loginview_log_out_action">Logg av</string>
-    <string gender="unknown" name="com_facebook_loginview_log_out_button">Logg av</string>
+    <string gender="unknown" name="com_facebook_loginview_log_out_action">Logg ut</string>
+    <string gender="unknown" name="com_facebook_loginview_log_out_button">Logg ut</string>
     <string gender="unknown" name="com_facebook_loginview_logged_in_as">Logget inn som %1$s</string>
     <string gender="unknown" name="com_facebook_loginview_logged_in_using_facebook">Innlogget med Facebook</string>
     <string gender="unknown" name="com_facebook_share_button_text">Del</string>
@@ -67,6 +67,10 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"Åpne på telefonen"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"Logg på"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Logg på med Google"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"Linken er kopiert til utklippstavlen"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Kopiér linken"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Åpne i nettleseren"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Del link"</string>
     <string msgid="730395136688082741" name="search_menu_title">"Søk"</string>
-    <string msgid="8106346172024741305" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
 </resources>

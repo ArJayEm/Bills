@@ -10,14 +10,11 @@ class _MyHomePageState extends State<About> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          'About',
-          style: TextStyle(color: Colors.white),
+        appBar: AppBar(
+          title: Text('About'),
         ),
-      ),
-      body: Center(child: Text('Coming soon.')),
-    );
+        body: Center(
+            child:
+                Text('Coming soon.', style: TextStyle(color: Colors.white))));
   }
 }

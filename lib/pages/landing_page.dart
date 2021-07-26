@@ -1,156 +1,240 @@
+// import 'dart:js';
+
 import 'package:bills/models/menu.dart';
+import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/mpin/mpin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'about_page.dart';
-import 'components/bottom_navigation.dart';
-//import 'electricity.dart';
-// import 'components/electricity_manager.dart';
 import 'listview_page.dart';
-//import 'water.dart';
 
 class LandingPage extends StatefulWidget {
   static const String route = '/';
-  LandingPage({Key? key, required this.title}) : super(key: key);
+  LandingPage({Key? key, required this.userProfile}) : super(key: key);
 
-  final String title;
+  //final User user;
+  final UserProfile userProfile;
 
   @override
   _LandingPageState createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final plugin = FacebookLogin(debug: true);
-  String? _sdkVersion;
-  FacebookAccessToken? _token;
-  FacebookUserProfile? _profile;
-  String? _email;
-  String? _imageUrl;
+  late UserProfile _userProfile;
 
   num _curentAmount = 0;
+  //int _selectedIndex = 0;
 
   List<Menu> menu = [
-    //Menu(
-    //    location: 'Bills',
-    //    view: Bill(),
-    //    icon: Icon(Icons.receipt_long_outlined, color: Colors.white),
-    //    isSelected: true),
-    // Menu(
-    //     location: 'Payers',
-    //     view: Payer(),
-    //     icon: Icon(Icons.people_alt_outlined, color: Colors.yellowAccent)),
+    Menu(
+        location: 'Billing',
+        view: ListViewPage(
+            title: 'Billing', quantification: '', color: Colors.green.shade800),
+        icon: Icon(Icons.receipt, color: Colors.green.shade800)),
     Menu(
         location: 'Payments',
-        view: ListViewPage(title: 'Payments', color: Colors.green.shade800),
+        view: ListViewPage(
+            title: 'Payments',
+            quantification: '',
+            color: Colors.green.shade800),
         icon: Icon(Icons.payments_outlined, color: Colors.green.shade800)),
     Menu(
         location: 'Electricity',
         view: ListViewPage(
-            title: 'Electricity', color: Colors.deepOrange.shade400),
+            title: 'Electricity',
+            quantification: 'kwh',
+            color: Colors.deepOrange.shade400),
         icon: Icon(Icons.bolt, color: Colors.deepOrange.shade400)),
     Menu(
         location: 'Water',
-        view: ListViewPage(title: 'Water', color: Colors.lightBlue),
+        view: ListViewPage(
+            title: 'Water', quantification: 'cu.m', color: Colors.lightBlue),
         icon: Icon(Icons.water_damage, color: Colors.lightBlue)),
     Menu(
         location: 'Loans',
-        view: ListViewPage(title: 'Loans', color: Colors.yellow.shade200),
+        view: ListViewPage(
+            title: 'Loans', quantification: '', color: Colors.yellow.shade200),
         icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
     Menu(
-        location: 'Wages',
-        view: ListViewPage(title: 'Wages', color: Colors.lightGreen),
+        location: 'Salary',
+        view: ListViewPage(
+            title: 'Salarys', quantification: '', color: Colors.lightGreen),
         icon: Icon(Icons.attach_money_outlined, color: Colors.lightGreen)),
     Menu(
         location: 'Subscriptions',
-        view: ListViewPage(title: 'Subscriptions', color: Colors.red.shade600),
+        view: ListViewPage(
+            title: 'Subscriptions',
+            quantification: '',
+            color: Colors.red.shade600),
         icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
   ];
 
   @override
   void initState() {
     super.initState();
-    _getSdkVersion();
+    //_getSdkVersion();
     _loadLandingPage();
 
-    setState(() {});
+    setState(() {
+      _userProfile = widget.userProfile;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLogin = _token != null && _profile != null;
-    // final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance
-    //     .collection('users')
-    //     .orderBy('full_name')
-    //     .snapshots();
-
     return Scaffold(
       drawer: SafeArea(
-          child: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Center(
-                child: Column(
-                  children: <Widget>[
-                    if (_sdkVersion != null) Text('SDK v$_sdkVersion'),
-                    if (isLogin)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child:
-                            _buildUserInfo(context, _profile!, _token!, _email),
-                      ),
-                    isLogin
-                        ? InkWell(
-                            child: Text('Log Out'),
-                            onTap: _onLogout,
-                          )
-                        : InkWell(
-                            child: Text('Log In'),
-                            onTap: _onLogin,
-                          ),
-                  ],
+        child: Drawer(
+          child: Container(
+            //decoration: BoxDecoration(color: Color(0xFF0098c2)),
+            child: ListView(
+              children: <Widget>[
+                DrawerHeader(
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        // if (_sdkVersion != null) Text('SDK v$_sdkVersion'),
+                        // if (isLogin)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(bottom: 10),
+                        //     child: _buildUserInfo(
+                        //         context, _profile!, _token!, _email),
+                        //   ),
+                        // isLogin
+                        //     ? InkWell(
+                        //         child: Text('Log Out'),
+                        //         onTap: _onLogout,
+                        //       )
+                        //     : InkWell(
+                        //         child: Text('Log In'),
+                        //         onTap: _onLogin,
+                        //       ),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Column(children: [
+                            Text('id: ${_userProfile.id}'),
+                            Text('Hello, ${_userProfile.displayName}!'),
+                            //Text('Email: ${_userProfile.email}'),
+                            //Text('Number: ${_userProfile.phoneNumber}'),
+                            //Text('Photo Url: ${_userProfile.photoUrl}')
+                          ]),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                ListTile(
+                  leading: Icon(Icons.restore),
+                  title: Text('Backup & Restore'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openBills(context, About());
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('About'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openBills(context, About());
+                  },
+                ),
+                Divider(),
+                Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: Column(
+                    children: <Widget>[
+                      //Divider(),
+                      ListTile(
+                        leading: Icon(Icons.logout),
+                        title: Text('Log Out'),
+                        onTap: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title:
+                                const Text('Are you sure you want to logout?'),
+                            content: const Text(
+                                'Your account will be removed from the device.'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'Cancel'),
+                                child: const Text('No'),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(_userProfile.id)
+                                      .update({'logged_in': false});
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => MpinSignInPage(
+                                              userProfile: _userProfile)));
+                                },
+                                child: const Text('Yes'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            ListTile(
-              leading: Icon(Icons.restore),
-              title: Text('Backup & Restore'),
-              onTap: () {
-                Navigator.pop(context);
-                _openBills(About());
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('About'),
-              onTap: () {
-                Navigator.pop(context);
-                _openBills(About());
-              },
-            ),
-          ],
+          ),
         ),
-      )),
+      ),
       appBar: AppBar(
         iconTheme: Theme.of(context).iconTheme,
         textTheme: Theme.of(context).textTheme,
-        title: Text(widget.title),
+        title: Text('Bills'),
       ),
       body: RefreshIndicator(
         onRefresh: _loadLandingPage,
-        child: _buildBody(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(10),
+            physics: BouncingScrollPhysics(),
+            child: _buildDashboard(),
+          ),
+        ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: addUser,
-        tooltip: 'Add ${widget.title}',
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: 'Dashboard',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.receipt_long),
+      //       label: 'Billing',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.person),
+      //       label: 'Me',
+      //     ),
+      //   ],
+      //   currentIndex: _selectedIndex,
+      //   selectedItemColor: Color.fromARGB(255, 255, 158, 0),
+      //   onTap: () {
+      // setState(() {
+      //   _selectedIndex = index;
+      // });
+      // }),
+      // ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: addUser,
+      //   tooltip: 'Add ${widget.title}',
+      //   child: Icon(Icons.add, color: Colors.white),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
     );
   }
 
@@ -158,34 +242,48 @@ class _LandingPageState extends State<LandingPage> {
     setState(() {
       _curentAmount = 0;
     });
+
+    // Fluttertoast.showToast(
+    //   msg: 'Welcome ${widget.userProfile.displayName}!',
+    //   toastLength: Toast.LENGTH_SHORT,
+    //   gravity: ToastGravity.CENTER,
+    //   timeInSecForIosWeb: 1,
+    //   // backgroundColor: Colors.red,
+    //   // textColor: Colors.white,
+    //   // fontSize: 16.0,
+    // );
   }
 
-  Widget _buildBody() {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            _amountToPay(),
-            _curentAmount > 0 ? SizedBox() : _thankYou(),
-            _menuButtons(),
-          ],
-        ),
+  Widget _buildDashboard() {
+    return Column(
+      children: [..._amountToPay(), _menuButtons()],
+    );
+  }
+
+  List<Widget> _amountToPay() {
+    return [
+      ListTile(
+        title: Text('Amount to pay'),
+        trailing: Text(_curentAmount.format(), style: TextStyle(fontSize: 20)),
       ),
-    );
-  }
-
-  Widget _amountToPay() {
-    return Card(
-      child: Text('Amount to pay ${_curentAmount.format()}'),
-    );
-  }
-
-  Widget _thankYou() {
-    return Card(
-      child: Text('Thank you for your payment!'),
-    );
+      Divider(height: 2, indent: 10, endIndent: 10, color: Colors.grey),
+      _curentAmount > 0
+          ? SizedBox()
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Thank you for your payment!',
+                  style: TextStyle(fontSize: 20, height: 3),
+                ),
+                Text(
+                  '',
+                  style: TextStyle(height: 6),
+                )
+              ],
+            ),
+    ];
   }
 
   Widget _menuButtons() {
@@ -221,7 +319,7 @@ class _LandingPageState extends State<LandingPage> {
             onTap: () {
               _setAllFalse();
               menu[index].isSelected = true;
-              _openBills(menu[index].view!);
+              _openBills(context, menu[index].view!);
             },
           ),
         );
@@ -229,32 +327,52 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Future<void> _onLogin() async {
-    await plugin.logIn(permissions: [
-      FacebookPermission.publicProfile,
-      FacebookPermission.email,
-    ]);
-    //await _updateLoginInfo();
-  }
+  // Widget _signOut(context) {
+  //   return TextButton(
+  //       child: Text('Log Out'),
+  //       style: TextButton.styleFrom(
+  //           shape: StadiumBorder(),
+  //           primary: Colors.white,
+  //           backgroundColor: Color.fromARGB(255, 242, 163, 38)),
+  //       onPressed: () async {
+  //         await _auth.signOut();
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => SignInPage()),
+  //         );
+  //       });
+  // }
 
-  Future<void> _onLogout() async {
-    await plugin.logOut();
-    //await _updateLoginInfo();
-  }
+  // Future<void> _onLogin() async {
+  //   await plugin.logIn(permissions: [
+  //     FacebookPermission.publicProfile,
+  //     FacebookPermission.email,
+  //   ]);
+  //   //await _updateLoginInfo();
+  // }
 
-  Future<void> _getSdkVersion() async {
-    final sdkVesion = await plugin.sdkVersion;
-    setState(() {
-      _sdkVersion = sdkVesion;
-    });
-  }
+  // Future<void> _onLogout() async {
+  //   await plugin.logOut();
+  //   //await _updateLoginInfo();
+  // }
 
-  _openBills(Widget view) async {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) {
-        return view;
-      },
-    )); //.whenComplete(() => _getList());
+  // Future<void> _getSdkVersion() async {
+  //   final sdkVesion = await plugin.sdkVersion;
+  //   setState(() {
+  //     _sdkVersion = sdkVesion;
+  //   });
+  // }
+
+  _openBills(context, view) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => view),
+    );
+    // Navigator.pushReplacement(context, MaterialPageRoute(
+    //   builder: (context) {
+    //     return view;
+    //   },
+    // )); //.whenComplete(() => _getList());
   }
 
   _setAllFalse() {
@@ -265,51 +383,73 @@ class _LandingPageState extends State<LandingPage> {
     });
   }
 
-  Widget _buildUserInfo(BuildContext context, FacebookUserProfile profile,
-      FacebookAccessToken accessToken, String? email) {
-    final avatarUrl = _imageUrl;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (avatarUrl != null)
-          Center(
-            child: Image.network(avatarUrl),
-          ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const Text('User: '),
-            Text(
-              '${profile.firstName} ${profile.lastName}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const Text('AccessToken: '),
-        Text(
-          accessToken.token,
-          softWrap: true,
-        ),
-        if (email != null) Text('Email: $email'),
-      ],
-    );
-  }
+  // Widget _buildUserInfo(BuildContext context, FacebookUserProfile profile,
+  //     FacebookAccessToken accessToken, String? email) {
+  //   final avatarUrl = _imageUrl;
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       if (avatarUrl != null)
+  //         Center(
+  //           child: Image.network(avatarUrl),
+  //         ),
+  //       Row(
+  //         crossAxisAlignment: CrossAxisAlignment.center,
+  //         children: <Widget>[
+  //           const Text('User: '),
+  //           Text(
+  //             '${profile.firstName} ${profile.lastName}',
+  //             style: const TextStyle(fontWeight: FontWeight.bold),
+  //           ),
+  //         ],
+  //       ),
+  //       const Text('AccessToken: '),
+  //       Text(
+  //         accessToken.token,
+  //         softWrap: true,
+  //       ),
+  //       if (email != null) Text('Email: $email'),
+  //     ],
+  //   );
+  // }
 
-  Future<void> addUser() {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
+  Future<void> addUser() async {
+    String msg = '';
+//     DatabaseReference mDatabase =
+//         FirebaseDatabase.instance.reference().child('users');
 
-    String fullName = 'John Wick';
-    String company = 'Hired Killer';
-    int age = 42;
+// // ignore: unnecessary_null_comparison
+//     if (mDatabase == null) {
+//       await mDatabase
+//           .set(_userProfile.id, {
+//             'age': 26,
+//             'company': 'eLGU Navotas',
+//             'email': "raffmartinez14@gmail.com",
+//             'full_name': "Raff Julius O. Martinez",
+//             'mobile number': "+639352525219",
+//             'mpin': "120568",
+//           })
+//           .then((value) => {msg = "User Added"})
+//           .catchError((error) => {msg = "Failed to add user: $error"});
+//     } else {}
 
-    return users
-        .add({
-          'full_name': fullName, // John Doe
-          'company': company, // Stokes and Sons
-          'age': age // 42
+    var doc = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userProfile.id.toString());
+    doc
+        .update({
+          'age': 26,
+          'company': 'eLGU Navotas',
+          'email': "raffmartinez14@gmail.com",
+          'full_name': "Raff Julius O. Martinez",
+          'mobile number': "+639352525219",
+          'mpin': "120568",
+          'display_name': "+639352525219",
         })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
+        .then((value) => {msg = "User Added"})
+        .catchError((error) => {msg = "Failed to add user: $error"});
+
+    Fluttertoast.showToast(msg: msg);
   }
 
   //Future<void> getUsers() {}

@@ -8,9 +8,11 @@ import 'package:bills/helpers/extensions/format_extension.dart';
 import 'components/bottom_navigation.dart';
 
 class ListViewPage extends StatefulWidget {
-  ListViewPage({required this.title, required this.color});
+  ListViewPage(
+      {required this.title, required this.quantification, required this.color});
 
   final String title;
+  final String quantification;
   final Color color;
 
   @override
@@ -28,17 +30,20 @@ class _ListViewPage extends State<ListViewPage> {
   void initState() {
     super.initState();
     fToast.init(context);
-    _getlist();
 
     setState(() {
       _collectionName = widget.title.toLowerCase();
-      _quantification = _collectionName == 'electricity' ? 'kwh' : 'cu.m';
+      _quantification = widget
+          .quantification; //_collectionName == 'electricity' ? 'kwh' : 'cu.m';
     });
+
+    _getlist();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: widget.color,
@@ -111,8 +116,9 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   _addRecord(data, title) async {
-    if ((await showAddRecord(context, data, title, widget.color)) ?? false)
-      _getlist();
+    if ((await showAddRecord(
+            context, data, _quantification, title, widget.color)) ??
+        false) _getlist();
   }
 
   Future _getlist() async {
