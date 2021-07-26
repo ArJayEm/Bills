@@ -194,37 +194,46 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
   _signUp() async {
     setState(() => _showLoading = true);
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: emailController.text, password: emailPassController.text);
+    if (emailPassController.text == emailConfirmPassController.text) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: emailController.text,
+                password: emailPassController.text);
 
-      setState(() {
-        _userProfile.id = userCredential.user!.uid;
-        _userProfile.displayName = userCredential.user!.email ?? '';
-        _userProfile.email = userCredential.user!.email ?? '';
-      });
-      FocusManager.instance.primaryFocus?.unfocus();
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => MpinSignInPage(userProfile: _userProfile)));
-    } on FirebaseAuthException catch (e) {
-      late String msg;
+        setState(() {
+          _userProfile.id = userCredential.user!.uid;
+          _userProfile.displayName = userCredential.user!.email ?? '';
+          _userProfile.email = userCredential.user!.email ?? '';
+        });
+        FocusManager.instance.primaryFocus?.unfocus();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    MpinSignInPage(userProfile: _userProfile)));
+      } on FirebaseAuthException catch (e) {
+        late String msg;
 
-      if (e.code == 'weak-password') {
-        msg = 'The password provided is too weak.';
-        FocusScope.of(context).requestFocus(_passwordFocusNode);
-      } else if (e.code == 'email-already-in-use') {
-        msg = 'The account already exists for that email.';
-        FocusScope.of(context).requestFocus(_emailFocusNode);
-      } else if (e.code == "unknown") {
-        msg = e.message.toString();
-        FocusScope.of(context).requestFocus(_confirmPassFocusNode);
+        if (e.code == 'weak-password') {
+          msg = 'The password provided is too weak.';
+          FocusScope.of(context).requestFocus(_passwordFocusNode);
+        } else if (e.code == 'email-already-in-use') {
+          msg = 'The account already exists for that email.';
+          FocusScope.of(context).requestFocus(_emailFocusNode);
+        } else if (e.code == "unknown") {
+          msg = e.message.toString();
+          FocusScope.of(context).requestFocus(_confirmPassFocusNode);
+        }
+        setState(() => _showLoading = false);
+        Fluttertoast.showToast(msg: msg);
+      } catch (e) {
+        setState(() => _showLoading = false);
+        Fluttertoast.showToast(msg: e.toString());
       }
-      Fluttertoast.showToast(msg: msg);
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+    } else {
+      setState(() => _showLoading = false);
+      Fluttertoast.showToast(msg: "Passwords don't match.");
     }
   }
 
