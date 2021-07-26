@@ -117,9 +117,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        await FirebaseAuth.instance.signOut();
                         _googleSignIn.disconnect();
-
+                        await FirebaseAuth.instance.signOut();
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -2,6 +2,7 @@ import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/mpin/mpin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInPage extends StatefulWidget {
@@ -25,7 +26,7 @@ enum EmailVerificationState { SHOW_SIGN_IN_STATE, SHOW_SIGN_UP_STATE }
 class _GoogleSignInPageState extends State<GoogleSignInPage> {
   EmailVerificationState emailState = EmailVerificationState.SHOW_SIGN_IN_STATE;
 
-  late final UserProfile _userProfile;
+  UserProfile _userProfile = UserProfile();
 
   @override
   void initState() {
@@ -41,18 +42,25 @@ class _GoogleSignInPageState extends State<GoogleSignInPage> {
   Future<void> _handleSignIn() async {
     try {
       GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-      setState(() {
-          _userProfile.id = googleSignInAccount!.id;
-          _userProfile.displayName = googleSignInAccount.displayName ?? googleSignInAccount.email;
-          _userProfile.photoUrl = googleSignInAccount.photoUrl;
-      });
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => MpinSignInPage(userProfile: _userProfile)));
+      if (googleSignInAccount != null) {
+        setState(() {
+          _userProfile.id = googleSignInAccount.id;
+          _userProfile.displayName =
+              googleSignInAccount.displayName ?? googleSignInAccount.email;
+          _userProfile.photoUrl = googleSignInAccount.photoUrl;
+        });
+
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    MpinSignInPage(userProfile: _userProfile)));
+      } else {
+        Fluttertoast.showToast(msg: "Invalid user!");
+      }
     } catch (error) {
-      print(error);
+      Fluttertoast.showToast(msg: error.toString());
     }
   }
 

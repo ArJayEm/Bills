@@ -7,9 +7,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'about_page.dart';
 import 'listview_page.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  // Optional clientId
+  // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
+  scopes: <String>[
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ],
+);
 
 class LandingPage extends StatefulWidget {
   static const String route = '/';
@@ -171,6 +181,7 @@ class _LandingPageState extends State<LandingPage> {
                                       .collection('users')
                                       .doc(_userProfile.id)
                                       .update({'logged_in': false});
+                                  _googleSignIn.signOut();
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
