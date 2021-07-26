@@ -29,7 +29,7 @@ class MpinSignInPage extends StatefulWidget {
 }
 
 class _MpinSignInPageState extends State<MpinSignInPage> {
-  late UserProfile _userProfile;
+  UserProfile _userProfile = UserProfile();
 
   List _mpinButtons = [
     '1',
@@ -75,12 +75,12 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scaffold(
       key: _scaffoldKey,
-      child: Scaffold(
-        body: Container(
-          color: Color.fromARGB(255, 2, 125, 253),
-          padding: EdgeInsets.all(20),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(10),
+          physics: BouncingScrollPhysics(),
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : getEnterMpinWidget(),
@@ -91,15 +91,15 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
   Widget getEnterMpinWidget() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      //mainAxisAlignment: MainAxisAlignment.center,
+      //crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [
             Spacer(),
             Text(
               '${_userProfile.displayName}',
-              textAlign: TextAlign.right,
+              //textAlign: TextAlign.right,
               style: TextStyle(fontSize: 15, color: Colors.white70),
             ),
             Spacer(),
@@ -143,28 +143,29 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
         ),
         SizedBox(height: 20),
         Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _mPinControllerLen1 || _mPinController.text.length >= 1
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-              _mPinControllerLen2 || _mPinController.text.length >= 2
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-              _mPinControllerLen3 || _mPinController.text.length >= 3
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-              _mPinControllerLen4 || _mPinController.text.length >= 4
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-              _mPinControllerLen5 || _mPinController.text.length >= 5
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-              _mPinControllerLen6 || _mPinController.text.length >= 6
-                  ? Icon(Icons.circle, color: Colors.white, size: 15)
-                  : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
-            ]),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _mPinControllerLen1 || _mPinController.text.length >= 1
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+            _mPinControllerLen2 || _mPinController.text.length >= 2
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+            _mPinControllerLen3 || _mPinController.text.length >= 3
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+            _mPinControllerLen4 || _mPinController.text.length >= 4
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+            _mPinControllerLen5 || _mPinController.text.length >= 5
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+            _mPinControllerLen6 || _mPinController.text.length >= 6
+                ? Icon(Icons.circle, color: Colors.white, size: 15)
+                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+          ],
+        ),
         SizedBox(height: 20),
         Center(child: Text('Enter your MPIN')),
         SizedBox(height: 20),
@@ -238,7 +239,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                         : SizedBox()
                     : SizedBox();
           },
-        ),
+        )
       ],
     );
   }
@@ -294,16 +295,22 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
     });
     String msg = '';
     bool hasMpin = false;
-    UserProfile userProfile = UserProfile();
 
     _document.get().then((snapshot) {
       if (snapshot.exists) {
         _document.update({'logged_in': false});
         hasMpin = snapshot.get('mpin').toString().isNotEmpty;
-        userProfile = UserProfile(
-            id: snapshot.id,
-            displayName: snapshot.get('display_name'),
-            loggedIn: snapshot.get('logged_in'));
+
+        setState(() {
+          _userProfile.id = snapshot.id;
+          _userProfile.displayName = snapshot.get('display_name');
+          _userProfile.loggedIn = snapshot.get('logged_in');
+        });
+
+        //   userProfile = UserProfile(
+        //       id: snapshot.id,
+        //       displayName: snapshot.get('display_name'),
+        //       loggedIn: snapshot.get('logged_in'));
       } else {
         _document.set(
             {'display_name': _userProfile.displayName, 'logged_in': false});
@@ -334,9 +341,9 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
         }
       }
     }).whenComplete(() {
-      setState(() {
-        _userProfile = userProfile;
-      });
+      // setState(() {
+      //   _userProfile = userProfile;
+      // });
 
       if (hasMpin) {
         setState(() {

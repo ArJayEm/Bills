@@ -1,4 +1,5 @@
 import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/sign_in_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,9 +17,10 @@ enum EmailVerificationState { SHOW_SIGN_IN_STATE, SHOW_SIGN_UP_STATE }
 
 class _EmailSignInPageState extends State<EmailSignInPage> {
   EmailVerificationState emailState = EmailVerificationState.SHOW_SIGN_IN_STATE;
-  bool _showLoading = false;
 
-  late final UserProfile _userProfile;
+  UserProfile _userProfile = UserProfile();
+
+  bool _showLoading = false;
 
   final emailController = TextEditingController();
   final emailPassController = TextEditingController();
@@ -27,7 +29,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmPassFocusNode = FocusNode();
-  
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
@@ -61,7 +63,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           children: [Icon(Icons.chevron_left), Text('Back')],
         ),
         onPressed: () {
-          //Go back sign_in_page.dart
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SignInPage()));
         },
       ),
       SizedBox(),
@@ -134,7 +137,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       TextButton(
         child: Row(children: [Icon(Icons.chevron_left), Text('Back')]),
         onPressed: () {
-          //Go back sign_in_page.dart
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SignInPage()));
         },
       ),
       SizedBox(),
@@ -195,14 +199,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           .createUserWithEmailAndPassword(
               email: emailController.text, password: emailPassController.text);
 
-      //send otp
-      //verify otp
-
-      _userProfile = UserProfile(
-          id: userCredential.user!.uid,
-          displayName: userCredential.user!.email ?? '',
-          email: userCredential.user!.email ?? '');
-
+      setState(() {
+        _userProfile.id = userCredential.user!.uid;
+        _userProfile.displayName = userCredential.user!.email ?? '';
+        _userProfile.email = userCredential.user!.email ?? '';
+      });
+      FocusManager.instance.primaryFocus?.unfocus();
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -234,19 +236,21 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           .signInWithEmailAndPassword(
               email: emailController.text, password: emailPassController.text);
 
-      _userProfile = UserProfile(
-          id: userCredential.user!.uid,
-          displayName: userCredential.user!.email ?? '',
-          email: userCredential.user!.email ?? '');
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => MpinSignInPage(userProfile: _userProfile)));
+      if (userCredential.user != null) {
+        setState(() {
+          _userProfile.id = userCredential.user!.uid;
+          _userProfile.displayName = userCredential.user!.email ?? '';
+          _userProfile.email = userCredential.user!.email ?? '';
+          _showLoading = false;
+        });
+        FocusManager.instance.primaryFocus?.unfocus();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    MpinSignInPage(userProfile: _userProfile)));
+      }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _showLoading = false;
-      });
       late String msg;
       FocusScope.of(context).requestFocus(_passwordFocusNode);
 
@@ -262,6 +266,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       }
 
       Fluttertoast.showToast(msg: msg);
+      setState(() {
+        _showLoading = false;
+      });
     }
   }
 }

@@ -17,7 +17,7 @@ class ReenterMpin extends StatefulWidget {
 }
 
 class _ReenterMpinState extends State<ReenterMpin> {
-  UserProfile? _userProfile;
+  UserProfile _userProfile = UserProfile();
   late DocumentReference _document;
   late String _nominatedPin;
   bool _isLoading = false;
@@ -45,7 +45,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
     setState(() {
       _userProfile = widget.userProfile;
       _document =
-          FirebaseFirestore.instance.collection('users').doc(_userProfile!.id);
+          FirebaseFirestore.instance.collection('users').doc(_userProfile.id);
       _nominatedPin = widget.nominatedPin;
     });
   }
@@ -76,7 +76,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    EnterMpin(userProfile: _userProfile!)));
+                                    EnterMpin(userProfile: _userProfile)));
                       },
                     ),
                     SizedBox(height: 10),
@@ -324,11 +324,15 @@ class _ReenterMpinState extends State<ReenterMpin> {
       Fluttertoast.showToast(msg: 'Pins match!');
       _document
           .update({'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    LandingPage(userProfile: widget.userProfile)));
+        if (widget.userProfile.id != null) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      LandingPage(userProfile: widget.userProfile)));
+        } else {
+          Fluttertoast.showToast(msg: "Invalid user!");
+        }
       });
     } else {
       setState(() {

@@ -23,7 +23,7 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  late UserProfile _userProfile;
+  UserProfile _userProfile = UserProfile();
 
   num _curentAmount = 0;
   //int _selectedIndex = 0;

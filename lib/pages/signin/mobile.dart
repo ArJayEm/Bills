@@ -27,7 +27,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
   String? _verificationId;
 
-  late final UserProfile _userProfile;
+  UserProfile _userProfile = UserProfile();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -221,18 +221,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       final authCredential =
           await _auth.signInWithCredential(phoneAuthCredential);
 
-      setState(() {
-        _showLoading = false;
-      });
-
       if (authCredential.user != null) {
         setState(() {
-          _userProfile = UserProfile(
-              id: authCredential.user!.uid,
-              displayName: authCredential.user!.phoneNumber ??
-                  authCredential.user!.displayName ??
-                  '',
-              phoneNumber: authCredential.user!.phoneNumber);
+          _userProfile.id = authCredential.user!.uid;
+          _userProfile.displayName = authCredential.user!.phoneNumber ??
+              authCredential.user!.displayName ??
+              '';
+          _userProfile.phoneNumber = authCredential.user!.phoneNumber;
+          _showLoading = false;
         });
         Navigator.push(
             context,

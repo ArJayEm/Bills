@@ -42,11 +42,9 @@ class _GoogleSignInPageState extends State<GoogleSignInPage> {
     try {
       GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       setState(() {
-        _userProfile = UserProfile(
-            id: googleSignInAccount!.id,
-            displayName:
-                googleSignInAccount.displayName ?? googleSignInAccount.email,
-            photoUrl: googleSignInAccount.photoUrl);
+          _userProfile.id = googleSignInAccount!.id;
+          _userProfile.displayName = googleSignInAccount.displayName ?? googleSignInAccount.email;
+          _userProfile.photoUrl = googleSignInAccount.photoUrl;
       });
 
       Navigator.push(

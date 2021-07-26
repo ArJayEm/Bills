@@ -107,6 +107,9 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: new ThemeData(
+          //scaffoldBackgroundColor: Color.fromARGB(255, 2, 125, 253),
+          ),
       home:
           _isLoading ? Center(child: CircularProgressIndicator()) : _getPage(),
     );
@@ -134,26 +137,25 @@ class _InitializerWidgetState extends State<InitializerWidget> {
         currentUser = account;
       }).onDone(() {
         if (currentUser != null) {
-          userProfile = UserProfile(
-              id: currentUser!.id,
-              displayName: _handleGetContact(currentUser!).toString());
+          userProfile.id = currentUser!.id;
+          userProfile.displayName = _handleGetContact(currentUser!).toString();
+          // userProfile = UserProfile(
+          //     id: currentUser!.id,
+          //     displayName: _handleGetContact(currentUser!).toString());
 
           _document = FirebaseFirestore.instance
               .collection('users')
               .doc(userProfile.id);
 
-          // if (_auth.currentUser == null) {
-          //   _document.update({'logged_in': false});
-          // } else {
-          //   _document.update({'logged_in': true});
-          // }
-
           _document.get().then((snapshot) {
             if (snapshot.exists) {
-              userProfile = UserProfile(
-                  id: snapshot.id,
-                  displayName: snapshot.get('display_name'),
-                  loggedIn: snapshot.get('logged_in'));
+              userProfile.id = snapshot.id;
+              userProfile.displayName = snapshot.get('display_name');
+              userProfile.loggedIn = snapshot.get('logged_in');
+              // userProfile = UserProfile(
+              //     id: snapshot.id,
+              //     displayName: snapshot.get('display_name'),
+              //     loggedIn: snapshot.get('logged_in'));
             }
           }).whenComplete(() {
             setState(() {
