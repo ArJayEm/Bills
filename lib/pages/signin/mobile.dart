@@ -116,8 +116,8 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               minimumSize: Size(double.infinity, 40),
               primary: Colors.white,
               backgroundColor: _sendOtpEnabled
-                  ? Color.fromARGB(255, 242, 163, 38)
-                  : Color.fromARGB(150, 242, 163, 38)),
+                  ? Colors.grey.shade500
+                  : Colors.grey.shade800),
           onPressed: () {
             if (_sendOtpEnabled) {
               _sendOTP();
@@ -173,8 +173,8 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               minimumSize: Size(double.infinity, 40),
               primary: Colors.white,
               backgroundColor: _sendOtpEnabled
-                  ? Color.fromARGB(255, 242, 163, 38)
-                  : Color.fromARGB(150, 242, 163, 38)),
+                  ? Colors.grey.shade500
+                  : Colors.grey.shade800),
           onPressed: () {
             if (_sendOtpEnabled) {
               _verifyOTP();

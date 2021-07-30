@@ -23,6 +23,7 @@ class CustomIconButton extends StatelessWidget {
         child: Container(
           height: 50,
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
             color: color,
           ),
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),

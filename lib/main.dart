@@ -1,18 +1,14 @@
-import 'dart:convert' show json;
-
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/mpin/mpin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import "package:http/http.dart" as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:bills/pages/signin/home.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, MPIN }
 
@@ -59,14 +55,14 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           centerTitle: true,
           brightness: Brightness.dark,
-          color: Color.fromARGB(255, 255, 158, 0),
+          color: Colors.grey.shade800,
         ),
         brightness: Brightness.dark,
-        primaryColor: Color.fromARGB(255, 242, 163, 38),
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
-          headline6: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        primaryColor: Colors.grey.shade300,
+        // textTheme: TextTheme(
+        //   headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
+        //   headline6: TextStyle(fontWeight: FontWeight.bold),
+        // ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: InitializerWidget(),
@@ -206,45 +202,45 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   //   setState(() => _isLoading = false);
   // }
 
-  Future<String> _handleGetContact(GoogleSignInAccount user) async {
-    String? _contactText;
-    _contactText = "Loading contact info...";
-    final http.Response response = await http.get(
-      Uri.parse('https://people.googleapis.com/v1/people/me/connections'
-          '?requestMask.includeField=person.names'),
-      headers: await user.authHeaders,
-    );
-    if (response.statusCode != 200) {
-      _contactText = "People API gave a ${response.statusCode} "
-          "response. Check logs for details.";
-      print('People API ${response.statusCode} response: ${response.body}');
-    }
-    final Map<String, dynamic> data = json.decode(response.body);
-    final String? namedContact = _pickFirstNamedContact(data);
-    if (namedContact != null) {
-      _contactText = "I see you know $namedContact!";
-    } else {
-      _contactText = "No contacts to display.";
-    }
+  // Future<String> _handleGetContact(GoogleSignInAccount user) async {
+  //   String? _contactText;
+  //   _contactText = "Loading contact info...";
+  //   final http.Response response = await http.get(
+  //     Uri.parse('https://people.googleapis.com/v1/people/me/connections'
+  //         '?requestMask.includeField=person.names'),
+  //     headers: await user.authHeaders,
+  //   );
+  //   if (response.statusCode != 200) {
+  //     _contactText = "People API gave a ${response.statusCode} "
+  //         "response. Check logs for details.";
+  //     print('People API ${response.statusCode} response: ${response.body}');
+  //   }
+  //   final Map<String, dynamic> data = json.decode(response.body);
+  //   final String? namedContact = _pickFirstNamedContact(data);
+  //   if (namedContact != null) {
+  //     _contactText = "I see you know $namedContact!";
+  //   } else {
+  //     _contactText = "No contacts to display.";
+  //   }
 
-    return _contactText;
-  }
+  //   return _contactText;
+  // }
 
-  String? _pickFirstNamedContact(Map<String, dynamic> data) {
-    final List<dynamic>? connections = data['connections'];
-    final Map<String, dynamic>? contact = connections?.firstWhere(
-      (dynamic contact) => contact['names'] != null,
-      orElse: () => null,
-    );
-    if (contact != null) {
-      final Map<String, dynamic>? name = contact['names'].firstWhere(
-        (dynamic name) => name['displayName'] != null,
-        orElse: () => null,
-      );
-      if (name != null) {
-        return name['displayName'];
-      }
-    }
-    return null;
-  }
+  // String? _pickFirstNamedContact(Map<String, dynamic> data) {
+  //   final List<dynamic>? connections = data['connections'];
+  //   final Map<String, dynamic>? contact = connections?.firstWhere(
+  //     (dynamic contact) => contact['names'] != null,
+  //     orElse: () => null,
+  //   );
+  //   if (contact != null) {
+  //     final Map<String, dynamic>? name = contact['names'].firstWhere(
+  //       (dynamic name) => name['displayName'] != null,
+  //       orElse: () => null,
+  //     );
+  //     if (name != null) {
+  //       return name['displayName'];
+  //     }
+  //   }
+  //   return null;
+  // }
 }

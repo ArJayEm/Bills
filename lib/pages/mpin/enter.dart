@@ -46,7 +46,7 @@ class _EnterMpinState extends State<EnterMpin> {
       key: _scaffoldKey,
       child: Scaffold(
         body: Container(
-          color: Color.fromARGB(255, 2, 125, 253),
+          color: Colors.grey.shade800,
           padding: EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

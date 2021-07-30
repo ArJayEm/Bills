@@ -59,11 +59,17 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext ctxt) {
-    return SafeArea(
+    return Scaffold(
       key: _scaffoldKey,
-      child: Scaffold(
-        body: Container(
-          color: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.grey.shade800,
+        elevation: 0,
+        //toolbarHeight: 0,
+      ),
+      body: SafeArea(
+        child: Container(
+          color: Colors.grey.shade800,
           padding: EdgeInsets.all(20),
           alignment: Alignment.center,
           child: _isLoading
@@ -82,7 +88,7 @@ class _SignInPageState extends State<SignInPage> {
               style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black)),
+                  color: Colors.white)),
         ),
         SizedBox(height: 20),
         CustomIconButton(
