@@ -1,18 +1,20 @@
-import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/mpin/reenter.dart';
-import 'package:bills/pages/sign_in_page.dart';
+import 'package:bills/pages/signin/home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class EnterMpin extends StatefulWidget {
-  EnterMpin({Key? key, required this.userProfile}) : super(key: key);
+  EnterMpin({Key? key, required this.auth}) : super(key: key);
 
-  final UserProfile userProfile;
+  final FirebaseAuth auth;
 
   @override
   _EnterMpinState createState() => _EnterMpinState();
 }
 
 class _EnterMpinState extends State<EnterMpin> {
+  late FirebaseAuth _auth;
+
   final _pinControllerFull = TextEditingController();
   final _pinController1 = TextEditingController();
   final _pinController2 = TextEditingController();
@@ -34,6 +36,7 @@ class _EnterMpinState extends State<EnterMpin> {
   void initState() {
     super.initState();
     setState(() {
+      _auth = widget.auth;
     });
   }
 
@@ -57,8 +60,11 @@ class _EnterMpinState extends State<EnterMpin> {
                   ],
                 ),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SignInPage()));
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SignInPage(auth: _auth)));
                 },
               ),
               SizedBox(height: 10),
@@ -75,10 +81,13 @@ class _EnterMpinState extends State<EnterMpin> {
                       obscureText: true,
                       controller: _pinController1,
                       focusNode: _pinFocusNode1,
-                      //autofocus: _pinController1.text.length == 0,
+                      autofocus: _pinControllerFull.text.length == 0,
                       style: TextStyle(fontSize: 25),
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
+                      // onTap: () {
+                      //   FocusScope.of(context).requestFocus(_pinFocusNode1);
+                      // },
                       onChanged: (value) {
                         if (value.length == 0) {
                           _pinController1.text = "";
@@ -91,11 +100,45 @@ class _EnterMpinState extends State<EnterMpin> {
                               '${_pinControllerFull.text}$value';
                           FocusScope.of(context).requestFocus(_pinFocusNode2);
                         } else {
-                          String overValue = value.substring(1, 2);
-                          value = value.substring(0, 1);
-                          _pinController1.text = value;
-                          _pinController2.text = overValue;
-                          FocusScope.of(context).requestFocus(_pinFocusNode3);
+                          // String overValue = value.substring(1, 2);
+                          // value = value.substring(0, 1);
+                          // _pinController1.text = value;
+                          // _pinController2.text = overValue;
+                          // FocusScope.of(context).requestFocus(_pinFocusNode3);
+
+                          var splittedPin = value.split("");
+                          for (var i = 0; i < splittedPin.length; i++) {
+                            if (i == 0) {
+                              _pinController1.text = splittedPin[i];
+                              FocusScope.of(context)
+                                  .requestFocus(_pinFocusNode2);
+                            }
+                            if (i == 1) {
+                              _pinController2.text = splittedPin[i];
+                              FocusScope.of(context)
+                                  .requestFocus(_pinFocusNode3);
+                            }
+                            if (i == 2) {
+                              _pinController3.text = splittedPin[i];
+                              FocusScope.of(context)
+                                  .requestFocus(_pinFocusNode4);
+                            }
+                            if (i == 3) {
+                              _pinController4.text = splittedPin[i];
+                              FocusScope.of(context)
+                                  .requestFocus(_pinFocusNode5);
+                            }
+                            if (i == 4) {
+                              _pinController5.text = splittedPin[i];
+                              FocusScope.of(context)
+                                  .requestFocus(_pinFocusNode6);
+                            }
+                            if (i == 5) {
+                              _pinController6.text = splittedPin[i];
+                              _pinControllerFull.text = splittedPin.join();
+                              _reEnter();
+                            }
+                          }
                         }
                         print('nom pin: ${_pinControllerFull.text}');
                       },
@@ -255,10 +298,12 @@ class _EnterMpinState extends State<EnterMpin> {
                           _pinControllerFull.text =
                               '${_pinControllerFull.text}$value';
                           FocusScope.of(context).unfocus();
+                          _reEnter();
                         } else {
                           value = value.substring(0, 1);
                           _pinController6.text = value;
                           FocusScope.of(context).unfocus();
+                          _reEnter();
                         }
                         print('nom pin: ${_pinControllerFull.text}');
                       },
@@ -267,27 +312,32 @@ class _EnterMpinState extends State<EnterMpin> {
                   Spacer(),
                 ],
               ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReenterMpin(
-                          nominatedPin: _pinControllerFull.text,
-                          userProfile: widget.userProfile),
-                    ),
-                  );
-                },
-                child: Text('Next'),
-                style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 40),
-                    textStyle: TextStyle(color: Colors.white)),
-              ),
+              // SizedBox(height: 30),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     _reEnter();
+              //   },
+              //   child: Text('Next'),
+              //   style: ElevatedButton.styleFrom(
+              //       minimumSize: Size(double.infinity, 40),
+              //       textStyle: TextStyle(color: Colors.white)),
+              // ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  _reEnter() {
+    if (_pinControllerFull.text.length == 6) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              ReenterMpin(auth: _auth, nominatedPin: _pinControllerFull.text),
+        ),
+      );
+    }
   }
 }

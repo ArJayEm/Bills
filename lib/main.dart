@@ -1,25 +1,18 @@
 import 'dart:convert' show json;
 
+import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/mpin/mpin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import "package:http/http.dart" as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/sign_in_page.dart';
+import 'package:bills/pages/signin/home.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-GoogleSignIn _googleSignIn = GoogleSignIn(
-  // Optional clientId
-  // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
-  scopes: <String>[
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ],
-);
 
 enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, MPIN }
 
@@ -70,16 +63,12 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.dark,
         primaryColor: Color.fromARGB(255, 242, 163, 38),
-        // ignore: deprecated_member_use
-        accentColor: Color.fromARGB(255, 255, 158, 0),
         textTheme: TextTheme(
           headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
           headline6: TextStyle(fontWeight: FontWeight.bold),
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //home: LandingPage(title: 'Bills')
-      //home: SignInPage(),
       home: InitializerWidget(),
     );
   }
@@ -91,86 +80,131 @@ class InitializerWidget extends StatefulWidget {
 }
 
 class _InitializerWidgetState extends State<InitializerWidget> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  late User _currentUser;
   UserProfile _userProfile = UserProfile();
 
-  late DocumentReference _document;
+  CollectionReference _collection =
+      FirebaseFirestore.instance.collection('users');
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentUser(); //.whenComplete(() {});
+    // setState(() {
+    //   _currentUser = _auth.currentUser;
+    // });
+    _getCurrentUser();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-          //scaffoldBackgroundColor: Color.fromARGB(255, 2, 125, 253),
-          ),
-      home:
-          _isLoading ? Center(child: CircularProgressIndicator()) : _getPage(),
+      home: _getPage(),
     );
   }
 
   Widget _getPage() {
-    if (_userProfile.loggedIn == true) {
-      return MpinSignInPage(userProfile: _userProfile);
-    } else {
-      return SignInPage();
-    }
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : SignInPage(auth: _auth);
   }
 
-  Future<void> _getCurrentUser() async {
-    setState(() {
-      _isLoading = true;
-    });
+  _getCurrentUser() async {
+    setState(() => _isLoading = true);
+    String msg = '';
 
-    FirebaseAuth _auth = FirebaseAuth.instance;
-    UserProfile userProfile = UserProfile();
-    GoogleSignInAccount? currentUser;
-
-    if (_auth.currentUser == null) {
-      _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-        currentUser = account;
-      }).onDone(() {
-        if (currentUser != null) {
-          userProfile.id = currentUser!.id;
-          userProfile.displayName = _handleGetContact(currentUser!).toString();
-          // userProfile = UserProfile(
-          //     id: currentUser!.id,
-          //     displayName: _handleGetContact(currentUser!).toString());
-
-          _document = FirebaseFirestore.instance
-              .collection('users')
-              .doc(userProfile.id);
-
-          _document.get().then((snapshot) {
-            if (snapshot.exists) {
-              userProfile.id = snapshot.id;
-              userProfile.displayName = snapshot.get('display_name');
-              userProfile.loggedIn = snapshot.get('logged_in');
-              // userProfile = UserProfile(
-              //     id: snapshot.id,
-              //     displayName: snapshot.get('display_name'),
-              //     loggedIn: snapshot.get('logged_in'));
-            }
-          }).whenComplete(() {
-            setState(() {
-              _userProfile = userProfile;
-            });
-          });
-        }
+    if (_auth.currentUser != null) {
+      setState(() {
+        _currentUser = _auth.currentUser!;
       });
-      _googleSignIn.signInSilently();
+      try {
+        DocumentReference _document = _collection.doc(_currentUser.uid);
+        UserProfile userProfile = UserProfile();
+
+        _document.get().then((snapshot) {
+          if (snapshot.exists) {
+            userProfile.id = snapshot.id;
+            userProfile.displayName = snapshot.get('display_name');
+            userProfile.loggedIn = snapshot.get('logged_in');
+          }
+        }).whenComplete(() {
+          setState(() {
+            _userProfile = userProfile;
+          });
+          if (_userProfile.loggedIn == true) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LandingPage(auth: _auth),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MpinSignInPage(
+                    auth: _auth,
+                    displayName: _userProfile.displayName ??
+                        userProfile.displayName ??
+                        'User'),
+              ),
+            );
+          }
+        });
+      } on FirebaseAuthException catch (e) {
+        setState(() => _isLoading = false);
+        msg = '${e.message}';
+      } catch (error) {
+        setState(() => _isLoading = false);
+        msg = error.toString();
+      }
+    } else {
+      setState(() => _isLoading = false);
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (msg.length > 0) {
+      print('error: $msg');
+      Fluttertoast.showToast(msg: msg);
+    }
   }
+
+  // Future<void> _getCurrentUser() async {
+  //   setState(() => _isLoading = true);
+
+  //   if (_auth.currentUser == null) {
+  //     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+  //       setState(() => _currentUser = account);
+  //       //   if (account != null) {
+  //       //     userProfile.id = account.id;
+  //       //     userProfile.displayName = _handleGetContact(account).toString();
+  //       //     userProfile.email = account.email;
+  //       //     userProfile.photoUrl = account.photoUrl;
+  //       //   }
+  //     });
+  //     // _googleSignIn.signInSilently();
+  //     // userProfile.id = _auth.currentUser!.uid;
+  //     // userProfile.displayName = _auth.currentUser!.displayName;
+  //     //     userProfile.email = _auth.currentUser!.email;
+  //     //     userProfile.photoUrl = _auth.currentUser!.photoURL;
+  //     //     userProfile.phoneNumber = _auth.currentUser!.phoneNumber;
+  //   }
+
+  //   // DocumentReference _document =
+  //   //     _collection.doc(userProfile.id);
+  //   // _document.get().then((snapshot) {
+  //   //   if (snapshot.exists) {
+  //   //     userProfile.id = snapshot.id;
+  //   //     userProfile.displayName = snapshot.get('display_name');
+  //   //     userProfile.loggedIn = snapshot.get('logged_in');
+  //   //   }
+  //   // }).whenComplete(() {
+  //   //   setState(() => _userProfile = userProfile);
+  //   // });
+  //   setState(() => _isLoading = false);
+  // }
 
   Future<String> _handleGetContact(GoogleSignInAccount user) async {
     String? _contactText;
@@ -213,27 +247,4 @@ class _InitializerWidgetState extends State<InitializerWidget> {
     }
     return null;
   }
-
-  // Future<void> _handleSignIn() async {
-  //   try {
-  //     GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-  //     setState(() {
-  //       _userProfile = UserProfile(
-  //           id: googleSignInAccount!.id,
-  //           displayName:
-  //               googleSignInAccount.displayName ?? googleSignInAccount.email,
-  //           email: googleSignInAccount.email,
-  //           photoUrl: googleSignInAccount.photoUrl);
-  //     });
-  //     Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (context) =>
-  //                 LandingPage(title: 'Bills', user: _userProfile)));
-  //   } catch (error) {
-  //     print(error);
-  //   }
-  // }
-
-  //Future<void> _handleSignOut() => _googleSignIn.disconnect();
 }

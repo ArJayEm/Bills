@@ -1,5 +1,5 @@
-import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/sign_in_page.dart';
+import 'package:bills/pages/signin/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,7 +7,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../mpin/mpin.dart';
 
 class EmailSignInPage extends StatefulWidget {
-  EmailSignInPage({Key? key}) : super(key: key);
+  EmailSignInPage({Key? key, required this.auth}) : super(key: key);
+
+  final FirebaseAuth auth;
 
   @override
   _EmailSignInPageState createState() => _EmailSignInPageState();
@@ -16,15 +18,20 @@ class EmailSignInPage extends StatefulWidget {
 enum EmailVerificationState { SHOW_SIGN_IN_STATE, SHOW_SIGN_UP_STATE }
 
 class _EmailSignInPageState extends State<EmailSignInPage> {
-  EmailVerificationState emailState = EmailVerificationState.SHOW_SIGN_IN_STATE;
+  late FirebaseAuth _auth;
+  EmailVerificationState _emailState =
+      EmailVerificationState.SHOW_SIGN_IN_STATE;
 
-  UserProfile _userProfile = UserProfile();
+  CollectionReference _collection =
+      FirebaseFirestore.instance.collection('users');
 
-  bool _showLoading = false;
+  bool _isLoading = false;
 
   final emailController = TextEditingController();
-  final emailPassController = TextEditingController();
-  final emailConfirmPassController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  String? _email, _password, _confirmPassword;
 
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
@@ -35,6 +42,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _auth = widget.auth;
+    });
   }
 
   @override
@@ -45,10 +55,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         body: Container(
           padding: EdgeInsets.all(20),
           alignment: Alignment.center,
-          child: _showLoading
+          child: _isLoading
               ? Center(child: CircularProgressIndicator())
-              //? showAlertDialog(context)
-              : emailState == EmailVerificationState.SHOW_SIGN_IN_STATE
+              : _emailState == EmailVerificationState.SHOW_SIGN_IN_STATE
                   ? getEmailSignInPageWidget()
                   : getEmailSignUpPageWidget(),
         ),
@@ -56,30 +65,16 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     );
   }
 
-  Widget getEmailSignUpPageWidget() {
+  Widget getEmailSignInPageWidget() {
     return Column(children: [
       TextButton(
-        child: Row(
-          children: [Icon(Icons.chevron_left), Text('Back')],
-        ),
+        child: Row(children: [Icon(Icons.chevron_left), Text('Back')]),
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SignInPage()));
+          FocusManager.instance.primaryFocus?.unfocus();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SignInPage(auth: _auth)));
         },
       ),
-      SizedBox(),
-      Row(children: [
-        Text('Alreaedy have an account?'),
-        TextButton(
-          child: Text('Log In'),
-          onPressed: () {
-            setState(() {
-              emailState = EmailVerificationState.SHOW_SIGN_IN_STATE;
-            });
-          },
-        ),
-        Text('here.')
-      ]),
       SizedBox(),
       TextFormField(
         keyboardType: TextInputType.emailAddress,
@@ -91,7 +86,11 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           hintText: 'Email',
         ),
         controller: emailController,
-        onChanged: (value) {},
+        onChanged: (value) {
+          setState(() {
+            _email = value.trim();
+          });
+        },
       ),
       SizedBox(),
       TextFormField(
@@ -102,8 +101,86 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           labelText: 'Password',
           hintText: 'Password',
         ),
-        controller: emailPassController,
-        onChanged: (value) {},
+        controller: passwordController,
+        onChanged: (value) {
+          setState(() {
+            _password = value.trim();
+          });
+        },
+      ),
+      SizedBox(height: 30),
+      TextButton(
+        child: Text('Sign In', style: TextStyle(fontSize: 18)),
+        style: TextButton.styleFrom(
+          //shape: StadiumBorder(),
+          minimumSize: Size(double.infinity, 50),
+          primary: Colors.grey.shade800,
+          backgroundColor: Colors.grey.shade300,
+        ),
+        onPressed: _signIn,
+      ),
+      SizedBox(height: 10),
+      TextButton(
+        child: Text('Sign Up', style: TextStyle(fontSize: 18)),
+        style: TextButton.styleFrom(
+          //shape: StadiumBorder(),
+          minimumSize: Size(double.infinity, 50),
+          primary: Colors.grey.shade300,
+          backgroundColor: Colors.grey.shade800,
+        ),
+        onPressed: () {
+          setState(() {
+            _emailState = EmailVerificationState.SHOW_SIGN_UP_STATE;
+          });
+        },
+      ),
+    ]);
+  }
+
+  Widget getEmailSignUpPageWidget() {
+    return Column(children: [
+      TextButton(
+        child: Row(
+          children: [Icon(Icons.chevron_left), Text('Back')],
+        ),
+        onPressed: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SignInPage(auth: _auth)));
+        },
+      ),
+      SizedBox(),
+      TextFormField(
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: TextInputAction.next,
+        autofocus: true,
+        focusNode: _emailFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Email',
+          hintText: 'Email',
+        ),
+        controller: emailController,
+        onChanged: (value) {
+          setState(() {
+            _email = value.trim();
+          });
+        },
+      ),
+      SizedBox(),
+      TextFormField(
+        obscureText: true,
+        textInputAction: TextInputAction.next,
+        focusNode: _passwordFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Password',
+          hintText: 'Password',
+        ),
+        controller: passwordController,
+        onChanged: (value) {
+          setState(() {
+            _password = value.trim();
+          });
+        },
       ),
       SizedBox(),
       TextFormField(
@@ -114,107 +191,79 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           labelText: 'Confirm Password',
           hintText: 'Confirm Password',
         ),
-        controller: emailConfirmPassController,
-        onChanged: (value) {},
+        controller: confirmPasswordController,
+        onChanged: (value) {
+          setState(() {
+            _confirmPassword = value.trim();
+          });
+        },
       ),
       SizedBox(height: 30),
       TextButton(
-        child: Text('Sign Up'),
+        child: Text('Sign Up', style: TextStyle(fontSize: 18)),
         style: TextButton.styleFrom(
-            //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 50),
-            primary: Colors.white,
-            backgroundColor: Color.fromARGB(255, 242, 163, 38)),
-        onPressed: () {
-          _signUp();
-        },
+          //shape: StadiumBorder(),
+          minimumSize: Size(double.infinity, 50),
+          primary: Colors.grey.shade300,
+          backgroundColor: Colors.grey.shade800,
+        ),
+        onPressed: _signUp,
       ),
-    ]);
-  }
-
-  Widget getEmailSignInPageWidget() {
-    return Column(children: [
+      SizedBox(height: 10),
       TextButton(
-        child: Row(children: [Icon(Icons.chevron_left), Text('Back')]),
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SignInPage()));
-        },
-      ),
-      SizedBox(),
-      Row(children: [
-        Text('No account yet?'),
-        TextButton(
-          child: Text('Sign Up'),
-          onPressed: () {
-            setState(() {
-              emailState = EmailVerificationState.SHOW_SIGN_UP_STATE;
-            });
-          },
-        ),
-        Text('here.')
-      ]),
-      SizedBox(),
-      TextFormField(
-        keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
-        autofocus: true,
-        focusNode: _emailFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Email',
-          hintText: 'Email',
-        ),
-        controller: emailController,
-        onChanged: (value) {},
-      ),
-      SizedBox(),
-      TextFormField(
-        obscureText: true,
-        textInputAction: TextInputAction.next,
-        focusNode: _passwordFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Password',
-          hintText: 'Password',
-        ),
-        controller: emailPassController,
-        onChanged: (value) {},
-      ),
-      SizedBox(height: 30),
-      TextButton(
-        child: Text('Log In'),
+        child: Text('Sign In', style: TextStyle(fontSize: 18)),
         style: TextButton.styleFrom(
-            //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 40),
-            primary: Colors.white,
-            backgroundColor: Color.fromARGB(255, 242, 163, 38)),
-        onPressed: _signIn,
+          //shape: StadiumBorder(),
+          minimumSize: Size(double.infinity, 50),
+          primary: Colors.grey.shade800,
+          backgroundColor: Colors.grey.shade300,
+        ),
+        onPressed: () {
+          setState(() {
+            _emailState = EmailVerificationState.SHOW_SIGN_IN_STATE;
+          });
+        },
       ),
     ]);
   }
 
   _signUp() async {
-    setState(() => _showLoading = true);
-    if (emailPassController.text == emailConfirmPassController.text) {
+    setState(() => _isLoading = true);
+    String msg = '';
+
+    if (_password?.isNotEmpty == true && _password == _confirmPassword) {
       try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: emailController.text,
-                password: emailPassController.text);
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+                email: _email!, password: _password!);
+        late String displayName;
+        User? user = userCredential.user;
 
-        setState(() {
-          _userProfile.id = userCredential.user!.uid;
-          _userProfile.displayName = userCredential.user!.email ?? '';
-          _userProfile.email = userCredential.user!.email ?? '';
-        });
-        FocusManager.instance.primaryFocus?.unfocus();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    MpinSignInPage(userProfile: _userProfile)));
+        if (user != null) {
+          DocumentReference document = _collection.doc(user.uid);
+          displayName = user.displayName ?? user.email ?? 'User';
+
+          document.get().then((snapshot) {
+            if (!snapshot.exists) {
+              document.set({
+                'display_name': displayName,
+                'email': user.email,
+                'logged_in': false
+              }).then((value) {
+                msg = "User added";
+              }).catchError((error) {
+                msg = "Failed to add user: $error";
+              });
+            }
+          }).whenComplete(() {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        MpinSignInPage(auth: _auth, displayName: displayName)));
+          });
+        }
       } on FirebaseAuthException catch (e) {
-        late String msg;
-
         if (e.code == 'weak-password') {
           msg = 'The password provided is too weak.';
           FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -225,59 +274,64 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           msg = e.message.toString();
           FocusScope.of(context).requestFocus(_confirmPassFocusNode);
         }
-        setState(() => _showLoading = false);
-        Fluttertoast.showToast(msg: msg);
       } catch (e) {
-        setState(() => _showLoading = false);
-        Fluttertoast.showToast(msg: e.toString());
+        msg = e.toString();
       }
     } else {
-      setState(() => _showLoading = false);
-      Fluttertoast.showToast(msg: "Passwords don't match.");
+      msg = "email and password required.";
+    }
+
+    setState(() => _isLoading = false);
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
   }
 
-  void _signIn() async {
-    setState(() => _showLoading = true);
+  _signIn() async {
+    setState(() => _isLoading = true);
+    String? msg;
 
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: emailController.text, password: emailPassController.text);
+    if (_email != null && _password != null) {
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+            email: _email!, password: _password!);
+        late String displayName;
+        User? user = userCredential.user;
 
-      if (userCredential.user != null) {
-        setState(() {
-          _userProfile.id = userCredential.user!.uid;
-          _userProfile.displayName = userCredential.user!.email ?? '';
-          _userProfile.email = userCredential.user!.email ?? '';
-          _showLoading = false;
-        });
-        FocusManager.instance.primaryFocus?.unfocus();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    MpinSignInPage(userProfile: _userProfile)));
+        if (user != null) {
+          DocumentReference document = _collection.doc(user.uid);
+          document.get().then((snapshot) {
+            if (snapshot.exists) {
+              displayName = snapshot.get('display_name');
+            }
+          }).whenComplete(() {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        MpinSignInPage(auth: _auth, displayName: displayName)));
+          });
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          msg = 'User not found.';
+          FocusScope.of(context).requestFocus(_emailFocusNode);
+        } else if (e.code == 'wrong-password') {
+          msg = 'Invalid password';
+          FocusScope.of(context).requestFocus(_passwordFocusNode);
+        } else if (e.code == "unknown") {
+          msg = e.message.toString();
+        } else {
+          msg = e.message.toString();
+        }
       }
-    } on FirebaseAuthException catch (e) {
-      late String msg;
-      FocusScope.of(context).requestFocus(_passwordFocusNode);
+    } else {
+      msg = "email and password required.";
+    }
 
-      if (e.code == 'user-not-found') {
-        msg = 'User not found.';
-        FocusScope.of(context).requestFocus(_emailFocusNode);
-      } else if (e.code == 'wrong-password') {
-        msg = 'Invalid password';
-      } else if (e.code == "unknown") {
-        msg = e.message.toString();
-      } else {
-        msg = e.message.toString();
-      }
-
+    setState(() => _isLoading = false);
+    if (msg != null) {
       Fluttertoast.showToast(msg: msg);
-      setState(() {
-        _showLoading = false;
-      });
     }
   }
 }

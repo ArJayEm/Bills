@@ -1,15 +1,15 @@
-import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/landing_page.dart';
+import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/mpin/enter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ReenterMpin extends StatefulWidget {
-  ReenterMpin({Key? key, required this.nominatedPin, required this.userProfile})
+  ReenterMpin({Key? key, required this.auth, required this.nominatedPin})
       : super(key: key);
 
-  final UserProfile userProfile;
+  final FirebaseAuth auth;
   final String nominatedPin;
 
   @override
@@ -17,7 +17,8 @@ class ReenterMpin extends StatefulWidget {
 }
 
 class _ReenterMpinState extends State<ReenterMpin> {
-  UserProfile _userProfile = UserProfile();
+  late FirebaseAuth _auth;
+  late User _user;
   late DocumentReference _document;
   late String _nominatedPin;
   bool _isLoading = false;
@@ -43,10 +44,10 @@ class _ReenterMpinState extends State<ReenterMpin> {
   void initState() {
     super.initState();
     setState(() {
-      _userProfile = widget.userProfile;
-      _document =
-          FirebaseFirestore.instance.collection('users').doc(_userProfile.id);
+      _auth = widget.auth;
+      _user = _auth.currentUser!;
       _nominatedPin = widget.nominatedPin;
+      _document = FirebaseFirestore.instance.collection('users').doc(_user.uid);
     });
   }
 
@@ -75,8 +76,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    EnterMpin(userProfile: _userProfile)));
+                                builder: (context) => EnterMpin(auth: _auth)));
                       },
                     ),
                     SizedBox(height: 10),
@@ -93,7 +93,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
                             obscureText: true,
                             controller: _pinController1,
                             focusNode: _pinFocusNode1,
-                            //autofocus: _pinController1.text.length == 0,
+                            autofocus: _pinControllerFull.text.length == 0,
                             style: TextStyle(fontSize: 25),
                             textAlign: TextAlign.center,
                             keyboardType: TextInputType.number,
@@ -111,12 +111,47 @@ class _ReenterMpinState extends State<ReenterMpin> {
                                 FocusScope.of(context)
                                     .requestFocus(_pinFocusNode2);
                               } else {
-                                String overValue = value.substring(1, 2);
-                                value = value.substring(0, 1);
-                                _pinController1.text = value;
-                                _pinController2.text = overValue;
-                                FocusScope.of(context)
-                                    .requestFocus(_pinFocusNode3);
+                                // String overValue = value.substring(1, 2);
+                                // value = value.substring(0, 1);
+                                // _pinController1.text = value;
+                                // _pinController2.text = overValue;
+                                // FocusScope.of(context)
+                                //     .requestFocus(_pinFocusNode3);
+
+                                var splittedPin = value.split("");
+                                for (var i = 0; i < splittedPin.length; i++) {
+                                  if (i == 0) {
+                                    _pinController1.text = splittedPin[i];
+                                    FocusScope.of(context)
+                                        .requestFocus(_pinFocusNode2);
+                                  }
+                                  if (i == 1) {
+                                    _pinController2.text = splittedPin[i];
+                                    FocusScope.of(context)
+                                        .requestFocus(_pinFocusNode3);
+                                  }
+                                  if (i == 2) {
+                                    _pinController3.text = splittedPin[i];
+                                    FocusScope.of(context)
+                                        .requestFocus(_pinFocusNode4);
+                                  }
+                                  if (i == 3) {
+                                    _pinController4.text = splittedPin[i];
+                                    FocusScope.of(context)
+                                        .requestFocus(_pinFocusNode5);
+                                  }
+                                  if (i == 4) {
+                                    _pinController5.text = splittedPin[i];
+                                    FocusScope.of(context)
+                                        .requestFocus(_pinFocusNode6);
+                                  }
+                                  if (i == 5) {
+                                    _pinController6.text = splittedPin[i];
+                                    _pinControllerFull.text =
+                                        splittedPin.join();
+                                    _saveMpin();
+                                  }
+                                }
                               }
                               print('nom pin: ${_pinControllerFull.text}');
                             },
@@ -289,10 +324,12 @@ class _ReenterMpinState extends State<ReenterMpin> {
                                 _pinControllerFull.text =
                                     '${_pinControllerFull.text}$value';
                                 FocusScope.of(context).unfocus();
+                                _saveMpin();
                               } else {
                                 value = value.substring(0, 1);
                                 _pinController6.text = value;
                                 FocusScope.of(context).unfocus();
+                                _saveMpin();
                               }
                               print('nom pin: ${_pinControllerFull.text}');
                             },
@@ -301,14 +338,14 @@ class _ReenterMpinState extends State<ReenterMpin> {
                         Spacer(),
                       ],
                     ),
-                    SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _saveMpin,
-                      child: Text('Save'),
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: Size(double.infinity, 40),
-                          textStyle: TextStyle(color: Colors.white)),
-                    ),
+                    // SizedBox(height: 30),
+                    // ElevatedButton(
+                    //   onPressed: _saveMpin,
+                    //   child: Text('Save'),
+                    //   style: ElevatedButton.styleFrom(
+                    //       minimumSize: Size(double.infinity, 40),
+                    //       textStyle: TextStyle(color: Colors.white)),
+                    // ),
                   ],
                 ),
               ),
@@ -317,28 +354,27 @@ class _ReenterMpinState extends State<ReenterMpin> {
   }
 
   Future<void> _saveMpin() async {
-    setState(() {
-      _isLoading = true;
-    });
-    if (_nominatedPin == _pinControllerFull.text) {
-      Fluttertoast.showToast(msg: 'Pins match!');
-      _document
-          .update({'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
-        if (widget.userProfile.id != null) {
+    setState(() => _isLoading = true);
+    String msg = '';
+
+    if (_pinControllerFull.text.length == 6) {
+      if (_nominatedPin == _pinControllerFull.text) {
+        //msg = "Pins match!";
+        _document.update(
+            {'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      LandingPage(userProfile: widget.userProfile)));
-        } else {
-          Fluttertoast.showToast(msg: "Invalid user!");
-        }
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-      Fluttertoast.showToast(msg: "Pins doesn't match!");
+                  builder: (context) => LandingPage(auth: _auth)));
+        });
+      } else {
+        msg = "Pins doesn't match!";
+      }
+    }
+
+    setState(() => _isLoading = false);
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
   }
 }

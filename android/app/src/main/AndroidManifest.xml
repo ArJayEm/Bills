@@ -9,7 +9,7 @@
    <application
         android:label="Bills"
         android:requestLegacyExternalStorage="true"
-        android:icon="@mipmap/ic_bills">
+        android:icon="@mipmap/ic_bills_bg">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -45,7 +45,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-<!-- 
+
         <meta-data android:name="com.facebook.sdk.ApplicationId" 
         android:value="@string/facebook_app_id"/>
     
@@ -62,7 +62,7 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="@string/fb_login_protocol_scheme" />
         </intent-filter>
-    </activity> -->
+    </activity>
 
     </application>
 </manifest>

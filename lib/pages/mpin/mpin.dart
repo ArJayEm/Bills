@@ -1,10 +1,10 @@
-import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/landing_page.dart';
+import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/mpin/enter.dart';
-import 'package:bills/pages/sign_in_page.dart';
+import 'package:bills/pages/signin/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -20,16 +20,19 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 enum MpinVerificationState { ENTER_MPIN, NOMINATE_MPIN }
 
 class MpinSignInPage extends StatefulWidget {
-  MpinSignInPage({Key? key, required this.userProfile}) : super(key: key);
+  MpinSignInPage({Key? key, required this.auth, required this.displayName})
+      : super(key: key);
 
-  final UserProfile userProfile;
+  final FirebaseAuth auth;
+  final String displayName;
 
   @override
   _MpinSignInPageState createState() => _MpinSignInPageState();
 }
 
 class _MpinSignInPageState extends State<MpinSignInPage> {
-  UserProfile _userProfile = UserProfile();
+  late FirebaseAuth _auth;
+  late String _displayName;
 
   List _mpinButtons = [
     '1',
@@ -55,18 +58,14 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
   bool _mPinControllerLen6 = false;
   bool _showBackSpace = false;
 
-  late DocumentReference _document;
-
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
-      _userProfile = widget.userProfile;
-      _document =
-          FirebaseFirestore.instance.collection('users').doc(_userProfile.id);
+      _auth = widget.auth;
+      _displayName = widget.displayName;
     });
     _checkIfExistingUser();
   }
@@ -77,10 +76,16 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor:
+            Colors.grey.shade300, // Color.fromARGB(255, 0, 125, 253),
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(10),
-          physics: BouncingScrollPhysics(),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          color: Colors.grey.shade300, // Color.fromARGB(255, 0, 125, 253),
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : getEnterMpinWidget(),
@@ -91,16 +96,37 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
   Widget getEnterMpinWidget() {
     return Column(
-      //mainAxisAlignment: MainAxisAlignment.center,
-      //crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [
             Spacer(),
-            Text(
-              '${_userProfile.displayName}',
-              //textAlign: TextAlign.right,
-              style: TextStyle(fontSize: 15, color: Colors.white70),
+            Row(
+              children: [
+                _auth.currentUser!.photoURL.toString().length > 0
+                    ? Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.fill,
+                            image: NetworkImage(
+                              _auth.currentUser!.photoURL.toString(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(
+                        child: Image(
+                            height: 20,
+                            image: AssetImage('assets/icons/google.png'))),
+                Text(
+                  '  $_displayName',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                ),
+              ],
             ),
             Spacer(),
             TextButton(
@@ -116,15 +142,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                       child: const Text('No'),
                     ),
                     TextButton(
-                      onPressed: () async {
-                        _googleSignIn.disconnect();
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignInPage(),
-                          ),
-                        );
+                      onPressed: () {
+                        _handleSignOut();
                       },
                       child: const Text('Yes'),
                     ),
@@ -134,7 +153,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
               child: Text(
                 'Switch Account',
                 textAlign: TextAlign.left,
-                style: TextStyle(color: Colors.white, fontSize: 15),
+                style: TextStyle(color: Colors.grey.shade800, fontSize: 15),
               ),
             ),
             Spacer(),
@@ -146,27 +165,38 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _mPinControllerLen1 || _mPinController.text.length >= 1
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
             _mPinControllerLen2 || _mPinController.text.length >= 2
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
             _mPinControllerLen3 || _mPinController.text.length >= 3
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
             _mPinControllerLen4 || _mPinController.text.length >= 4
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
             _mPinControllerLen5 || _mPinController.text.length >= 5
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
             _mPinControllerLen6 || _mPinController.text.length >= 6
-                ? Icon(Icons.circle, color: Colors.white, size: 15)
-                : Icon(Icons.circle_outlined, color: Colors.white, size: 15),
+                ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
+                : Icon(Icons.circle_outlined,
+                    color: Colors.grey.shade800, size: 15),
           ],
         ),
         SizedBox(height: 20),
-        Center(child: Text('Enter your MPIN')),
+        Center(
+          child: Text(
+            'Enter your MPIN',
+            style: TextStyle(color: Colors.grey.shade800),
+          ),
+        ),
         SizedBox(height: 20),
         GridView.builder(
           padding: EdgeInsets.fromLTRB(50, 10, 50, 10),
@@ -194,7 +224,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                         _verifyMpin();
                       }
                     },
-                    color: Color.fromARGB(255, 0, 84, 203),
+                    color: Colors.grey.shade800,
                     textColor: Colors.white,
                     child: Text(
                       '${_mpinButtons[index]}',
@@ -261,10 +291,13 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
   }
 
   Future<void> _verifyMpin() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
+    String msg = '';
     bool mpinMatched = false;
+    DocumentReference _document = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_auth.currentUser!.uid);
+
     try {
       _document.get().then((snapshot) {
         mpinMatched = snapshot.get('mpin') == _mPinController.text;
@@ -274,90 +307,67 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      LandingPage(userProfile: _userProfile)));
+                  builder: (context) => LandingPage(auth: _auth)));
         } else {
           Fluttertoast.showToast(msg: 'Incorrect pin.');
         }
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: '${e.message}');
+      msg = '${e.message}';
+    } catch (error) {
+      msg = error.toString();
     }
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
   }
 
   Future<void> _checkIfExistingUser() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
     String msg = '';
     bool hasMpin = false;
 
-    _document.get().then((snapshot) {
-      if (snapshot.exists) {
-        _document.update({'logged_in': false});
-        hasMpin = snapshot.get('mpin').toString().isNotEmpty;
+    try {
+      DocumentReference _document = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser!.uid);
 
-        setState(() {
-          _userProfile.id = snapshot.id;
-          _userProfile.displayName = snapshot.get('display_name');
-          _userProfile.loggedIn = snapshot.get('logged_in');
-        });
-
-        //   userProfile = UserProfile(
-        //       id: snapshot.id,
-        //       displayName: snapshot.get('display_name'),
-        //       loggedIn: snapshot.get('logged_in'));
-      } else {
-        _document.set(
-            {'display_name': _userProfile.displayName, 'logged_in': false});
-        if (_userProfile.email!.isNotEmpty) {
-          _document
-              .set({
-                'display_name': _userProfile.email,
-                'email': _userProfile.email
-              })
-              .then((value) => {msg = "Email added"})
-              .catchError((error) => {msg = "Failed to add email: $error"});
-        } else if (_userProfile.phoneNumber!.isNotEmpty) {
-          _document
-              .set({
-                'display_name': _userProfile.phoneNumber,
-                'phone_number': _userProfile.phoneNumber
-              })
-              .then((value) => {msg = "Phone number added"})
-              .catchError(
-                  (error) => {msg = "Failed to add phone number: $error"});
-        } else if (_userProfile.displayName!.isNotEmpty) {
-          _document
-              .set({
-                'display_name': _userProfile.displayName,
-              })
-              .then((value) => {msg = "User added"})
-              .catchError((error) => {msg = "Failed to add user: $error"});
+      _document.get().then((snapshot) {
+        if (snapshot.exists) {
+          hasMpin = snapshot.get('mpin').toString().isNotEmpty;
         }
-      }
-    }).whenComplete(() {
-      // setState(() {
-      //   _userProfile = userProfile;
-      // });
+      }).whenComplete(() {
+        if (!hasMpin) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => EnterMpin(auth: _auth)));
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      msg = e.message.toString();
+    } catch (e) {
+      msg = e.toString();
+    }
 
-      if (hasMpin) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else {
-        Navigator.push(
+    setState(() => _isLoading = false);
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+  }
+
+  _handleSignOut() async {
+    setState(() => _isLoading = true);
+    _auth.signOut().whenComplete(() {
+      _googleSignIn.disconnect().whenComplete(() {
+        FacebookLogin().logOut().whenComplete(() {
+          Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => EnterMpin(userProfile: _userProfile)));
-      }
-
-      if (msg.length > 0) {
-        Fluttertoast.showToast(msg: msg);
-      }
+              builder: (context) => SignInPage(auth: _auth),
+            ),
+          );
+        });
+      });
     });
   }
 }
