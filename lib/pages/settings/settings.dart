@@ -1,4 +1,5 @@
 import 'package:bills/pages/biometrics/biometrics.dart';
+import 'package:bills/pages/mpin/enter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,23 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             Divider(),
             ListTile(
+              leading: Icon(Icons.pin),
+              minLeadingWidth: 0,
+              title: Text('Change PIN'),
+              trailing: Icon(Icons.chevron_right, size: 20),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EnterMpin(auth: _auth)),
+                );
+              },
+            ),
+            Divider(),
+            ListTile(
               leading: Icon(Icons.fingerprint),
+              minLeadingWidth: 0,
               title: Text('Biometrics'),
               trailing: Icon(Icons.chevron_right, size: 20),
               onTap: () {

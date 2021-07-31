@@ -74,7 +74,9 @@ class _ProfileHomeState extends State<ProfileHome> {
           ),
           TextButton(
             onPressed: () async {
-              _collection.doc(_auth.currentUser!.uid).update({'logged_in': false});
+              _collection
+                  .doc(_auth.currentUser!.uid)
+                  .update({'logged_in': false});
               setState(() {
                 _displayName = _auth.currentUser!.displayName!;
               });

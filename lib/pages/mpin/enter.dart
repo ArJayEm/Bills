@@ -1,4 +1,5 @@
 import 'package:bills/pages/mpin/reenter.dart';
+import 'package:bills/pages/signin/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,22 @@ class _EnterMpinState extends State<EnterMpin> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SignInPage(auth: _auth)),
+            );
+          },
+          child: Icon(Icons.chevron_left),
+        ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
+        textTheme:
+            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        title: const Text('Nominate PIN'),
+        titleSpacing: 0,
+        centerTitle: false,
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
@@ -56,6 +72,7 @@ class _EnterMpinState extends State<EnterMpin> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              SizedBox(height: 20),
               Center(
                 child: Text('Nominate your 6-digit PIN',
                     style: TextStyle(fontSize: 20, color: Colors.white)),

@@ -226,7 +226,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade500, width: 1.5),
+                        border:
+                            Border.all(color: Colors.grey.shade500, width: 1.5),
                         borderRadius: BorderRadius.circular(35),
                         color: Colors.grey.shade300,
                       ),
@@ -313,10 +314,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
       }).whenComplete(() {
         if (mpinMatched == true) {
           _document.update({'logged_in': true});
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Dashboard(auth: _auth)));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
           Fluttertoast.showToast(msg: 'Incorrect pin.');
         }
@@ -366,14 +365,20 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
   _handleSignOut() async {
     setState(() => _isLoading = true);
-    await _auth.signOut();
-    await _googleSignIn.disconnect();
-    await FacebookLogin().logOut();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SignInPage(auth: _auth),
-      ),
-    );
+    try {
+      _auth.signOut();
+      _googleSignIn.disconnect();
+      FacebookLogin().logOut();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SignInPage(auth: _auth),
+        ),
+      );
+    } catch (error) {
+      Fluttertoast.showToast(msg: error.toString());
+      Navigator.pop(context);
+    }
   }
 }
