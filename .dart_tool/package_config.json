@@ -290,6 +290,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///C:/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -412,6 +418,12 @@
     {
       "name": "list_ext",
       "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/list_ext-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "local_auth",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/local_auth-1.1.6",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -782,7 +794,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-07-30T10:46:30.556379Z",
+  "generated": "2021-07-31T04:18:20.230098Z",
   "generator": "pub",
   "generatorVersion": "2.14.0-301.2.beta"
 }

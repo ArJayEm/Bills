@@ -7,6 +7,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_bills" />
+            android:src="@mipmap/ic_bills_bg" />
     </item> 
 </layer-list>

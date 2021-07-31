@@ -1,4 +1,3 @@
-import 'package:bills/pages/signin/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +46,16 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scaffold(
       key: _scaffoldKey,
-      child: Scaffold(
-        body: Container(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.grey.shade300),
+        backgroundColor: Colors.grey.shade800,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Container(
+          color: Colors.grey.shade800,
           padding: EdgeInsets.all(20),
           alignment: Alignment.center,
           child: _isLoading
@@ -69,19 +74,19 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton(
-          child: Row(
-            children: [Icon(Icons.chevron_left), Text('Back')],
-          ),
-          onPressed: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SignInPage(auth: _auth)));
-          },
-        ),
-        SizedBox(height: 100),
+        // TextButton(
+        //   child: Row(
+        //     children: [Icon(Icons.chevron_left), Text('Back')],
+        //   ),
+        //   onPressed: () {
+        //     FocusManager.instance.primaryFocus?.unfocus();
+        //     Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //             builder: (context) => SignInPage(auth: _auth)));
+        //   },
+        // ),
+        // SizedBox(height: 100),
         Text('Enter your mobile number'),
         TextFormField(
           keyboardType: TextInputType.number,
@@ -114,10 +119,9 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           style: TextButton.styleFrom(
               //shape: StadiumBorder(),
               minimumSize: Size(double.infinity, 40),
-              primary: Colors.white,
-              backgroundColor: _sendOtpEnabled
-                  ? Colors.grey.shade500
-                  : Colors.grey.shade800),
+              primary: Colors.grey.shade800,
+              backgroundColor:
+                  _sendOtpEnabled ? Colors.grey.shade300 : Colors.white38),
           onPressed: () {
             if (_sendOtpEnabled) {
               _sendOTP();

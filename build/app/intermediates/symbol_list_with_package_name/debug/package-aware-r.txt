@@ -23,6 +23,18 @@ anim btn_radio_to_off_mtrl_ring_outer_path_animation
 anim btn_radio_to_on_mtrl_dot_group_animation
 anim btn_radio_to_on_mtrl_ring_outer_animation
 anim btn_radio_to_on_mtrl_ring_outer_path_animation
+anim fragment_fast_out_extra_slow_in
+animator fragment_close_enter
+animator fragment_close_exit
+animator fragment_fade_enter
+animator fragment_fade_exit
+animator fragment_open_enter
+animator fragment_open_exit
+array assume_strong_biometrics_models
+array crypto_fingerprint_fallback_prefixes
+array crypto_fingerprint_fallback_vendors
+array delay_showing_prompt_models
+array hide_fingerprint_instantly_prefixes
 attr actionBarDivider
 attr actionBarItemBackground
 attr actionBarPopupTheme
@@ -348,9 +360,10 @@ color abc_background_cache_hint_selector_material_light
 color abc_btn_colored_borderless_text_material
 color abc_btn_colored_text_material
 color abc_color_highlight_material
+color abc_decor_view_status_guard
+color abc_decor_view_status_guard_light
 color abc_hint_foreground_material_dark
 color abc_hint_foreground_material_light
-color abc_input_method_navigation_guard
 color abc_primary_text_disable_only_material_dark
 color abc_primary_text_disable_only_material_light
 color abc_primary_text_material_dark
@@ -375,6 +388,8 @@ color background_floating_material_dark
 color background_floating_material_light
 color background_material_dark
 color background_material_light
+color biometric_error_color
+color black_text
 color bright_foreground_disabled_material_dark
 color bright_foreground_disabled_material_light
 color bright_foreground_inverse_material_dark
@@ -423,8 +438,10 @@ color error_color_material_dark
 color error_color_material_light
 color foreground_material_dark
 color foreground_material_light
+color grey_text
 color highlighted_text_material_dark
 color highlighted_text_material_light
+color hint_color
 color material_blue_grey_800
 color material_blue_grey_900
 color material_blue_grey_950
@@ -454,6 +471,7 @@ color secondary_text_default_material_dark
 color secondary_text_default_material_light
 color secondary_text_disabled_material_dark
 color secondary_text_disabled_material_light
+color success_color
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
 color switch_thumb_material_dark
@@ -462,6 +480,7 @@ color switch_thumb_normal_material_dark
 color switch_thumb_normal_material_light
 color tooltip_background_dark
 color tooltip_background_light
+color warning_color
 dimen abc_action_bar_content_inset_material
 dimen abc_action_bar_content_inset_with_nav
 dimen abc_action_bar_default_height_material
@@ -540,6 +559,7 @@ dimen abc_text_size_subhead_material
 dimen abc_text_size_subtitle_material_toolbar
 dimen abc_text_size_title_material
 dimen abc_text_size_title_material_toolbar
+dimen body_text_size
 dimen browser_actions_context_menu_max_width
 dimen browser_actions_context_menu_min_padding
 dimen cardview_compat_inset_shadow
@@ -570,6 +590,7 @@ dimen compat_notification_large_icon_max_height
 dimen compat_notification_large_icon_max_width
 dimen disabled_alpha_material_dark
 dimen disabled_alpha_material_light
+dimen fingerprint_icon_size
 dimen highlight_alpha_material_colored
 dimen highlight_alpha_material_dark
 dimen highlight_alpha_material_light
@@ -577,6 +598,8 @@ dimen hint_alpha_material_dark
 dimen hint_alpha_material_light
 dimen hint_pressed_alpha_material_dark
 dimen hint_pressed_alpha_material_light
+dimen huge_text_size
+dimen medium_text_size
 dimen notification_action_icon_size
 dimen notification_action_text_size
 dimen notification_big_circle_margin
@@ -737,8 +760,16 @@ drawable common_google_signin_btn_text_light_focused
 drawable common_google_signin_btn_text_light_normal
 drawable common_google_signin_btn_text_light_normal_background
 drawable corner
+drawable fingerprint_dialog_error
+drawable fingerprint_dialog_fp_icon
+drawable fingerprint_initial_icon
+drawable fingerprint_success_icon
+drawable fingerprint_warning_icon
 drawable googleg_disabled_color_18
 drawable googleg_standard_color_18
+drawable ic_done_white_24dp
+drawable ic_fingerprint_white_24dp
+drawable ic_priority_high_white_24dp
 drawable launch_background
 drawable notification_action_background
 drawable notification_bg
@@ -874,7 +905,16 @@ id expanded_menu
 id fill
 id fill_horizontal
 id fill_vertical
+id fingerprint_description
+id fingerprint_error
+id fingerprint_icon
+id fingerprint_required
+id fingerprint_signin
+id fingerprint_status
+id fingerprint_subtitle
 id forever
+id fragment_container_view_tag
+id go_to_setting_description
 id group_divider
 id home
 id homeAsUp
@@ -937,6 +977,7 @@ id showHome
 id showTitle
 id small
 id spacer
+id special_effects_controller_view_tag
 id split_action_bar
 id src_atop
 id src_in
@@ -970,6 +1011,10 @@ id uniform
 id unknown
 id up
 id useLogo
+id view_tree_lifecycle_owner
+id view_tree_saved_state_registry_owner
+id view_tree_view_model_store_owner
+id visible_removing_fragment_view_tag
 id wide
 id withText
 id wrap_content
@@ -1022,6 +1067,8 @@ layout com_facebook_login_fragment
 layout com_facebook_smart_device_dialog_fragment
 layout com_facebook_tooltip_bubble
 layout custom_dialog
+layout fingerprint_dialog_layout
+layout go_to_setting
 layout notification_action
 layout notification_action_tombstone
 layout notification_media_action
@@ -1037,6 +1084,7 @@ layout notification_template_media
 layout notification_template_media_custom
 layout notification_template_part_chronometer
 layout notification_template_part_time
+layout scan_fp
 layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
@@ -1115,14 +1163,26 @@ string common_google_play_services_wear_update_text
 string common_open_on_phone
 string common_signin_button_text
 string common_signin_button_text_long
+string confirm_device_credential_password
 string copy_toast_msg
+string default_error_msg
 string default_web_client_id
 string facebook_app_id
 string fallback_menu_item_copy_link
 string fallback_menu_item_open_in_browser
 string fallback_menu_item_share_link
 string fb_login_protocol_scheme
+string fingerprint_dialog_touch_sensor
+string fingerprint_error_hw_not_available
+string fingerprint_error_hw_not_present
+string fingerprint_error_lockout
+string fingerprint_error_no_fingerprints
+string fingerprint_error_user_canceled
+string fingerprint_not_recognized
 string gcm_defaultSenderId
+string generic_error_no_device_credential
+string generic_error_no_keyguard
+string generic_error_user_canceled
 string google_api_key
 string google_app_id
 string google_crash_reporting_api_key
@@ -1132,6 +1192,7 @@ string search_menu_title
 string status_bar_notification_info_overflow
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
+style AlertDialogCustom
 style Animation_AppCompat_Dialog
 style Animation_AppCompat_DropDownUp
 style Animation_AppCompat_Tooltip
@@ -1398,6 +1459,7 @@ style Theme_AppCompat_Dialog
 style Theme_AppCompat_Dialog_Alert
 style Theme_AppCompat_Dialog_MinWidth
 style Theme_AppCompat_DialogWhenLarge
+style Theme_AppCompat_Empty
 style Theme_AppCompat_Light
 style Theme_AppCompat_Light_DarkActionBar
 style Theme_AppCompat_Light_Dialog
@@ -1522,6 +1584,8 @@ styleable CoordinatorLayout_Layout android_layout_gravity layout_anchor layout_a
 styleable DrawerArrowToggle arrowHeadLength arrowShaftLength barLength color drawableSize gapBetweenBars spinBars thickness
 styleable FontFamily fontProviderAuthority fontProviderCerts fontProviderFetchStrategy fontProviderFetchTimeout fontProviderPackage fontProviderQuery
 styleable FontFamilyFont android_font android_fontWeight android_fontStyle android_ttcIndex android_fontVariationSettings font fontStyle fontVariationSettings fontWeight ttcIndex
+styleable Fragment android_name android_id android_tag
+styleable FragmentContainerView android_name android_tag
 styleable GradientColor android_startColor android_endColor android_type android_centerX android_centerY android_gradientRadius android_tileMode android_centerColor android_startX android_startY android_endX android_endY
 styleable GradientColorItem android_color android_offset
 styleable LinearLayoutCompat android_gravity android_orientation android_baselineAligned android_baselineAlignedChildIndex android_weightSum divider dividerPadding measureWithLargestChild showDividers

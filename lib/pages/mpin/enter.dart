@@ -1,5 +1,4 @@
 import 'package:bills/pages/mpin/reenter.dart';
-import 'package:bills/pages/signin/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -42,32 +41,21 @@ class _EnterMpinState extends State<EnterMpin> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scaffold(
       key: _scaffoldKey,
-      child: Scaffold(
-        body: Container(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.grey.shade300),
+        backgroundColor: Colors.grey.shade800,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Container(
           color: Colors.grey.shade800,
           padding: EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TextButton(
-                child: Row(
-                  children: [
-                    Icon(Icons.chevron_left, color: Colors.white),
-                    Text('Back', style: TextStyle(color: Colors.white))
-                  ],
-                ),
-                onPressed: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SignInPage(auth: _auth)));
-                },
-              ),
-              SizedBox(height: 10),
               Center(
                 child: Text('Nominate your 6-digit PIN',
                     style: TextStyle(fontSize: 20, color: Colors.white)),
@@ -272,6 +260,7 @@ class _EnterMpinState extends State<EnterMpin> {
                           _pinControllerFull.text =
                               '${_pinControllerFull.text}$overValue';
                           FocusScope.of(context).requestFocus(_pinFocusNode6);
+                          _reEnter();
                         }
 
                         print('nom pin: ${_pinControllerFull.text}');

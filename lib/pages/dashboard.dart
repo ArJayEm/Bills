@@ -1,38 +1,35 @@
 // import 'dart:js';
 
 import 'package:bills/models/menu.dart';
-import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/mpin/mpin.dart';
+import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:bills/pages/profile/profile.dart';
+import 'package:bills/pages/settings/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'about.dart';
 import 'listview.dart';
 
-class LandingPage extends StatefulWidget {
+class Dashboard extends StatefulWidget {
   static const String route = '/';
-  LandingPage({Key? key, required this.auth}) : super(key: key);
+  Dashboard({Key? key, required this.auth}) : super(key: key);
 
   final FirebaseAuth auth;
 
   @override
-  _LandingPageState createState() => _LandingPageState();
+  _DashboardState createState() => _DashboardState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _DashboardState extends State<Dashboard> {
   late FirebaseAuth _auth;
-  late User _user;
-  late String _displayName;
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
 
   num _curentAmount = 0;
 
-  bool _getUserLoading = false;
   bool _getAmountToPayLoading = false;
 
   List<Menu> menu = [
@@ -79,13 +76,14 @@ class _LandingPageState extends State<LandingPage> {
         icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
   ];
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     //_getSdkVersion();
     setState(() {
       _auth = widget.auth;
-      //_user = _auth.currentUser!;
     });
     _getCurrentUser();
     _loadLandingPage();
@@ -94,51 +92,64 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       drawer: SafeArea(
         child: Drawer(
           child: Container(
             //decoration: BoxDecoration(color: Color(0xFF0098c2)),
             child: ListView(
               children: <Widget>[
-                DrawerHeader(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      _user.photoURL.toString().length > 0 ?
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: NetworkImage(
-                              _user.photoURL.toString(),
-                            ),
-                          ),
-                        ),
-                      ) : SizedBox(),
-                      SizedBox(height: 28.0),
-                      Text(
-                        "Logged in as: ${_user.displayName}",
-                        style: TextStyle(
-                          fontSize: 20.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 ListTile(
-                  leading: Icon(Icons.restore),
-                  title: Text('Backup & Restore'),
+                  contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
+                  leading: _auth.currentUser!.photoURL.toString().length > 0
+                      ? Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.white, width: 1.5),
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: NetworkImage(
+                                    _auth.currentUser!.photoURL.toString(),
+                                  ))))
+                      : SizedBox(),
+                  title: Text(
+                    "${_auth.currentUser!.displayName}",
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  trailing: Icon(Icons.chevron_right, size: 20),
                   onTap: () {
                     Navigator.pop(context);
-                    _openBills(context, About());
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfileHome(auth: _auth)),
+                    ).whenComplete(
+                        () => _scaffoldKey.currentState!.openDrawer());
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  minLeadingWidth: 0,
+                  title: Text('Settings'),
+                  trailing: Icon(Icons.chevron_right, size: 20),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SettingsPage(auth: _auth)),
+                    ).whenComplete(
+                        () => _scaffoldKey.currentState!.openDrawer());
                   },
                 ),
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.info_outline),
+                  minLeadingWidth: 0,
                   title: Text('About'),
                   onTap: () {
                     Navigator.pop(context);
@@ -146,48 +157,6 @@ class _LandingPageState extends State<LandingPage> {
                   },
                 ),
                 Divider(),
-                Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: Column(
-                    children: <Widget>[
-                      //Divider(),
-                      ListTile(
-                        leading: Icon(Icons.logout),
-                        title: Text('Log Out'),
-                        onTap: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                            title:
-                                const Text('Are you sure you want to logout?'),
-                            content: const Text(
-                                'Your account will be removed from the device.'),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context, 'Cancel'),
-                                child: const Text('No'),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  _collection
-                                      .doc(_user.uid)
-                                      .update({'logged_in': false});
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MpinSignInPage(
-                                              auth: _auth,
-                                              displayName: _displayName)));
-                                },
-                                child: const Text('Yes'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -241,27 +210,20 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   Future<void> _getCurrentUser() async {
-    setState(() => _getUserLoading = true);
     String msg = '';
     try {
       if (_auth.currentUser != null) {
-        setState(() {
-          _user = _auth.currentUser!;
-        });
-        DocumentReference _document = _collection.doc(_user.uid);
-        UserProfile userProfile = UserProfile();
+        DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
+        late String displayname;
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
-            userProfile.displayName = snapshot.get('display_name');
+            displayname = snapshot.get('display_name');
           }
         }).whenComplete(() {
-          setState(() {
-            _displayName = userProfile.displayName!;
-          });
-          if (userProfile.displayName != _user.displayName &&
-              _user.displayName != null) {
-            _document.update({'display_name': _user.displayName});
+          if (displayname != _auth.currentUser!.displayName &&
+              _auth.currentUser!.displayName != null) {
+            _document.update({'display_name': _auth.currentUser!.displayName});
           }
         });
       }
@@ -269,7 +231,6 @@ class _LandingPageState extends State<LandingPage> {
       msg = error.toString();
     }
 
-    setState(() => _getUserLoading = false);
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
     }
@@ -277,7 +238,7 @@ class _LandingPageState extends State<LandingPage> {
 
   Future _loadLandingPage() async {
     setState(() {
-      _curentAmount = 0;
+      _curentAmount = _getAmountToPayLoading ? 100 : 0;
     });
   }
 

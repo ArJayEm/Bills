@@ -2,32 +2,35 @@ import 'package:flutter/material.dart';
 
 class MultiSelectDialog extends StatelessWidget {
   final Widget question;
-  final List<dynamic> answers;
+  final List<dynamic> payers;
 
   final List<String> selectedItems = [];
   final List<String> selectedIds = [];
   static Map<String, bool> mappedItem = Map<String, bool>();
 
-  MultiSelectDialog({required this.answers, required this.question});
+  MultiSelectDialog({required this.payers, required this.question});
 
   /// Function that converts the list answer to a map.
-  Map<String, bool> initMap() {
-    return mappedItem = Map.fromIterable(answers,
-        key: (k) => k.toString(),
-        value: (v) {
-          if (v != true && v != false)
-            return false;
-          else
-            return v as bool;
-        });
+  initMap() {
+    payers.forEach((element) {
+      mappedItem.addEntries(element.id);
+    });
+    // return mappedItem = Map.fromIterable(payers,
+    //     key: (k) => k.id.toString(),
+    //     value: (v) {
+    //       if (v != true && v != false)
+    //         return false;
+    //       else
+    //         return v as bool;
+    //     });
   }
 
   @override
   Widget build(BuildContext context) {
     // ignore: unnecessary_null_comparison
-    if (mappedItem.length == 0) {
-      initMap();
-    }
+    //if (mappedItem.length == 0) {
+    initMap();
+    //}
     return SimpleDialog(
       title: question,
       children: [

@@ -98,14 +98,10 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: _getPage(),
-    );
-  }
-
-  Widget _getPage() {
-    return _isLoading
+      home: _isLoading
         ? Center(child: CircularProgressIndicator())
-        : SignInPage(auth: _auth);
+        : SignInPage(auth: _auth),
+    );
   }
 
   _getCurrentUser() async {
@@ -134,7 +130,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LandingPage(auth: _auth),
+                builder: (context) => Dashboard(auth: _auth),
               ),
             );
           } else {

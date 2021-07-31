@@ -114,7 +114,8 @@ class _SignInPageState extends State<SignInPage> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EmailSignInPage(auth: _auth)));
+                    builder: (context) =>
+                        EmailSignInPage(auth: _auth, isSignin: false)));
           },
         ),
         CustomIconButton(
@@ -128,6 +129,30 @@ class _SignInPageState extends State<SignInPage> {
                 MaterialPageRoute(
                     builder: (context) => MobileSignInPage(auth: _auth)));
           },
+        ),
+        SizedBox(height: 20),
+        Row(
+          children: [
+            Spacer(),
+            Text(
+              'Already registered?',
+              style: TextStyle(color: Colors.grey.shade300, fontSize: 15),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            EmailSignInPage(auth: _auth, isSignin: true)));
+              },
+              child: Text(
+                'Sign In',
+                style: TextStyle(color: Colors.grey.shade300, fontSize: 15),
+              ),
+            ),
+            Spacer(),
+          ],
         ),
         // GestureDetector(
         //   child: Container(
@@ -179,6 +204,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void initiateFacebookLogin() async {
+    setState(() => _isLoading = true);
     String msg = '';
     try {
       final FacebookLoginResult result = await FacebookLogin().logIn();
@@ -219,7 +245,6 @@ class _SignInPageState extends State<SignInPage> {
           break;
       }
     } on FirebaseAuthException catch (e) {
-      setState(() => _isLoading = false);
       msg = '${e.message}';
     } catch (error) {
       msg = error.toString();

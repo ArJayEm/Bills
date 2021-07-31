@@ -1,10 +1,10 @@
-//import 'package:bills/models/cities.dart';
+import 'package:bills/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_multiselect/flutter_multiselect.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'components/modal_base.dart';
 import 'components/multi_select_dialog.dart';
@@ -34,7 +34,6 @@ class Management extends StatefulWidget {
 }
 
 class _ManagementState extends State<Management> {
-  late FToast fToast = FToast();
   final DateTime _firstdate = DateTime(DateTime.now().year - 2);
   final DateTime _lastdate = DateTime.now();
   final _formKey = GlobalKey<FormState>();
@@ -49,7 +48,7 @@ class _ManagementState extends State<Management> {
   num _amount = 0;
   int _quantif = 0;
 
-  late List<dynamic> _payerList;
+  List<UserProfile> _payerList = [];
   List<String> _selectedPayerList = [];
 
   String _quantification = '';
@@ -59,11 +58,9 @@ class _ManagementState extends State<Management> {
   @override
   void initState() {
     super.initState();
-
-    fToast.init(context);
+    _getPayers();
     _quantification = widget
         .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
-
     setState(() {
       _ctrlBillDate.text = _billdate!.format(dateOnly: true);
       _ctrlAmount.text = _amount.toString();
@@ -165,12 +162,11 @@ class _ManagementState extends State<Management> {
                       hintText: 'Select Payers',
                     ),
                     onTap: () async {
-                      _getPayers();
                       var selected = await showDialog<List<String>>(
                           context: context,
                           builder: (_) => MultiSelectDialog(
                               question: Text('Select Payers'),
-                              answers: _payerList));
+                              payers: _payerList));
                       print(selected);
                       if (selected!.isNotEmpty == true) {
                         setState(() {
@@ -235,7 +231,7 @@ class _ManagementState extends State<Management> {
           'amount': _amount,
           _quantification: _quantif,
           'created_on': DateTime.now().millisecondsSinceEpoch,
-          'payers': _payerList.toList()
+          'payers': _selectedPayerList
         })
         .then((value) => print("Bill added."))
         .catchError((error) => print("Failed to add bill: $error"));
@@ -250,61 +246,37 @@ class _ManagementState extends State<Management> {
     Navigator.of(context).pop(false);
   }
 
-  _getPayers() {
-    FirebaseFirestore.instance
-        .collection('users')
-        .snapshots()
-        .forEach((element) {
-      var row = element.docs.first;
-      var displayName = row.get('display_name');
-      var email = row.get('email');
-      var fullName = row.get('full_name');
-      var payerName = fullName ?? displayName ?? email;
-      var payer = [row.id, payerName];
-      setState(() {
-        _payerList.addAll(payer);
+  Future<void> _getPayers() async {
+    List<UserProfile> _ps = [];
+    String msg = '';
+    try {
+      var collection = FirebaseFirestore.instance.collection('users');
+
+      collection.get().then((snapshot) {
+        for (var i = 0; i < snapshot.docs.length; i++) {
+          String id = snapshot.docs[i].id.toString();
+          String displayName = snapshot.docs[i].get('display_name').toString();
+          int members = 0;
+          // int.parse(snapshot.docs[i].get('members'));
+          _ps.add(UserProfile(
+              id: id,
+              displayName: displayName,
+              members: members,
+              loggedIn: false));
+        }
+      }).whenComplete(() {
+        setState(() {
+          _payerList = _ps;
+        });
       });
-    });
-    setState(() {
-      _fetchingPayers = false;
-    });
+      print('_payerList: ${_payerList.toString()}');
+    } on FirebaseAuthException catch (e) {
+      msg = '${e.message}';
+    } catch (error) {
+      msg = error.toString();
+    }
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
   }
-
-  // _showToast(String msg) {
-  //   Widget toast = Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(25.0),
-  //       color: Colors.grey,
-  //     ),
-  //     child: Row(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         //Icon(Icons.check),
-  //         // SizedBox(
-  //         //   width: 12.0,
-  //         // ),
-  //         Text(msg),
-  //       ],
-  //     ),
-  //   );
-
-  //   fToast.showToast(
-  //     child: toast,
-  //     gravity: ToastGravity.BOTTOM,
-  //     toastDuration: Duration(seconds: 3),
-  //   );
-
-  //   // Custom Toast Position
-  //   fToast.showToast(
-  //       child: toast,
-  //       toastDuration: Duration(seconds: 3),
-  //       positionedToastBuilder: (context, child) {
-  //         return Positioned(
-  //           child: child,
-  //           top: 16.0,
-  //           left: 16.0,
-  //         );
-  //       });
-  // }
 }

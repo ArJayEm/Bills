@@ -22,7 +22,7 @@ class ListViewPage extends StatefulWidget {
 class _ListViewPage extends State<ListViewPage> {
   late FToast fToast = FToast();
   dynamic _data;
-  late final Stream<QuerySnapshot> _listStream;
+  late Stream<QuerySnapshot> _listStream;
   String _quantification = '';
   String _collectionName = '';
 
@@ -121,7 +121,7 @@ class _ListViewPage extends State<ListViewPage> {
         false) _getlist();
   }
 
-  Future _getlist() async {
+  Future<void> _getlist() async {
     var list = FirebaseFirestore.instance
         .collection(_collectionName)
         .orderBy('bill_date', descending: true)

@@ -73,6 +73,9 @@ androidx/annotation/UiThread.class
 androidx/annotation/VisibleForTesting.class
 androidx/annotation/WorkerThread.class
 androidx/annotation/XmlRes.class
+androidx/annotation/experimental/Experimental$Level.class
+androidx/annotation/experimental/Experimental.class
+androidx/annotation/experimental/UseExperimental.class
 androidx/appcompat/app/ActionBar$DisplayOptions.class
 androidx/appcompat/app/ActionBar$NavigationMode.class
 androidx/appcompat/app/AppCompatDelegate$NightMode.class
@@ -80,6 +83,7 @@ androidx/appcompat/graphics/drawable/DrawerArrowDrawable$ArrowDirection.class
 androidx/appcompat/view/menu/CascadingMenuPopup$HorizPosition.class
 androidx/appcompat/widget/LinearLayoutCompat$DividerMode.class
 androidx/appcompat/widget/LinearLayoutCompat$OrientationMode.class
+androidx/biometric/BiometricPrompt$ResetCallbackObserver.class
 androidx/browser/browseractions/BrowserActionsIntent$BrowserActionsItemId.class
 androidx/browser/browseractions/BrowserActionsIntent$BrowserActionsUrlType.class
 androidx/browser/customtabs/CustomTabsIntent$ColorScheme.class
@@ -118,7 +122,11 @@ androidx/core/view/ViewCompat$NestedScrollType.class
 androidx/core/view/ViewCompat$ScrollAxis.class
 androidx/core/view/ViewCompat$ScrollIndicators.class
 androidx/core/widget/TextViewCompat$AutoSizeTextType.class
+androidx/fragment/app/FragmentStateManagerControl.class
+androidx/lifecycle/Lifecycle$1.class
 androidx/lifecycle/Lifecycle$Event.class
+androidx/lifecycle/Lifecycle$State.class
+androidx/lifecycle/LifecycleObserver.class
 androidx/lifecycle/OnLifecycleEvent.class
 androidx/media/AudioAttributesCompat$AttributeContentType.class
 androidx/media/AudioAttributesCompat$AttributeUsage.class

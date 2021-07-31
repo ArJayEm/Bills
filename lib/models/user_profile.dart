@@ -16,8 +16,9 @@ class UserProfile extends ModelBase {
   String? phoneNumber;
   @JsonKey(name: "logged_in")
   bool loggedIn;
+  int? members;
 
-  UserProfile({this.loggedIn = false});
+  UserProfile({id, this.displayName, this.members, this.loggedIn = false});
 
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);

@@ -48,12 +48,12 @@
         "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_bills_bg.png"
     },
     {
-        "merged": "C:\\source\\apps\\bills\\build\\app\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png"
-    },
-    {
         "merged": "C:\\source\\apps\\bills\\build\\app\\intermediates\\res\\merged\\debug\\mipmap-xhdpi_ic_bills_bg.png.flat",
         "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\mipmap-xhdpi\\ic_bills_bg.png"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\app\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png"
     },
     {
         "merged": "C:\\source\\apps\\bills\\build\\app\\intermediates\\res\\merged\\debug\\drawable-v21_launch_background.xml.flat",

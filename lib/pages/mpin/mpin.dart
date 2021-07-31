@@ -142,7 +142,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                       child: const Text('No'),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         _handleSignOut();
                       },
                       child: const Text('Yes'),
@@ -211,8 +211,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
               mainAxisSpacing: 10),
           itemBuilder: (BuildContext context, int index) {
             return _mpinButtons[index].length > 0 && _mpinButtons[index] != '<'
-                ? MaterialButton(
-                    onPressed: () {
+                ? GestureDetector(
+                    onTap: () {
                       if (_mPinController.text.length < 6) {
                         _mPinController.text =
                             '${_mPinController.text}${_mpinButtons[index]}';
@@ -224,19 +224,27 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                         _verifyMpin();
                       }
                     },
-                    color: Colors.grey.shade800,
-                    textColor: Colors.white,
-                    child: Text(
-                      '${_mpinButtons[index]}',
-                      style: TextStyle(fontSize: 30),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade500, width: 1.5),
+                        borderRadius: BorderRadius.circular(35),
+                        color: Colors.grey.shade300,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${_mpinButtons[index]}',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ),
                     ),
-                    //padding: EdgeInsets.all(16),
-                    shape: CircleBorder(),
                   )
                 : _mpinButtons[index].toString() == '<'
                     ? _showBackSpace == true
-                        ? MaterialButton(
-                            onPressed: () {
+                        ? GestureDetector(
+                            onTap: () {
                               if (_mPinController.text.isNotEmpty) {
                                 _mPinController.text = _mPinController.text
                                     .substring(
@@ -256,14 +264,15 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                                 _setBoolean();
                               }
                             },
-                            textColor: Colors.white,
-                            child: Icon(
-                              Icons.backspace,
-                              color: Colors.white,
-                              size: 35,
+                            child: Container(
+                              child: Center(
+                                child: Icon(
+                                  Icons.backspace,
+                                  color: Colors.grey.shade800,
+                                  size: 35,
+                                ),
+                              ),
                             ),
-                            //padding: EdgeInsets.all(16),
-                            shape: CircleBorder(),
                           )
                         : SizedBox()
                     : SizedBox();
@@ -307,7 +316,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => LandingPage(auth: _auth)));
+                  builder: (context) => Dashboard(auth: _auth)));
         } else {
           Fluttertoast.showToast(msg: 'Incorrect pin.');
         }
@@ -357,17 +366,14 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
   _handleSignOut() async {
     setState(() => _isLoading = true);
-    _auth.signOut().whenComplete(() {
-      _googleSignIn.disconnect().whenComplete(() {
-        FacebookLogin().logOut().whenComplete(() {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SignInPage(auth: _auth),
-            ),
-          );
-        });
-      });
-    });
+    await _auth.signOut();
+    await _googleSignIn.disconnect();
+    await FacebookLogin().logOut();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SignInPage(auth: _auth),
+      ),
+    );
   }
 }
