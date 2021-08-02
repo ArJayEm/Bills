@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 import '../mpin/mpin.dart';
 
@@ -32,7 +31,6 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  String _code = "";
   String signature = "{{ app signature }}";
 
   @override
@@ -48,6 +46,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         backgroundColor: Colors.grey.shade800,
@@ -74,19 +73,6 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // TextButton(
-        //   child: Row(
-        //     children: [Icon(Icons.chevron_left), Text('Back')],
-        //   ),
-        //   onPressed: () {
-        //     FocusManager.instance.primaryFocus?.unfocus();
-        //     Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //             builder: (context) => SignInPage(auth: _auth)));
-        //   },
-        // ),
-        // SizedBox(height: 100),
         Text('Enter your mobile number'),
         TextFormField(
           keyboardType: TextInputType.number,
@@ -137,17 +123,6 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton(
-          child: Row(
-            children: [Icon(Icons.chevron_left), Text('Back')],
-          ),
-          onPressed: () {
-            setState(() {
-              _mobileVerificationState =
-                  MobileVerificationState.SHOW_MOBILE_FORM_STATE;
-            });
-          },
-        ),
         TextFormField(
           keyboardType: TextInputType.number,
           //textInputAction: TextInputAction.continueAction,
@@ -175,79 +150,15 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           style: TextButton.styleFrom(
               //shape: StadiumBorder(),
               minimumSize: Size(double.infinity, 40),
-              primary: Colors.white,
-              backgroundColor: _sendOtpEnabled
-                  ? Colors.grey.shade500
-                  : Colors.grey.shade800),
+              primary: Colors.grey.shade800,
+              backgroundColor:
+                  _sendOtpEnabled ? Colors.grey.shade300 : Colors.white38),
           onPressed: () {
             if (_sendOtpEnabled) {
               _verifyOTP();
             }
           },
         ),
-      ],
-    );
-  }
-
-  getAutoFillHomeWidget(context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        PhoneFieldHint(),
-        Spacer(),
-        PinFieldAutoFill(
-          decoration: UnderlineDecoration(
-            textStyle: TextStyle(fontSize: 20, color: Colors.black),
-            colorBuilder: FixedColorBuilder(Colors.black.withOpacity(0.3)),
-          ),
-          currentCode: _code,
-          onCodeSubmitted: (code) {},
-          onCodeChanged: (code) {
-            if (code!.length == 6) {
-              FocusScope.of(context).requestFocus(FocusNode());
-            }
-          },
-        ),
-        Spacer(),
-        TextFieldPinAutoFill(
-          currentCode: _code,
-        ),
-        Spacer(),
-        ElevatedButton(
-          child: Text('Listen for sms code'),
-          onPressed: () async {
-            await SmsAutoFill().listenForCode;
-          },
-        ),
-        ElevatedButton(
-          child: Text('Set code to 123456'),
-          onPressed: () async {
-            setState(() {
-              _code = '123456';
-            });
-          },
-        ),
-        SizedBox(height: 8.0),
-        Divider(height: 1.0),
-        SizedBox(height: 4.0),
-        Text("App Signature : $signature"),
-        SizedBox(height: 4.0),
-        ElevatedButton(
-          child: Text('Get app signature'),
-          onPressed: () async {
-            signature = await SmsAutoFill().getAppSignature;
-            setState(() {});
-          },
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => CodeAutoFillTestPage()));
-          },
-          child: Text("Test CodeAutoFill mixin"),
-        )
       ],
     );
   }
@@ -272,6 +183,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
                 MobileVerificationState.SHOW_OTP_FORM_STATE;
             _otpController.clear();
             this._verificationId = verificationId;
+            _isLoading = false;
           });
         },
         codeAutoRetrievalTimeout: (verificationId) async {
@@ -284,14 +196,16 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       msg = e.toString();
     }
 
-    setState(() => _isLoading = false);
     if (msg.length > 0) {
+      setState(() => _isLoading = false);
       Fluttertoast.showToast(msg: msg);
     }
   }
 
   _verifyOTP() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+    });
     String msg = '';
 
     try {
@@ -335,80 +249,9 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       msg = e.toString();
     }
 
-    setState(() => _isLoading = false);
     if (msg.length > 0) {
+      setState(() => _isLoading = false);
       Fluttertoast.showToast(msg: msg);
     }
-  }
-}
-
-class CodeAutoFillTestPage extends StatefulWidget {
-  @override
-  _CodeAutoFillTestPageState createState() => _CodeAutoFillTestPageState();
-}
-
-class _CodeAutoFillTestPageState extends State<CodeAutoFillTestPage>
-    with CodeAutoFill {
-  String? appSignature;
-  String? otpCode;
-
-  @override
-  void codeUpdated() {
-    setState(() {
-      otpCode = code!;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    listenForCode();
-
-    SmsAutoFill().getAppSignature.then((signature) {
-      setState(() {
-        appSignature = signature;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    cancel();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = TextStyle(fontSize: 18);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Listening for code"),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
-            child: Text(
-              "This is the current app signature: $appSignature",
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Builder(
-              builder: (_) {
-                if (otpCode == null) {
-                  return Text("Listening for code...", style: textStyle);
-                }
-                return Text("Code Received: $otpCode", style: textStyle);
-              },
-            ),
-          ),
-          const Spacer(),
-        ],
-      ),
-    );
   }
 }

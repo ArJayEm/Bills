@@ -318,23 +318,21 @@ class _ReenterMpinState extends State<ReenterMpin> {
 
   Future<void> _saveMpin() async {
     setState(() => _isLoading = true);
-    String msg = '';
 
-    if (_pinControllerFull.text.length == 6) {
-      if (_nominatedPin == _pinControllerFull.text) {
+    if (_pinControllerFull.text.length == 6 && _nominatedPin == _pinControllerFull.text) {
+      try {
         _document.update(
             {'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         });
-      } else {
-        setState(() => _isLoading = false);
-        msg = "Pins doesn't match!";
-      }
+      } on FirebaseAuthException catch (e) {
+      setState(() => _isLoading = false);
+        Fluttertoast.showToast(msg: e.toString());
+      } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+      Navigator.pop(context);
     }
-
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
     }
   }
 }

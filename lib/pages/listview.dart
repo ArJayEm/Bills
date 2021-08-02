@@ -1,5 +1,6 @@
 import 'package:bills/pages/new_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -76,40 +77,40 @@ class _ListViewPage extends State<ListViewPage> {
           return Center(child: Text('Something went wrong'));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return Center(child: CircularProgressIndicator());
         }
         return !snapshot.hasData
-            ? Center(
-                child: Text('No Data'),
-              )
+            ? Center(child: Text('No Data'))
             : ListView(
-                children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                  Map<String, dynamic> data =
-                      document.data() as Map<String, dynamic>;
-                  return ListTile(
-                    title: Text(
-                        DateTime.fromMillisecondsSinceEpoch(data['bill_date'])
-                            .format(dateOnly: true)),
-                    subtitle: Text(
-                        'Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
-                    trailing: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'P ${data['amount']}',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(fontSize: 20, color: widget.color),
-                        ),
-                        Text('${data[_quantification]} $_quantification',
+                children: snapshot.data!.docs.map(
+                  (DocumentSnapshot document) {
+                    Map<String, dynamic> data =
+                        document.data() as Map<String, dynamic>;
+                    return ListTile(
+                      title: Text(
+                          DateTime.fromMillisecondsSinceEpoch(data['bill_date'])
+                              .format(dateOnly: true)),
+                      subtitle: Text(
+                          'Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'P ${data['amount']}',
                             textAlign: TextAlign.right,
-                            style: TextStyle(fontWeight: FontWeight.w200)),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                            style: TextStyle(fontSize: 20, color: widget.color),
+                          ),
+                          Text(
+                            '${data[_quantification]} $_quantification',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(fontWeight: FontWeight.w200),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ).toList(),
               );
       },
     );
@@ -122,13 +123,23 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   Future<void> _getlist() async {
-    var list = FirebaseFirestore.instance
-        .collection(_collectionName)
-        .orderBy('bill_date', descending: true)
-        .snapshots();
+    String msg = '';
+    try {
+      var list = FirebaseFirestore.instance
+          .collection(_collectionName)
+          .orderBy('bill_date', descending: true)
+          .snapshots();
 
-    setState(() {
-      _listStream = list;
-    });
+      setState(() {
+        _listStream = list;
+      });
+    } on FirebaseAuthException catch (e) {
+      msg = '${e.message}';
+    } catch (error) {
+      msg = error.toString();
+    }
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
   }
 }

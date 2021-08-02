@@ -376,8 +376,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           builder: (context) => SignInPage(auth: _auth),
         ),
       );
-    } catch (error) {
-      Fluttertoast.showToast(msg: error.toString());
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
       Navigator.pop(context);
     }
   }

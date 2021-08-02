@@ -271,6 +271,8 @@ class _SignInPageState extends State<SignInPage> {
         }).catchError((error) {
           msg = "Failed to add user: $error";
         });
+      } else {
+        _document.update({'display_name': _user.displayName ?? _user.email});
       }
     }).whenComplete(() {
       Navigator.push(

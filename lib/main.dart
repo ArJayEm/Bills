@@ -59,10 +59,10 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.dark,
         primaryColor: Colors.grey.shade300,
-        // textTheme: TextTheme(
-        //   headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
-        //   headline6: TextStyle(fontWeight: FontWeight.bold),
-        // ),
+        textTheme: TextTheme(
+            // headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
+            // headline6: TextStyle(fontWeight: FontWeight.bold),
+            ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: InitializerWidget(),
@@ -99,8 +99,8 @@ class _InitializerWidgetState extends State<InitializerWidget> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : SignInPage(auth: _auth),
+          ? Center(child: CircularProgressIndicator())
+          : SignInPage(auth: _auth),
     );
   }
 

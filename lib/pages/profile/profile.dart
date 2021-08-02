@@ -1,3 +1,4 @@
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/mpin/mpin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -74,17 +75,22 @@ class _ProfileHomeState extends State<ProfileHome> {
           ),
           TextButton(
             onPressed: () async {
-              _collection
-                  .doc(_auth.currentUser!.uid)
-                  .update({'logged_in': false});
-              setState(() {
-                _displayName = _auth.currentUser!.displayName!;
+              DocumentReference _document =
+                  _collection.doc(_auth.currentUser!.uid);
+              UserProfile userProfile = UserProfile();
+
+              _document.get().then((snapshot) {
+                if (snapshot.exists) {
+                  userProfile.displayName = snapshot.get('display_name');
+                }
+              }).whenComplete(() {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MpinSignInPage(
+                            auth: _auth,
+                            displayName: userProfile.displayName!)));
               });
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MpinSignInPage(
-                          auth: _auth, displayName: _displayName)));
             },
             child: const Text('Yes'),
           ),

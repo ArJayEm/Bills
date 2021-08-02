@@ -3,6 +3,8 @@
 import 'package:bills/models/menu.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:bills/pages/expandable.dart';
+import 'package:bills/pages/new.dart';
 import 'package:bills/pages/profile/profile.dart';
 import 'package:bills/pages/settings/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,9 +30,11 @@ class _DashboardState extends State<Dashboard> {
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
 
+  late String _displayName;
   num _curentAmount = 0;
 
   bool _getAmountToPayLoading = false;
+  bool _isLoadingUser = false;
 
   List<Menu> menu = [
     Menu(
@@ -93,43 +97,54 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       drawer: SafeArea(
         child: Drawer(
           child: Container(
             //decoration: BoxDecoration(color: Color(0xFF0098c2)),
             child: ListView(
               children: <Widget>[
-                ListTile(
-                  contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
-                  leading: _auth.currentUser!.photoURL.toString().length > 0
-                      ? Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.white, width: 1.5),
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image: NetworkImage(
-                                    _auth.currentUser!.photoURL.toString(),
-                                  ))))
-                      : SizedBox(),
-                  title: Text(
-                    "${_auth.currentUser!.displayName}",
-                    style: TextStyle(fontSize: 20.0),
-                  ),
-                  trailing: Icon(Icons.chevron_right, size: 20),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProfileHome(auth: _auth)),
-                    ).whenComplete(
-                        () => _scaffoldKey.currentState!.openDrawer());
-                  },
-                ),
+                _isLoadingUser
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(child: CircularProgressIndicator())
+                            ]),
+                      )
+                    : ListTile(
+                        contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
+                        leading: _auth.currentUser!.photoURL != null
+                            ? Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5),
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: NetworkImage(
+                                          _auth.currentUser!.photoURL
+                                              .toString(),
+                                        ))))
+                            : null,
+                        title: Text(
+                          "$_displayName",
+                          style: TextStyle(fontSize: 20.0),
+                        ),
+                        trailing: Icon(Icons.chevron_right, size: 20),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfileHome(auth: _auth)),
+                          ).whenComplete(
+                              () => _scaffoldKey.currentState!.openDrawer());
+                        },
+                      ),
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.settings),
@@ -144,6 +159,26 @@ class _DashboardState extends State<Dashboard> {
                           builder: (context) => SettingsPage(auth: _auth)),
                     ).whenComplete(
                         () => _scaffoldKey.currentState!.openDrawer());
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.expand),
+                  minLeadingWidth: 0,
+                  title: Text('Expandable'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openBills(context, ExpandableSample());
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.expand),
+                  minLeadingWidth: 0,
+                  title: Text('New Record'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openBills(context, SelectPayers());
                   },
                 ),
                 Divider(),
@@ -210,6 +245,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _getCurrentUser() async {
+    setState(() {
+      _isLoadingUser = true;
+    });
     String msg = '';
     try {
       if (_auth.currentUser != null) {
@@ -218,20 +256,29 @@ class _DashboardState extends State<Dashboard> {
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
-            displayname = snapshot.get('display_name');
+            displayname = snapshot.get('display_name') ?? "";
           }
         }).whenComplete(() {
-          if (displayname != _auth.currentUser!.displayName &&
+          setState(() {
+            _isLoadingUser = false;
+            _displayName = displayname;
+          });
+          if (_auth.currentUser!.displayName != displayname &&
               _auth.currentUser!.displayName != null) {
             _document.update({'display_name': _auth.currentUser!.displayName});
           }
         });
       }
+    } on FirebaseAuthException catch (e) {
+      msg = '${e.message}';
     } catch (error) {
       msg = error.toString();
     }
 
     if (msg.length > 0) {
+      setState(() {
+        _isLoadingUser = false;
+      });
       Fluttertoast.showToast(msg: msg);
     }
   }
