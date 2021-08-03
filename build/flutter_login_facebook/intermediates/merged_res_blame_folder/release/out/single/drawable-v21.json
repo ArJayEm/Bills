@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\notification_action_background.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\059c6666f87e26dda0ae142afdb6474e\\core-1.1.0\\res\\drawable-v21\\notification_action_background.xml"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\abc_dialog_material_background.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\ebe57dcfa9ab3a5e888252c7df699f91\\appcompat-1.1.0\\res\\drawable-v21\\abc_dialog_material_background.xml"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\abc_action_bar_item_background_material.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\ebe57dcfa9ab3a5e888252c7df699f91\\appcompat-1.1.0\\res\\drawable-v21\\abc_action_bar_item_background_material.xml"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\abc_list_divider_material.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\ebe57dcfa9ab3a5e888252c7df699f91\\appcompat-1.1.0\\res\\drawable-v21\\abc_list_divider_material.xml"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\abc_btn_colored_material.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\ebe57dcfa9ab3a5e888252c7df699f91\\appcompat-1.1.0\\res\\drawable-v21\\abc_btn_colored_material.xml"
+    },
+    {
+        "merged": "C:\\source\\apps\\bills\\build\\flutter_login_facebook\\intermediates\\res\\merged\\release\\drawable-v21\\abc_edit_text_material.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\ebe57dcfa9ab3a5e888252c7df699f91\\appcompat-1.1.0\\res\\drawable-v21\\abc_edit_text_material.xml"
+    }
+]

@@ -308,7 +308,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
       _mPinControllerLen5 = _mPinController.text.length == 5;
       _mPinControllerLen6 = _mPinController.text.length == 6;
 
-      _showBackSpace = _mPinController.text.length == 0;
+      _showBackSpace = _mPinController.text.length > 0;
     });
   }
 
