@@ -348,11 +348,13 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists && snapshot.get('mpin').toString().isNotEmpty) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EnterMpin(auth: _auth, isChange: false)));
+          if (snapshot.get('logged_in')) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        EnterMpin(auth: _auth, isChange: false)));
+          }
         } else {
           Fluttertoast.showToast(msg: "User not found");
           Navigator.push(context,
