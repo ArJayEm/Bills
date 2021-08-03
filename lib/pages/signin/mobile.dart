@@ -26,6 +26,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   final _otpController = TextEditingController();
   bool _sendOtpEnabled = false;
   bool _isLoading = false;
+  String _errorMsg = '';
 
   String? _verificationId;
 
@@ -38,7 +39,6 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
     super.initState();
     setState(() {
       _auth = widget.auth;
-      //_user = _auth.currentUser!;
     });
   }
 
@@ -164,8 +164,10 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   }
 
   _sendOTP() async {
-    setState(() => _isLoading = true);
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       await _auth.verifyPhoneNumber(
@@ -174,7 +176,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           //signInWithPhoneAuthCredential(phoneAuthCredential);
         },
         verificationFailed: (verificationFailed) async {
-          msg = verificationFailed.message.toString();
+          _errorMsg = verificationFailed.message.toString();
         },
         codeSent: (verificationId, resendingToken) async {
           setState(() {
@@ -187,26 +189,26 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           });
         },
         codeAutoRetrievalTimeout: (verificationId) async {
-          msg = 'Code auto retrieval timed out';
+          _errorMsg = 'Code auto retrieval timed out';
         },
       );
     } on FirebaseAuthException catch (e) {
-      msg = e.message.toString();
+      _errorMsg = e.message.toString();
     } catch (e) {
-      msg = e.toString();
+      _errorMsg = e.toString();
     }
 
-    if (msg.length > 0) {
+    if (_errorMsg.length > 0) {
       setState(() => _isLoading = false);
-      Fluttertoast.showToast(msg: msg);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
   _verifyOTP() async {
     setState(() {
+      _errorMsg = "";
       _isLoading = true;
     });
-    String msg = '';
 
     try {
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -230,9 +232,9 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               'phone_number': _user.phoneNumber,
               'logged_in': false
             }).then((value) {
-              msg = "User added";
+              _errorMsg = "User added";
             }).catchError((error) {
-              msg = "Failed to add user: $error";
+              _errorMsg = "Failed to add user: $error";
             });
           } else {}
         }).whenComplete(() {
@@ -244,14 +246,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
         });
       }
     } on FirebaseAuthException catch (e) {
-      msg = e.message.toString();
+      _errorMsg = e.message.toString();
     } catch (e) {
-      msg = e.toString();
+      _errorMsg = e.toString();
     }
 
-    if (msg.length > 0) {
+    if (_errorMsg.length > 0) {
       setState(() => _isLoading = false);
-      Fluttertoast.showToast(msg: msg);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

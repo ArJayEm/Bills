@@ -17,8 +17,6 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
   ],
 );
 
-enum MpinVerificationState { ENTER_MPIN, NOMINATE_MPIN }
-
 class MpinSignInPage extends StatefulWidget {
   MpinSignInPage({Key? key, required this.auth, required this.displayName})
       : super(key: key);
@@ -59,6 +57,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
   bool _showBackSpace = false;
 
   bool _isLoading = false;
+  String _errorMsg = '';
+  bool _isButtonPressed = false;
 
   @override
   void initState() {
@@ -193,7 +193,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
         SizedBox(height: 20),
         Center(
           child: Text(
-            'Enter your MPIN',
+            'Enter your PIN',
             style: TextStyle(color: Colors.grey.shade800),
           ),
         ),
@@ -211,8 +211,8 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
               mainAxisSpacing: 10),
           itemBuilder: (BuildContext context, int index) {
             return _mpinButtons[index].length > 0 && _mpinButtons[index] != '<'
-                ? GestureDetector(
-                    onTap: () {
+                ? FloatingActionButton(
+                    onPressed: () {
                       if (_mPinController.text.length < 6) {
                         _mPinController.text =
                             '${_mPinController.text}${_mpinButtons[index]}';
@@ -223,20 +223,25 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
                       } else if (_mPinController.text.length == 6) {
                         _verifyMpin();
                       }
+                      _buttonPressed(index);
                     },
                     child: Container(
                       decoration: BoxDecoration(
                         border:
                             Border.all(color: Colors.grey.shade500, width: 1.5),
                         borderRadius: BorderRadius.circular(35),
-                        color: Colors.grey.shade300,
+                        color: _isButtonPressed
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade800,
                       ),
                       child: Center(
                         child: Text(
                           '${_mpinButtons[index]}',
                           style: TextStyle(
                             fontSize: 30,
-                            color: Colors.grey.shade700,
+                            color: _isButtonPressed
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
                           ),
                         ),
                       ),
@@ -283,8 +288,18 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
     );
   }
 
+  _buttonPressed(index) {
+    // setState(() {
+    //   //_isButtonPressed = true;
+    // });
+    // Future.delayed(const Duration(milliseconds: 100), () {
+    //   setState(() {
+    //     _isButtonPressed = false;
+    //   });
+    // });
+  }
+
   _setBoolean() {
-    print('mpin: ${_mPinController.text}');
     setState(() {
       _mPinControllerLen1 = _mPinController.text.length == 1;
       _mPinControllerLen2 = _mPinController.text.length == 2;
@@ -292,49 +307,13 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
       _mPinControllerLen4 = _mPinController.text.length == 4;
       _mPinControllerLen5 = _mPinController.text.length == 5;
       _mPinControllerLen6 = _mPinController.text.length == 6;
-      if (_mPinController.text.length == 0) {
-        _showBackSpace = false;
-      } else {
-        _showBackSpace = true;
-      }
+
+      _showBackSpace = _mPinController.text.length == 0;
     });
   }
 
   Future<void> _verifyMpin() async {
     setState(() => _isLoading = true);
-    String msg = '';
-    bool mpinMatched = false;
-    DocumentReference _document = FirebaseFirestore.instance
-        .collection('users')
-        .doc(_auth.currentUser!.uid);
-
-    try {
-      _document.get().then((snapshot) {
-        mpinMatched = snapshot.get('mpin') == _mPinController.text;
-      }).whenComplete(() {
-        if (mpinMatched == true) {
-          _document.update({'logged_in': true});
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
-        } else {
-          Fluttertoast.showToast(msg: 'Incorrect pin.');
-        }
-      });
-    } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
-    } catch (error) {
-      msg = error.toString();
-    }
-    setState(() => _isLoading = false);
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
-    }
-  }
-
-  Future<void> _checkIfExistingUser() async {
-    setState(() => _isLoading = true);
-    String msg = '';
-    bool hasMpin = false;
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -342,34 +321,62 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           .doc(_auth.currentUser!.uid);
 
       _document.get().then((snapshot) {
-        if (snapshot.exists) {
-          hasMpin = snapshot.get('mpin').toString().isNotEmpty;
-        }
-      }).whenComplete(() {
-        if (!hasMpin) {
+        if (snapshot.exists && snapshot.get('mpin') == _mPinController.text) {
+          _document.update({'logged_in': true});
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => EnterMpin(auth: _auth)));
+              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
+        } else {
+          Fluttertoast.showToast(msg: 'Incorrect pin.');
         }
-      });
+      }).whenComplete(() {});
     } on FirebaseAuthException catch (e) {
-      msg = e.message.toString();
-    } catch (e) {
-      msg = e.toString();
+      Fluttertoast.showToast(msg: e.message.toString());
+    } catch (error) {
+      Fluttertoast.showToast(msg: error.toString());
     }
 
     setState(() => _isLoading = false);
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+  }
+
+  Future<void> _checkIfExistingUser() async {
+    setState(() => _isLoading = true);
+
+    try {
+      DocumentReference _document = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser!.uid);
+
+      _document.get().then((snapshot) {
+        if (snapshot.exists && snapshot.get('mpin').toString().isNotEmpty) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      EnterMpin(auth: _auth, isChange: false)));
+        } else {
+          Fluttertoast.showToast(msg: "User not found");
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SignInPage(auth: _auth)));
+        }
+      }).whenComplete(() {
+        //if (!hasMpin) {}
+      });
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message.toString());
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
     }
+
+    setState(() => _isLoading = false);
   }
 
   _handleSignOut() async {
     setState(() => _isLoading = true);
+
     try {
       _auth.signOut();
       _googleSignIn.disconnect();
       FacebookLogin().logOut();
-
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -378,7 +385,6 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
       );
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
-      Navigator.pop(context);
     }
   }
 }

@@ -14,7 +14,7 @@ import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../components/button.dart';
+import '../components/custom_icon_button.dart';
 
 // GoogleSignIn _googleSignIn = GoogleSignIn(
 //   // Optional clientId
@@ -25,7 +25,7 @@ import '../components/button.dart';
 //   ],
 // );
 
-enum LoginType { MOBILE_NUMBER, GOOGLE, MPIN }
+enum LoginType { MOBILE_NUMBER, GOOGLE, PIN }
 
 class SignInPage extends StatefulWidget {
   SignInPage({Key? key, required this.auth}) : super(key: key);
@@ -41,10 +41,8 @@ class _SignInPageState extends State<SignInPage> {
   late User _user;
   var facebookProfile;
 
-  CollectionReference _collection =
-      FirebaseFirestore.instance.collection('users');
-
   bool _isLoading = false;
+  String _errorMsg = '';
 
   @override
   void initState() {
@@ -172,7 +170,11 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
+
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser != null) {
@@ -189,36 +191,40 @@ class _SignInPageState extends State<SignInPage> {
           setState(() {
             _user = userCredential.user!;
           });
-          msg = await _createLoginAccount();
+          await _createLoginAccount();
         }
       }
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
 
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
   void initiateFacebookLogin() async {
-    setState(() => _isLoading = true);
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
+
     try {
       final FacebookLoginResult result = await FacebookLogin().logIn();
       switch (result.status) {
         case FacebookLoginStatus.error:
           // var values = FacebookLoginStatus.values;
           // print('values: $values');
-          msg = FacebookLoginStatus.error.toString();
+          _errorMsg = FacebookLoginStatus.error.toString();
           break;
         case FacebookLoginStatus.cancel:
-          msg = FacebookLoginStatus.cancel.toString();
+          _errorMsg = FacebookLoginStatus.cancel.toString();
           break;
         case FacebookLoginStatus.success:
-          msg = FacebookLoginStatus.success.toString();
+          _errorMsg = FacebookLoginStatus.success.toString();
 
           final facebookAuthCredential =
               FacebookAuthProvider.credential(result.accessToken!.token);
@@ -228,7 +234,7 @@ class _SignInPageState extends State<SignInPage> {
             setState(() {
               _user = userCredential.user!;
             });
-            msg = await _createLoginAccount();
+            await _createLoginAccount();
           }
 
           if (result.accessToken != null) {
@@ -239,52 +245,69 @@ class _SignInPageState extends State<SignInPage> {
             setState(() {
               _user = userCredential.user!;
             });
-            msg = await _createLoginAccount();
+            await _createLoginAccount();
             print(profile.toString());
           }
           break;
       }
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
 
-    if (msg.length > 0) {
-      print(msg);
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
-  Future<String> _createLoginAccount() async {
-    String msg = '';
-    var _document = _collection.doc(_user.uid);
-    _document.get().then((snapshot) {
-      if (!snapshot.exists) {
-        _document.set({
-          'display_name': _user.displayName ?? _user.email,
-          'email': _user.email,
-          'photo_url': _user.photoURL,
-          'logged_in': false
-        }).then((value) {
-          msg = "User added";
-        }).catchError((error) {
-          msg = "Failed to add user: $error";
-        });
-      } else {
-        _document.update({'display_name': _user.displayName ?? _user.email});
-      }
-    }).whenComplete(() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MpinSignInPage(
-            auth: _auth,
-            displayName: _user.displayName ?? 'User',
-          ),
-        ),
-      );
+  Future<void> _createLoginAccount() async {
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
     });
-    return msg;
+
+    try {
+      CollectionReference _collection =
+          FirebaseFirestore.instance.collection('users');
+
+      var _document = _collection.doc(_user.uid);
+      _document.get().then((snapshot) {
+        if (!snapshot.exists) {
+          _document.set({
+            'display_name': _user.displayName ?? _user.email,
+            'email': _user.email,
+            'photo_url': _user.photoURL,
+            'logged_in': false
+          }).then((value) {
+            _errorMsg = "User added";
+          }).catchError((error) {
+            _errorMsg = "Failed to add user: $error";
+          });
+        } else {
+          _document.update({'display_name': _user.displayName ?? _user.email});
+        }
+      }).whenComplete(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MpinSignInPage(
+              auth: _auth,
+              displayName: _user.displayName ?? 'User',
+            ),
+          ),
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      _errorMsg = e.message.toString();
+    } catch (e) {
+      _errorMsg = e.toString();
+    }
+
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 }

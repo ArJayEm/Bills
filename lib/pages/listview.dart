@@ -26,6 +26,7 @@ class _ListViewPage extends State<ListViewPage> {
   late Stream<QuerySnapshot> _listStream;
   String _quantification = '';
   String _collectionName = '';
+  String _errorMsg = '';
 
   @override
   void initState() {
@@ -123,7 +124,10 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   Future<void> _getlist() async {
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+    });
+
     try {
       var list = FirebaseFirestore.instance
           .collection(_collectionName)
@@ -134,12 +138,12 @@ class _ListViewPage extends State<ListViewPage> {
         _listStream = list;
       });
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

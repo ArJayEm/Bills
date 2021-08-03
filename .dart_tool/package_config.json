@@ -182,6 +182,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "email_auth",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/email_auth-0.0.1+4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "expandable",
       "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/expandable-5.0.1",
       "packageUri": "lib/",
@@ -800,7 +806,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-08-02T07:27:36.639642Z",
+  "generated": "2021-08-03T08:05:51.445541Z",
   "generator": "pub",
   "generatorVersion": "2.14.0-301.2.beta"
 }

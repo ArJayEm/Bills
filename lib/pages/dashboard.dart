@@ -35,6 +35,7 @@ class _DashboardState extends State<Dashboard> {
 
   bool _getAmountToPayLoading = false;
   bool _isLoadingUser = false;
+  String _errorMsg = '';
 
   List<Menu> menu = [
     Menu(
@@ -246,9 +247,10 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _getCurrentUser() async {
     setState(() {
+      _errorMsg = "";
       _isLoadingUser = true;
     });
-    String msg = '';
+
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
@@ -270,16 +272,14 @@ class _DashboardState extends State<Dashboard> {
         });
       }
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
 
-    if (msg.length > 0) {
-      setState(() {
-        _isLoadingUser = false;
-      });
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoadingUser = false);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 

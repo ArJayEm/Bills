@@ -1,4 +1,6 @@
+import 'package:bills/pages/signin/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_auth/email_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,7 +18,11 @@ class EmailSignInPage extends StatefulWidget {
   _EmailSignInPageState createState() => _EmailSignInPageState();
 }
 
-enum EmailVerificationState { SHOW_SIGN_IN_STATE, SHOW_SIGN_UP_STATE }
+enum EmailVerificationState {
+  SHOW_SIGN_IN_STATE,
+  SHOW_SIGN_UP_STATE,
+  SHOW_OTP_SENT
+}
 
 class _EmailSignInPageState extends State<EmailSignInPage> {
   late FirebaseAuth _auth;
@@ -31,9 +37,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
   bool _proceed = false;
 
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _otpController = TextEditingController();
 
   String? _email, _password, _confirmPassword;
 
@@ -43,6 +50,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
+  String _errorMsg = '';
+  String _title = '';
+  bool _verifyOtpEnabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +62,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       _emailState = widget.isSignin
           ? EmailVerificationState.SHOW_SIGN_IN_STATE
           : EmailVerificationState.SHOW_SIGN_UP_STATE;
+      _title = _emailState == EmailVerificationState.SHOW_SIGN_IN_STATE
+          ? 'Sign In with Email'
+          : 'Sign Up with Email';
     });
   }
 
@@ -59,7 +73,34 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            if (_emailState == EmailVerificationState.SHOW_OTP_SENT) {
+              setState(() {
+                _emailState = widget.isSignin
+                    ? EmailVerificationState.SHOW_SIGN_IN_STATE
+                    : EmailVerificationState.SHOW_SIGN_UP_STATE;
+              });
+            } else {
+              //Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SignInPage(auth: _auth)),
+              );
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(Icons.chevron_left),
+          ),
+        ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
+        textTheme:
+            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        title: Text(_title),
+        titleSpacing: 0,
+        centerTitle: false,
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
@@ -73,7 +114,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
                   ? CircularProgressIndicator()
                   : _emailState == EmailVerificationState.SHOW_SIGN_IN_STATE
                       ? getEmailSignInPageWidget()
-                      : getEmailSignUpPageWidget()),
+                      : _emailState == EmailVerificationState.SHOW_SIGN_UP_STATE
+                          ? getEmailSignUpPageWidget()
+                          : getVerifyOtpWidget()),
         ),
       ),
     );
@@ -90,7 +133,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           labelText: 'Email',
           hintText: 'Email',
         ),
-        controller: emailController,
+        controller: _emailController,
         onChanged: (value) {
           setState(() {
             _email = value.trim();
@@ -108,7 +151,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           labelText: 'Password',
           hintText: 'Password',
         ),
-        controller: passwordController,
+        controller: _passwordController,
         onChanged: (value) {
           setState(() {
             _password = value.trim();
@@ -131,91 +174,96 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   }
 
   Widget getEmailSignUpPageWidget() {
-    return Column(children: [
-      TextFormField(
-        keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
-        autofocus: true,
-        focusNode: _emailFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Email',
-          hintText: 'Email',
+    return Column(
+      children: [
+        TextFormField(
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autofocus: true,
+          focusNode: _emailFocusNode,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            hintText: 'Email',
+          ),
+          controller: _emailController,
+          onChanged: (value) {
+            setState(() {
+              _email = value.trim();
+              _proceed = _emailRegex.hasMatch(_email.toString()) &&
+                  _password != null &&
+                  _confirmPassword != null;
+            });
+          },
         ),
-        controller: emailController,
-        onChanged: (value) {
-          setState(() {
-            _email = value.trim();
-            _proceed = _emailRegex.hasMatch(_email.toString()) &&
-                _password != null &&
-                _confirmPassword != null;
-          });
-        },
-      ),
-      SizedBox(),
-      TextFormField(
-        obscureText: true,
-        textInputAction: TextInputAction.next,
-        focusNode: _passwordFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Password',
-          hintText: 'Password',
+        SizedBox(),
+        TextFormField(
+          obscureText: true,
+          textInputAction: TextInputAction.next,
+          focusNode: _passwordFocusNode,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            hintText: 'Password',
+          ),
+          controller: _passwordController,
+          onChanged: (value) {
+            setState(() {
+              _password = value.trim();
+              _proceed = _emailRegex.hasMatch(_email.toString()) &&
+                  _password != null &&
+                  _confirmPassword != null;
+            });
+          },
         ),
-        controller: passwordController,
-        onChanged: (value) {
-          setState(() {
-            _password = value.trim();
-            _proceed = _emailRegex.hasMatch(_email.toString()) &&
-                _password != null &&
-                _confirmPassword != null;
-          });
-        },
-      ),
-      SizedBox(),
-      TextFormField(
-        obscureText: true,
-        textInputAction: TextInputAction.go,
-        focusNode: _confirmPassFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Confirm Password',
-          hintText: 'Confirm Password',
+        SizedBox(),
+        TextFormField(
+          obscureText: true,
+          textInputAction: TextInputAction.go,
+          focusNode: _confirmPassFocusNode,
+          decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            hintText: 'Confirm Password',
+          ),
+          controller: _confirmPasswordController,
+          onChanged: (value) {
+            setState(() {
+              _confirmPassword = value.trim();
+              _proceed = _emailRegex.hasMatch(_email.toString()) &&
+                  _password != null &&
+                  _confirmPassword != null;
+            });
+          },
         ),
-        controller: confirmPasswordController,
-        onChanged: (value) {
-          setState(() {
-            _confirmPassword = value.trim();
-            _proceed = _emailRegex.hasMatch(_email.toString()) &&
-                _password != null &&
-                _confirmPassword != null;
-          });
-        },
-      ),
-      SizedBox(height: 30),
-      TextButton(
-        child: Text('Sign Up', style: TextStyle(fontSize: 18)),
-        style: TextButton.styleFrom(
-            //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 50),
-            primary: Colors.grey.shade800,
-            backgroundColor: _proceed ? Colors.grey.shade300 : Colors.white38),
-        onPressed: _proceed ? _signUp : null,
-      ),
-    ]);
+        SizedBox(height: 30),
+        TextButton(
+          child: Text('Sign Up', style: TextStyle(fontSize: 18)),
+          style: TextButton.styleFrom(
+              //shape: StadiumBorder(),
+              minimumSize: Size(double.infinity, 50),
+              primary: Colors.grey.shade800,
+              backgroundColor:
+                  _proceed ? Colors.grey.shade300 : Colors.white38),
+          onPressed: () {
+            if (_proceed) {
+              _signUp();
+            }
+          },
+        ),
+      ],
+    );
   }
 
   _signIn() async {
-    setState(() => _isLoading = true);
-    String? msg;
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       if (!_emailRegex.hasMatch(_email.toString())) {
-        msg = "Invalid email format.";
-        setState(() => _isLoading = false);
-        return;
+        _errorMsg = "Invalid email format.";
       }
       if (_password.toString().length == 0) {
-        msg = "Password is required.";
-        setState(() => _isLoading = false);
-        return;
+        _errorMsg = "Password is required.";
       }
 
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -239,100 +287,190 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        msg = 'User not found.';
+        _errorMsg = 'User not found.';
         FocusScope.of(context).requestFocus(_emailFocusNode);
       } else if (e.code == 'wrong-password') {
-        msg = 'Invalid password';
+        _errorMsg = 'Invalid password';
         FocusScope.of(context).requestFocus(_passwordFocusNode);
       } else if (e.code == "unknown") {
-        msg = e.message.toString();
+        _errorMsg = e.message.toString();
       } else {
-        msg = e.message.toString();
+        _errorMsg = e.message.toString();
       }
-      setState(() => _isLoading = false);
     } catch (error) {
-      setState(() => _isLoading = false);
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
 
-    if (msg != null) {
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
   _signUp() async {
-    setState(() => _isLoading = true);
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
-    try {
-      if (!_emailRegex.hasMatch(_email.toString())) {
-        msg = "Invalid email format.";
-        setState(() => _isLoading = false);
-        return;
-      }
-      if (_password.toString().length == 0) {
-        msg = "Password is required.";
-        setState(() => _isLoading = false);
-        return;
-      }
-      if (_confirmPassword.toString().length == 0) {
-        msg = "Confirm password is required.";
-        setState(() => _isLoading = false);
-        return;
-      }
-      if (_password.toString() != _confirmPassword.toString()) {
-        msg = "Password and confirm password doesn't match.";
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: _email!, password: _password!);
-      late String displayName;
-      User? user = userCredential.user;
-
-      if (user != null) {
-        DocumentReference document = _collection.doc(user.uid);
-        displayName = user.displayName ?? user.email ?? 'User';
-
-        document.get().then((snapshot) {
-          if (!snapshot.exists) {
-            document.set({
-              'display_name': displayName,
-              'email': user.email,
-              'logged_in': false
-            }).then((value) {
-              msg = "User added";
-            }).catchError((error) {
-              msg = "Failed to add user: $error";
-            });
-          }
-        }).whenComplete(() {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      MpinSignInPage(auth: _auth, displayName: displayName)));
-        });
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        msg = 'The password provided is too weak.';
-        FocusScope.of(context).requestFocus(_passwordFocusNode);
-      } else if (e.code == 'email-already-in-use') {
-        msg = 'The account already exists for that email.';
-        FocusScope.of(context).requestFocus(_emailFocusNode);
-      } else if (e.code == "unknown") {
-        msg = e.message.toString();
-        FocusScope.of(context).requestFocus(_confirmPassFocusNode);
-      }
-    } catch (e) {
-      msg = e.toString();
+    if (!_emailRegex.hasMatch(_email.toString())) {
+      _errorMsg = "Invalid email format.";
+    } else if (_password.toString().length == 0) {
+      _errorMsg = "Password is required.";
+    } else if (_confirmPassword.toString().length == 0) {
+      _errorMsg = "Confirm password is required.";
+    } else if (_password.toString() != _confirmPassword.toString()) {
+      _errorMsg = "Password and confirm password doesn't match.";
+    } else {
+      _sendOtp();
     }
 
-    setState(() => _isLoading = false);
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
+  }
+
+  Widget getVerifyOtpWidget() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Text(
+              'An otp has been sent to your email\n${_emailController.text}',
+              style: TextStyle(fontSize: 15, color: Colors.white),
+              textAlign: TextAlign.center),
+        ),
+        SizedBox(height: 20),
+        TextFormField(
+          keyboardType: TextInputType.number,
+          //textInputAction: TextInputAction.continueAction,
+          autofocus: true,
+          controller: _otpController,
+          decoration: InputDecoration(hintText: "Enter OTP"),
+          onChanged: (value) {
+            if (value.length > 6) {
+              value = value.substring(0, 6);
+              _otpController.value = TextEditingValue(
+                text: value,
+                selection: TextSelection.collapsed(offset: value.length),
+              );
+            }
+            setState(() {
+              _verifyOtpEnabled = value.length == 6;
+            });
+          },
+        ),
+        SizedBox(height: 16),
+        TextButton(
+          child: Text('Verify'),
+          style: TextButton.styleFrom(
+              //shape: StadiumBorder(),
+              minimumSize: Size(double.infinity, 40),
+              primary: Colors.grey.shade800,
+              backgroundColor:
+                  _verifyOtpEnabled ? Colors.grey.shade300 : Colors.white38),
+          onPressed: () {
+            if (_verifyOtpEnabled) {
+              _verifyOtp();
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  void _sendOtp() async {
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
+
+    try {
+      EmailAuth.sessionName = "Bills App";
+      bool optSent =
+          await EmailAuth.sendOtp(receiverMail: _emailController.value.text);
+      if (optSent) {
+        setState(() {
+          _title = "Verify OTP";
+          _emailState = EmailVerificationState.SHOW_OTP_SENT;
+          setState(() => _isLoading = false);
+        });
+      }
+    } catch (e) {
+      _errorMsg = e.toString();
+    }
+
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
+  }
+
+  void _verifyOtp() async {
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
+
+    bool verified = EmailAuth.validate(
+        receiverMail: _emailController.text, userOTP: _otpController.text);
+
+    if (verified) {
+      try {
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+                email: _email!, password: _password!);
+        late String displayName;
+        User? user = userCredential.user;
+
+        if (user != null) {
+          DocumentReference document = _collection.doc(user.uid);
+          displayName = user.displayName ?? user.email ?? 'User';
+
+          document.get().then((snapshot) {
+            if (!snapshot.exists) {
+              document.set({
+                'display_name': displayName,
+                'email': user.email,
+                'photo_url': user.photoURL,
+                'logged_in': false
+              }).then((value) {
+                _errorMsg = "User added";
+              }).catchError((error) {
+                _errorMsg = "Failed to add user: $error";
+              });
+            }
+          }).whenComplete(() {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        MpinSignInPage(auth: _auth, displayName: displayName)));
+          });
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          _errorMsg = 'The password provided is too weak.';
+          FocusScope.of(context).requestFocus(_passwordFocusNode);
+        } else if (e.code == 'email-already-in-use') {
+          _errorMsg = 'The account already exists for that email.';
+          FocusScope.of(context).requestFocus(_emailFocusNode);
+        } else if (e.code == "unknown") {
+          _errorMsg = e.message.toString();
+          FocusScope.of(context).requestFocus(_confirmPassFocusNode);
+        }
+      } catch (e) {
+        _errorMsg = e.toString();
+      }
+    } else {
+      _errorMsg = "Invalid OTP entered.";
+    }
+
+    if (_errorMsg.length > 0) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

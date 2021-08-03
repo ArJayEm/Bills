@@ -10,7 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:bills/pages/signin/home.dart';
 
-enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, MPIN }
+enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, PIN }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,13 +84,11 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       FirebaseFirestore.instance.collection('users');
 
   bool _isLoading = false;
+  String _errorMsg = '';
 
   @override
   void initState() {
     super.initState();
-    // setState(() {
-    //   _currentUser = _auth.currentUser;
-    // });
     _getCurrentUser();
   }
 
@@ -105,8 +103,10 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   }
 
   _getCurrentUser() async {
-    setState(() => _isLoading = true);
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     if (_auth.currentUser != null) {
       setState(() {
@@ -128,11 +128,9 @@ class _InitializerWidgetState extends State<InitializerWidget> {
           });
           if (_userProfile.loggedIn == true) {
             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Dashboard(auth: _auth),
-              ),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Dashboard(auth: _auth)));
           } else {
             Navigator.push(
               context,
@@ -147,96 +145,15 @@ class _InitializerWidgetState extends State<InitializerWidget> {
           }
         });
       } on FirebaseAuthException catch (e) {
-        setState(() => _isLoading = false);
-        msg = '${e.message}';
+        _errorMsg = '${e.message}';
       } catch (error) {
-        setState(() => _isLoading = false);
-        msg = error.toString();
+        _errorMsg = error.toString();
       }
-    } else {
-      setState(() => _isLoading = false);
-    }
+    } else {}
 
-    if (msg.length > 0) {
-      print('error: $msg');
-      Fluttertoast.showToast(msg: msg);
+    setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
-
-  // Future<void> _getCurrentUser() async {
-  //   setState(() => _isLoading = true);
-
-  //   if (_auth.currentUser == null) {
-  //     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-  //       setState(() => _currentUser = account);
-  //       //   if (account != null) {
-  //       //     userProfile.id = account.id;
-  //       //     userProfile.displayName = _handleGetContact(account).toString();
-  //       //     userProfile.email = account.email;
-  //       //     userProfile.photoUrl = account.photoUrl;
-  //       //   }
-  //     });
-  //     // _googleSignIn.signInSilently();
-  //     // userProfile.id = _auth.currentUser!.uid;
-  //     // userProfile.displayName = _auth.currentUser!.displayName;
-  //     //     userProfile.email = _auth.currentUser!.email;
-  //     //     userProfile.photoUrl = _auth.currentUser!.photoURL;
-  //     //     userProfile.phoneNumber = _auth.currentUser!.phoneNumber;
-  //   }
-
-  //   // DocumentReference _document =
-  //   //     _collection.doc(userProfile.id);
-  //   // _document.get().then((snapshot) {
-  //   //   if (snapshot.exists) {
-  //   //     userProfile.id = snapshot.id;
-  //   //     userProfile.displayName = snapshot.get('display_name');
-  //   //     userProfile.loggedIn = snapshot.get('logged_in');
-  //   //   }
-  //   // }).whenComplete(() {
-  //   //   setState(() => _userProfile = userProfile);
-  //   // });
-  //   setState(() => _isLoading = false);
-  // }
-
-  // Future<String> _handleGetContact(GoogleSignInAccount user) async {
-  //   String? _contactText;
-  //   _contactText = "Loading contact info...";
-  //   final http.Response response = await http.get(
-  //     Uri.parse('https://people.googleapis.com/v1/people/me/connections'
-  //         '?requestMask.includeField=person.names'),
-  //     headers: await user.authHeaders,
-  //   );
-  //   if (response.statusCode != 200) {
-  //     _contactText = "People API gave a ${response.statusCode} "
-  //         "response. Check logs for details.";
-  //     print('People API ${response.statusCode} response: ${response.body}');
-  //   }
-  //   final Map<String, dynamic> data = json.decode(response.body);
-  //   final String? namedContact = _pickFirstNamedContact(data);
-  //   if (namedContact != null) {
-  //     _contactText = "I see you know $namedContact!";
-  //   } else {
-  //     _contactText = "No contacts to display.";
-  //   }
-
-  //   return _contactText;
-  // }
-
-  // String? _pickFirstNamedContact(Map<String, dynamic> data) {
-  //   final List<dynamic>? connections = data['connections'];
-  //   final Map<String, dynamic>? contact = connections?.firstWhere(
-  //     (dynamic contact) => contact['names'] != null,
-  //     orElse: () => null,
-  //   );
-  //   if (contact != null) {
-  //     final Map<String, dynamic>? name = contact['names'].firstWhere(
-  //       (dynamic name) => name['displayName'] != null,
-  //       orElse: () => null,
-  //     );
-  //     if (name != null) {
-  //       return name['displayName'];
-  //     }
-  //   }
-  //   return null;
-  // }
 }

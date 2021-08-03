@@ -16,6 +16,7 @@ class _SelectPayersState extends State<SelectPayers> {
   static Map<String, bool> mappedItem = Map<String, bool>();
 
   bool _sampleCheckState = false;
+  String _errorMsg = '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -91,7 +92,10 @@ class _SelectPayersState extends State<SelectPayers> {
   }
 
   Future<void> _getPayers() async {
-    String msg = '';
+    setState(() {
+      _errorMsg = "";
+    });
+
     List<dynamic> users = [];
     try {
       var users = FirebaseFirestore.instance.collection("users").snapshots();
@@ -99,12 +103,13 @@ class _SelectPayersState extends State<SelectPayers> {
         _users = users;
       });
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

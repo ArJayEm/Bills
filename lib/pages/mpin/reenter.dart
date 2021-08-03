@@ -1,14 +1,23 @@
 import 'package:bills/pages/dashboard.dart';
+import 'package:bills/pages/mpin/enter.dart';
+import 'package:bills/pages/settings/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+enum PinVerificationState { NOMINATE_PIN, CHANGE_PIN }
+
 class ReenterMpin extends StatefulWidget {
-  ReenterMpin({Key? key, required this.auth, required this.nominatedPin})
+  ReenterMpin(
+      {Key? key,
+      required this.auth,
+      required this.isChange,
+      required this.nominatedPin})
       : super(key: key);
 
   final FirebaseAuth auth;
+  final bool isChange;
   final String nominatedPin;
 
   @override
@@ -17,8 +26,14 @@ class ReenterMpin extends StatefulWidget {
 
 class _ReenterMpinState extends State<ReenterMpin> {
   late FirebaseAuth _auth;
+  late bool _isChange;
+  PinVerificationState _pinVerificationState =
+      PinVerificationState.NOMINATE_PIN;
+
+  String _title = '';
+  String _text = '';
+
   late User _user;
-  late DocumentReference _document;
   late String _nominatedPin;
   bool _isLoading = false;
 
@@ -45,8 +60,18 @@ class _ReenterMpinState extends State<ReenterMpin> {
     setState(() {
       _auth = widget.auth;
       _user = _auth.currentUser!;
+      _isChange = widget.isChange;
+      _pinVerificationState =
+          _isChange ? PinVerificationState.CHANGE_PIN : _pinVerificationState;
       _nominatedPin = widget.nominatedPin;
-      _document = FirebaseFirestore.instance.collection('users').doc(_user.uid);
+
+      if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
+        _title = 'Change PIN';
+        _text = 'Re-enter your nominated PIN';
+      } else {
+        _title = 'Re-enter your new nominated PIN';
+        _text = 'Nominate PIN';
+      }
     });
   }
 
@@ -55,10 +80,25 @@ class _ReenterMpinState extends State<ReenterMpin> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            // setState(() {
+            //   _isChange =
+            //       _pinVerificationState == PinVerificationState.CHANGE_PIN;
+            // });
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EnterMpin(auth: _auth, isChange: true)),
+            );
+          },
+          child: Icon(Icons.chevron_left),
+        ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         textTheme:
             TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: const Text('Nominate PIN'),
+        title: Text(_title),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
@@ -80,9 +120,8 @@ class _ReenterMpinState extends State<ReenterMpin> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Center(
-              child: Text('Please Re-enter your nominated 6-digit PIN',
-                  style: TextStyle(fontSize: 20, color: Colors.white)),
-            ),
+                child: Text(_text,
+                    style: TextStyle(fontSize: 20, color: Colors.white))),
             SizedBox(height: 10),
             Row(
               children: [
@@ -318,21 +357,39 @@ class _ReenterMpinState extends State<ReenterMpin> {
 
   Future<void> _saveMpin() async {
     setState(() => _isLoading = true);
+    String pin = _pinControllerFull.text.trim();
 
-    if (_pinControllerFull.text.length == 6 && _nominatedPin == _pinControllerFull.text) {
+    if (pin.length == 6 && _nominatedPin == pin) {
       try {
-        _document.update(
-            {'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
-        });
+        DocumentReference _document =
+            FirebaseFirestore.instance.collection('users').doc(_user.uid);
+
+        if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
+          _document.update({'mpin': _nominatedPin}).whenComplete(() {
+            Fluttertoast.showToast(msg: "PIN change successful");
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SettingsPage(auth: _auth)));
+          });
+        } else {
+          _document.update(
+              {'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Dashboard(auth: _auth)));
+          });
+        }
       } on FirebaseAuthException catch (e) {
-      setState(() => _isLoading = false);
         Fluttertoast.showToast(msg: e.toString());
       } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
-      Navigator.pop(context);
+        Fluttertoast.showToast(msg: e.toString());
+      }
+    } else {
+      Fluttertoast.showToast(msg: "PINs doesn't match.");
     }
-    }
+
+    setState(() => _isLoading = false);
   }
 }

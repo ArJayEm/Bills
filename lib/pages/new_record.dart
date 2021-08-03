@@ -54,6 +54,7 @@ class _ManagementState extends State<Management> {
   String _quantification = '';
 
   bool _fetchingPayers = false;
+  String _errorMsg = '';
 
   @override
   void initState() {
@@ -247,8 +248,11 @@ class _ManagementState extends State<Management> {
   }
 
   Future<void> _getPayers() async {
+    setState(() {
+      _errorMsg = "";
+    });
+
     List<UserProfile> _ps = [];
-    String msg = '';
     try {
       var collection = FirebaseFirestore.instance.collection('users');
 
@@ -271,12 +275,13 @@ class _ManagementState extends State<Management> {
       });
       print('_payerList: ${_payerList.toString()}');
     } on FirebaseAuthException catch (e) {
-      msg = '${e.message}';
+      _errorMsg = '${e.message}';
     } catch (error) {
-      msg = error.toString();
+      _errorMsg = error.toString();
     }
-    if (msg.length > 0) {
-      Fluttertoast.showToast(msg: msg);
+
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

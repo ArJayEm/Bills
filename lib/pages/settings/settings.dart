@@ -1,5 +1,6 @@
 import 'package:bills/pages/biometrics/biometrics.dart';
-import 'package:bills/pages/mpin/enter.dart';
+import 'package:bills/pages/dashboard.dart';
+import 'package:bills/pages/mpin/current.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,16 @@ class _SettingsPageState extends State<SettingsPage> {
           onTap: () => Navigator.pop(context),
           child: Icon(Icons.chevron_left),
         ),
+        // leading: GestureDetector(
+        //   onTap: () {
+        //     Navigator.pop(context);
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)),
+        //     );
+        //   },
+        //   child: Icon(Icons.chevron_left),
+        // ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         textTheme:
             TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
@@ -52,10 +63,9 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => EnterMpin(auth: _auth)),
-                );
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EnterCurrent(auth: _auth)));
               },
             ),
             Divider(),
@@ -67,10 +77,9 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Biometrics(auth: _auth)),
-                );
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Biometrics(auth: _auth)));
               },
             ),
             Divider(),
