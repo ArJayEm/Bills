@@ -360,7 +360,7 @@ class _MpinSignInPageState extends State<MpinSignInPage> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => SignInPage(auth: _auth)));
         }
-      }).whenComplete(() {});
+      }); //.whenComplete(() {});
     } on FirebaseAuthException catch (e) {
       Fluttertoast.showToast(msg: e.message.toString());
     } catch (e) {
