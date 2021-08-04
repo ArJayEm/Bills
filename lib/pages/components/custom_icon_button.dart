@@ -53,3 +53,29 @@ class CustomIconButton extends StatelessWidget {
     );
   }
 }
+
+class CustomAppBarButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final IconData icon;
+  final Color checkedColor;
+  final Color uncheckedColor;
+  final bool isChecked;
+
+  CustomAppBarButton(
+      {required this.icon,
+      required this.onTap,
+      required this.uncheckedColor,
+      required this.checkedColor,
+      required this.isChecked});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(right: 20.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Icon(icon, size: 26.0, color: isChecked ? checkedColor : uncheckedColor),
+      ),
+    );
+  }
+}

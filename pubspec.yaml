@@ -26,33 +26,33 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  build_runner_core: ^7.0.1
-  cupertino_icons: ^1.0.2
+  build_runner_core: #^7.0.1
+  cupertino_icons: #^1.0.2
   cloud_firestore: #^2.3.0
-  sqflite: ^2.0.0+3
-  path_provider: ^2.0.2
+  sqflite: #^2.0.0+3
+  path_provider: #^2.0.2
   json_annotation: #^4.1.0
-  intl: ^0.17.0
-  firebase_auth_web: ^3.0.0
-  fluttertoast: ^8.0.7
-  # pie_chart: ^5.0.0
-  pdf: ^3.4.2
-  permission_handler: ^8.1.2
+  intl: #^0.17.0
+  firebase_auth_web: #^3.0.0
+  fluttertoast: #^8.0.7
+  # pie_chart: #^5.0.0
+  pdf: #^3.4.2
+  permission_handler: #^8.1.2
   meta: #^1.7.0
-  month_picker_dialog: ^0.4.0
+  month_picker_dialog: #^0.4.0
   firebase_core: #^1.1.0
-  firebase_database: ^7.1.1
+  firebase_database: #^7.1.1
   flutter_login_facebook: #^1.0.1
-  #flutter_translator: ^0.1.1
-  shared_preferences: ^2.0.5
-  provider: ^5.0.0
+  #flutter_translator: #^0.1.1
+  shared_preferences: #^2.0.5
+  provider: #^5.0.0
   firebase_auth: #^3.0.0
   google_sign_in: #^5.0.2
-  googleapis_auth: ^1.1.0
-  googleapis: ^4.0.0
-  flutter_facebook_auth: ^3.5.0
-  flutter_multiselect: ^1.0.0
-  sms_autofill: ^2.0.1
+  googleapis_auth: #^1.1.0
+  googleapis: #^4.0.0
+  flutter_facebook_auth: #^3.5.0
+  flutter_multiselect: #^1.0.0
+  sms_autofill: #^2.0.1
   http:
   local_auth: #^1.1.6
   expandable: #^5.0.1
@@ -65,7 +65,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^2.0.6
+  build_runner: #^2.0.6
   json_serializable: #^5.0.0
 
 # For information on the generic Dart part of this file, see the

@@ -47,6 +47,7 @@ class _EnterMpinState extends State<EnterMpin> {
   final _pinFocusNode6 = FocusNode();
 
   bool _isLoading = false;
+  String _errorMsg = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -90,7 +91,7 @@ class _EnterMpinState extends State<EnterMpin> {
           //             builder: (context) => SettingsPage(auth: _auth)),
           //       );
           //     } else {
-          //       //Fluttertoast.showToast(msg: 'Unable to navigate back');
+          //       // _errorMsg = "'Unable to navigate back');
           //     }
           //   },
           //   child: Icon(Icons.arrow_back),
@@ -329,7 +330,10 @@ class _EnterMpinState extends State<EnterMpin> {
   }
 
   _reEnter() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -356,12 +360,15 @@ class _EnterMpinState extends State<EnterMpin> {
         }
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
     }
 
     setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 
   void _splitPin(List<String> splittedPin) {

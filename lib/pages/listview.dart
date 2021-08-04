@@ -1,3 +1,4 @@
+import 'package:bills/models/bills.dart';
 import 'package:bills/pages/new_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,11 +23,12 @@ class ListViewPage extends StatefulWidget {
 
 class _ListViewPage extends State<ListViewPage> {
   late FToast fToast = FToast();
-  dynamic _data;
+  Bills? _bill;
   late Stream<QuerySnapshot> _listStream;
   String _quantification = '';
   String _collectionName = '';
   String _errorMsg = '';
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -64,7 +66,7 @@ class _ListViewPage extends State<ListViewPage> {
           icon: Icons.add,
           color: widget.color,
           onTap: () {
-            _addRecord(_data, widget.title);
+            _showDataManager(_bill, widget.title);
           }),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
     );
@@ -85,27 +87,50 @@ class _ListViewPage extends State<ListViewPage> {
             : ListView(
                 children: snapshot.data!.docs.map(
                   (DocumentSnapshot document) {
-                    Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
-                    return ListTile(
-                      title: Text(
-                          DateTime.fromMillisecondsSinceEpoch(data['bill_date'])
-                              .format(dateOnly: true)),
-                      subtitle: Text(
-                          'Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    Bills _bill =
+                        Bills.fromJson(document.data() as Map<String, dynamic>);
+                    _bill.id = document.id;
+                    // Map<String, dynamic> data =
+                    //     document.data() as Map<String, dynamic>;
+                    return ConstrainedBox(
+                      constraints: new BoxConstraints(
+                        minHeight: _isExpanded ? 100 : 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'P ${data['amount']}',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(fontSize: 20, color: widget.color),
-                          ),
-                          Text(
-                            '${data[_quantification]} $_quantification',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(fontWeight: FontWeight.w200),
+                          ListTile(
+                            title: Text(DateTime.fromMillisecondsSinceEpoch(
+                                    _bill.billdate!)
+                                .format(dateOnly: true)),
+                            //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
+                            subtitle: Text(
+                                'id: ${document.id} | ${_bill.payerIds!.length}'),
+                            trailing: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'P ${_bill.amount}',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                      fontSize: 20, color: widget.color),
+                                ),
+                                Text(
+                                  '${_bill.quantification} $_quantification',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(fontWeight: FontWeight.w200),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              // setState(() {
+                              //   _isExpanded = !_isExpanded;
+                              // });
+                              _showDataManager(_bill, widget.title);
+                            },
                           ),
                         ],
                       ),
@@ -117,7 +142,7 @@ class _ListViewPage extends State<ListViewPage> {
     );
   }
 
-  _addRecord(data, title) async {
+  _showDataManager(data, title) async {
     if ((await showAddRecord(
             context, data, _quantification, title, widget.color)) ??
         false) _getlist();

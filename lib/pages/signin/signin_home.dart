@@ -223,8 +223,8 @@ class _SignInHomeState extends State<SignInHome> {
       _errorMsg = error.toString();
     }
 
+    setState(() => _isLoading = false);
     if (_errorMsg.length > 0) {
-      setState(() => _isLoading = false);
       Fluttertoast.showToast(msg: _errorMsg);
     }
   }
@@ -279,8 +279,8 @@ class _SignInHomeState extends State<SignInHome> {
       _errorMsg = error.toString();
     }
 
+    setState(() => _isLoading = false);
     if (_errorMsg.length > 0) {
-      setState(() => _isLoading = false);
       Fluttertoast.showToast(msg: _errorMsg);
     }
   }
@@ -322,13 +322,13 @@ class _SignInHomeState extends State<SignInHome> {
         );
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
     }
 
+    setState(() => _isLoading = false);
     if (_errorMsg.length > 0) {
-      setState(() => _isLoading = false);
       Fluttertoast.showToast(msg: _errorMsg);
     }
   }

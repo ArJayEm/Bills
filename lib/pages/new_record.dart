@@ -1,4 +1,5 @@
-import 'package:bills/models/user_profile.dart';
+import 'package:bills/models/bills.dart';
+import 'package:bills/pages/components/custom_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'components/modal_base.dart';
-import 'components/multi_select_dialog.dart';
 
 Future<bool?> showAddRecord(context, data, quantification, title, color) async {
   return await showModalBottomSheet<bool?>(
@@ -21,7 +21,7 @@ Future<bool?> showAddRecord(context, data, quantification, title, color) async {
 
 class Management extends StatefulWidget {
   final String title;
-  final dynamic data;
+  final Bills data;
   final String quantification;
   final Color color;
 
@@ -41,32 +41,35 @@ class _ManagementState extends State<Management> {
   final _ctrlBillDate = TextEditingController();
   final _ctrlAmount = TextEditingController();
   final _ctrlQuantif = TextEditingController();
+
   TextEditingController _ctrlSelectedPayers = TextEditingController();
-  String _selectedPayersLabelText = 'Selected Payers (0)';
 
-  DateTime? _billdate = DateTime.now();
-  num _amount = 0;
-  int _quantif = 0;
+  late Bills _bill;
 
-  List<UserProfile> _payerList = [];
-  List<String> _selectedPayerList = [];
+  List<dynamic> _selectedList = [];
+  List<dynamic> _selectList = [];
+  bool _selectedAll = false;
+  bool _isExpanded = false;
 
   String _quantification = '';
 
   bool _fetchingPayers = false;
   String _errorMsg = '';
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     _getPayers();
-    _quantification = widget
-        .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
     setState(() {
-      _ctrlBillDate.text = _billdate!.format(dateOnly: true);
-      _ctrlAmount.text = _amount.toString();
-      _ctrlQuantif.text = _quantif.toString();
-      _ctrlSelectedPayers.text = 'No Payers Selected';
+      _bill = widget.data;
+      _selectedList = _bill.payerIds!;
+      _quantification = widget
+          .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
+      _ctrlBillDate.text = _bill.billdate!.formatToDateTimeString();
+      _ctrlAmount.text = _bill.amount.toString();
+      _ctrlQuantif.text = _bill.quantification.toString();
+      //_ctrlSelectedPayers.text = 'No Payers Selected';
     });
   }
 
@@ -89,114 +92,161 @@ class _ManagementState extends State<Management> {
                 children: [
                   TextFormField(
                     decoration: InputDecoration(
-                        labelText: 'Bill Date', hintText: 'Bill Date'),
+                        contentPadding: EdgeInsets.all(5),
+                        icon: Icon(Icons.calendar_today),
+                        labelText: 'Bill Date',
+                        hintText: 'Bill Date'),
                     controller: _ctrlBillDate,
                     readOnly: true,
                     onTap: () {
                       _getDate();
                     },
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.isEmpty || value == "0") {
                         return 'Invalid date.';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(),
+                  SizedBox(height: 10),
                   TextFormField(
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(5),
+                        icon: Icon(Icons.attach_money_outlined),
+                        labelText: 'Amount',
+                        hintText: 'Amount'),
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                        labelText: 'Amount', hintText: 'Amount'),
                     controller: _ctrlAmount,
                     onChanged: (value) {
                       setState(() {
-                        _amount = num.parse(value);
+                        _bill.amount = num.parse(value);
                       });
                     },
                     onTap: () {
-                      if (_amount.toString() == "0") {
+                      if (_bill.amount.toString() == "0") {
                         _ctrlAmount.selection = TextSelection(
                             baseOffset: 0,
                             extentOffset: _ctrlAmount.text.length);
                       }
                     },
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.isEmpty || value == "0") {
                         return 'Must be geater than 0.';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(),
+                  SizedBox(height: 10),
                   TextFormField(
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                        labelText: _quantification, hintText: _quantification),
+                        contentPadding: EdgeInsets.all(5),
+                        icon: Icon(Icons.pin),
+                        labelText: _quantification,
+                        hintText: _quantification),
+                    keyboardType: TextInputType.number,
                     controller: _ctrlQuantif,
                     onChanged: (value) {
                       setState(() {
-                        _quantif = int.parse(value);
+                        _bill.quantification = int.parse(value);
                       });
                     },
                     onTap: () {
-                      if (_quantif.toString() == "0") {
+                      if (_bill.quantification.toString() == "0") {
                         _ctrlQuantif.selection = TextSelection(
                             baseOffset: 0,
                             extentOffset: _ctrlQuantif.text.length);
                       }
                     },
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.isEmpty || value == "0") {
                         return 'Must be geater than 0.';
                       }
                       return null;
                     },
                   ),
                   SizedBox(height: 10),
-                  TextFormField(
-                    showCursor: false,
-                    readOnly: true,
-                    controller: _ctrlSelectedPayers,
-                    decoration: InputDecoration(
-                      labelText: _selectedPayersLabelText,
-                      hintText: 'Select Payers',
+                  ConstrainedBox(
+                    constraints: new BoxConstraints(
+                      minHeight: _isExpanded ? 100 : 0,
                     ),
-                    onTap: () async {
-                      var selected = await showDialog<List<String>>(
-                          context: context,
-                          builder: (_) => MultiSelectDialog(
-                              question: Text('Select Payers'),
-                              payers: _payerList));
-                      print(selected);
-                      if (selected!.isNotEmpty == true) {
-                        setState(() {
-                          _selectedPayerList = selected;
-                          _selectedPayersLabelText =
-                              'Selected Payers (${selected.length})';
-                          _ctrlSelectedPayers.text = '$selected';
-                        });
-                      } else {
-                        _selectedPayersLabelText = 'Select Payers';
-                        _ctrlSelectedPayers.text = 'No Payers Selected';
-                      }
-                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          showCursor: false,
+                          readOnly: true,
+                          controller: _ctrlSelectedPayers,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(5),
+                            icon: Icon(Icons.person),
+                            suffixIcon: _isExpanded
+                                ? CustomAppBarButton(
+                                    onTap: () => setState(() {
+                                      _selectedList.clear();
+                                      if (!_selectedAll) {
+                                        for (int b = 0;
+                                            b < _selectList.length;
+                                            b++) {
+                                          _selectedList.add(_selectList[b][0]);
+                                        }
+                                      }
+                                      setState(() {
+                                        _selectedAll = !_selectedAll;
+                                      });
+                                    }),
+                                    icon: Icons.select_all,
+                                    checkedColor: Colors.teal,
+                                    uncheckedColor: Colors.white,
+                                    isChecked: _selectedAll,
+                                  )
+                                : SizedBox(),
+                            labelText: 'Payers',
+                            hintText:
+                                'Selected Payers (${_selectedList.length})',
+                          ),
+                          onTap: () async {
+                            setState(() {
+                              _isExpanded = !_isExpanded;
+                            });
+                          },
+                          onChanged: (value) {},
+                          validator: (value) {
+                            if (_selectedList.length == 0) {
+                              return 'Must select at least 1';
+                            }
+                            return null;
+                          },
+                        ),
+                        ..._isExpanded
+                            ? <Widget>[
+                                Divider(thickness: 1, height: 0),
+                                createMenuWidget()
+                              ]
+                            : <Widget>[]
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 60),
+                  SizedBox(height: 50),
                   ElevatedButton(
-                    child: Text('Save'),
+                    child: _isSaving
+                        ? Center(child: CircularProgressIndicator())
+                        : Text('Save'),
                     style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 40),
-                        //primary: widget.color,
+                        minimumSize: Size(double.infinity, 50),
+                        primary: widget.color,
                         textStyle: TextStyle(color: Colors.white)),
-                    onPressed: _saveRecord,
+                    onPressed: !_isSaving ? _saveRecord : null,
                   ),
                   SizedBox(height: 10),
-                  TextButton(
+                  ElevatedButton(
                     onPressed: _cancel,
                     child: Text('Cancel'),
                     style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 40),
+                        minimumSize: Size(double.infinity, 50),
+                        primary: Colors.grey.shade800,
                         textStyle: TextStyle(color: widget.color)),
                   ),
                 ],
@@ -209,40 +259,74 @@ class _ManagementState extends State<Management> {
   _getDate() async {
     var date = await showDatePicker(
       context: context,
-      initialDate: _billdate ?? _lastdate,
+      initialDate: DateTime.fromMillisecondsSinceEpoch(_bill.billdate!),
       firstDate: _firstdate,
       lastDate: _lastdate,
     );
     if (date != null) {
       setState(() {
-        _billdate = DateTime(date.year, date.month, date.day);
-        _ctrlBillDate.text = _billdate!.format(dateOnly: true);
+        _bill.billdate =
+            DateTime(date.year, date.month, date.day).millisecondsSinceEpoch;
+        _ctrlBillDate.text = _bill.billdate!.formatToDateTimeString();
       });
     }
   }
 
-  Future<void> _saveRecord() {
-    String collection = widget.title.toLowerCase();
-    CollectionReference list =
-        FirebaseFirestore.instance.collection(collection);
+  void _saveRecord() {
+    setState(() {
+      _errorMsg = "";
+      _isSaving = true;
+    });
 
-    return list
-        .add({
-          'bill_date': _billdate!.millisecondsSinceEpoch,
-          'amount': _amount,
-          _quantification: _quantif,
-          'created_on': DateTime.now().millisecondsSinceEpoch,
-          'payers': _selectedPayerList
-        })
-        .then((value) => print("Bill added."))
-        .catchError((error) => print("Failed to add bill: $error"));
+    if (_formKey.currentState!.validate()) {
+      Fluttertoast.showToast(msg: 'Processing Data');
+
+      try {
+        String collection = widget.title.toLowerCase();
+        CollectionReference list =
+            FirebaseFirestore.instance.collection(collection);
+        if (_bill.id == null) {
+          list
+              .add({
+                'bill_date': _bill.billdate,
+                'amount': _bill.amount,
+                _quantification: _bill.quantification,
+                'created_on': DateTime.now().millisecondsSinceEpoch,
+                'payer_ids': _selectedList
+              })
+              .then((value) => print("Bill added."))
+              .catchError((error) => print("Failed to add bill: $error"));
+        } else {
+          list
+              .doc(_bill.id)
+              .update({
+                'bill_date': _bill.billdate,
+                'amount': _bill.amount,
+                _quantification: _bill.quantification,
+                'created_on': DateTime.now().millisecondsSinceEpoch,
+                'payer_ids': _selectedList
+              })
+              .then((value) => print("Bill added."))
+              .catchError((error) => print("Failed to add bill: $error"));
+        }
+      } on FirebaseAuthException catch (e) {
+        _errorMsg = '${e.message}';
+      } catch (error) {
+        _errorMsg = error.toString();
+      }
+    }
+
+    setState(() => _isSaving = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 
   _cancel() {
     setState(() {
       _ctrlBillDate.clear();
       _ctrlAmount.clear();
-      _payerList.clear();
+      _selectedList.clear();
     });
     Navigator.of(context).pop(false);
   }
@@ -252,25 +336,19 @@ class _ManagementState extends State<Management> {
       _errorMsg = "";
     });
 
-    List<UserProfile> _ps = [];
     try {
-      var collection = FirebaseFirestore.instance.collection('users');
-
-      collection.get().then((snapshot) {
-        UserProfile up = UserProfile();
-        for (var i = 0; i < snapshot.docs.length; i++) {
-          up.id = snapshot.docs[i].id.toString();
-          up.displayName = snapshot.docs[i].get('display_name').toString();
-          up.members = int.parse(snapshot.docs[i].get('members'));
-          up.loggedIn = snapshot.docs[i].get('logged_in');
-          _ps.add(up);
-        }
+      List<dynamic> users = [];
+      CollectionReference _collection =
+          FirebaseFirestore.instance.collection("users");
+      _collection.get().then((querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          users.add([doc.id, doc.get('display_name')]);
+        });
       }).whenComplete(() {
         setState(() {
-          _payerList = _ps;
+          _selectList.addAll(users);
         });
       });
-      print('_payerList: ${_payerList.toString()}');
     } on FirebaseAuthException catch (e) {
       _errorMsg = '${e.message}';
     } catch (error) {
@@ -280,5 +358,32 @@ class _ManagementState extends State<Management> {
     if (_errorMsg.length > 0) {
       Fluttertoast.showToast(msg: _errorMsg);
     }
+  }
+
+  Widget createMenuWidget() {
+    List<Widget> mList = <Widget>[];
+    for (int b = 0; b < _selectList.length; b++) {
+      String id = _selectList[b][0];
+      String displayname = _selectList[b][1];
+      mList.add(CheckboxListTile(
+        selected: _selectedList.contains(id),
+        onChanged: (bool? value) {
+          setState(() {
+            if (value == true) {
+              _selectedList.add(id);
+            } else {
+              _selectedList.remove(id);
+            }
+            _selectedAll = _selectList.length == _selectedList.length;
+          });
+          print(_selectedList);
+        },
+        value: _selectedList.contains(id),
+        title: new Text(displayname),
+        subtitle: new Text(id),
+        controlAffinity: ListTileControlAffinity.leading,
+      ));
+    }
+    return ListView(shrinkWrap: true, children: mList);
   }
 }

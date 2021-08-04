@@ -33,6 +33,7 @@ class _EnterCurrentState extends State<EnterCurrent> {
   final _pinFocusNode6 = FocusNode();
 
   bool _isLoading = false;
+  String _errorMsg = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -331,7 +332,10 @@ class _EnterCurrentState extends State<EnterCurrent> {
   }
 
   _nominate() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -362,15 +366,18 @@ class _EnterCurrentState extends State<EnterCurrent> {
           //   FocusScope.of(context).requestFocus(_pinFocusNode1);
           // });
           FocusScope.of(context).requestFocus(_pinFocusNode6);
-          Fluttertoast.showToast(msg: 'Incorrect pin.');
+          _errorMsg = "Incorrect pin.";
         }
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: '${e.message}');
+      _errorMsg = e.message.toString();
     } catch (error) {
-      Fluttertoast.showToast(msg: error.toString());
+      _errorMsg = error.toString();
     }
 
     setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 }

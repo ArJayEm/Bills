@@ -5,7 +5,6 @@ import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/expandable.dart';
-import 'package:bills/pages/new.dart';
 import 'package:bills/pages/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -173,16 +172,16 @@ class _DashboardState extends State<Dashboard> {
                     _openBills(context, ExpandableSample());
                   },
                 ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.expand),
-                  minLeadingWidth: 0,
-                  title: Text('New Record'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _openBills(context, SelectPayers());
-                  },
-                ),
+                // Divider(),
+                // ListTile(
+                //   leading: Icon(Icons.expand),
+                //   minLeadingWidth: 0,
+                //   title: Text('New Record'),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     _openBills(context, SelectPayers());
+                //   },
+                // ),
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.info_outline),

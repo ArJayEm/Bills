@@ -1,6 +1,6 @@
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/enter.dart';
-import 'package:bills/pages/signin/email.dart';
+//import 'package:bills/pages/signin/email.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -59,6 +59,7 @@ class _PinHomeState extends State<PinHome> {
 
   bool _isLoading = false;
   bool _isButtonPressed = false;
+  String _errorMsg = "";
 
   @override
   void initState() {
@@ -104,24 +105,28 @@ class _PinHomeState extends State<PinHome> {
             Spacer(),
             Row(
               children: [
-                _auth.currentUser!.photoURL.toString().length > 0
-                    ? Container(
-                        height: 20,
-                        width: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: NetworkImage(
-                              _auth.currentUser!.photoURL.toString(),
-                            ),
-                          ),
-                        ),
-                      )
-                    : SizedBox(
-                        child: Image(
+                _auth.currentUser!.email != null
+                    ? Image(
+                        height: 20, image: AssetImage('assets/icons/email.png'))
+                    : _auth.currentUser!.phoneNumber != null
+                        ? Image(
                             height: 20,
-                            image: AssetImage('assets/icons/google.png'))),
+                            image: AssetImage('assets/icons/mobile.png'))
+                        : _auth.currentUser!.photoURL != null
+                            ? Container(
+                                height: 20,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: NetworkImage(
+                                      _auth.currentUser!.photoURL.toString(),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
                 Text(
                   '  $_displayName',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
@@ -313,7 +318,10 @@ class _PinHomeState extends State<PinHome> {
   }
 
   Future<void> _verifyMpin() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -331,20 +339,26 @@ class _PinHomeState extends State<PinHome> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
-          Fluttertoast.showToast(msg: 'Incorrect pin.');
+          _errorMsg = "Incorrect pin.";
         }
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message.toString());
+      _errorMsg = e.message.toString();
     } catch (error) {
-      Fluttertoast.showToast(msg: error.toString());
+      _errorMsg = error.toString();
     }
 
     setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 
   Future<void> _checkIfExistingUser() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -358,9 +372,12 @@ class _PinHomeState extends State<PinHome> {
           loggedIn = snapshot.get('logged_in');
           pin = snapshot.get('mpin');
         } else {
-          Fluttertoast.showToast(msg: "User not found");
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
+          _auth.signOut();
+          _errorMsg = "User not found";
+          Navigator.pushNamed(context, '/SignInHome',
+              arguments: <FirebaseAuth>{_auth});
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
         }
       }).whenComplete(() {
         if (loggedIn) {
@@ -377,16 +394,22 @@ class _PinHomeState extends State<PinHome> {
         }
       });
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message.toString());
+      _errorMsg = e.message.toString();
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
     }
 
     setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 
   _handleSignOut() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
 
     try {
       _auth.signOut();
@@ -395,12 +418,17 @@ class _PinHomeState extends State<PinHome> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SignInHome(auth: _auth),          
+          builder: (context) => SignInHome(auth: _auth),
           //builder: (context) => EmailSignInPage(auth: _auth, isSignin: true),
         ),
       );
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      _errorMsg = e.toString();
+    }
+
+    setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 }

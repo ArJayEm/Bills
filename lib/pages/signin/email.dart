@@ -299,7 +299,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         _errorMsg = e.toString();
       }
     } catch (error) {
-      Fluttertoast.showToast(msg: error.toString());
+      _errorMsg = error.toString();
     }
 
     setState(() => _isLoading = false);
@@ -364,7 +364,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       children: [
         Center(
           child: Text(
-              "An otp has been sent to your email\n${_emailController.text}",
+              "An OTP has been sent to your email\n${_emailController.text}",
               style: TextStyle(fontSize: 15, color: Colors.white),
               textAlign: TextAlign.center),
         ),

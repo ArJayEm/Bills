@@ -12,11 +12,11 @@ extension NumberFormatHelper on num {
 
 extension MsEpochToDateTimeFormat on int {
   DateTime formatToDateTime() {
-    return DateTime(this);
+    return DateTime.fromMillisecondsSinceEpoch(this);
   }
 
-  String formatDateTimeString() {
-    return DateTime(this).format(dateOnly: true);
+  String formatToDateTimeString() {
+    return DateTime.fromMillisecondsSinceEpoch(this).format(dateOnly: true);
   }
 
   String toVerboseDateTime(int? modifiedon) {

@@ -35,6 +35,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
   late User _user;
   late String _nominatedPin;
   bool _isLoading = false;
+  String _errorMsg = "";
 
   final _pinControllerFull = TextEditingController();
   final _pinController1 = TextEditingController();
@@ -359,7 +360,10 @@ class _ReenterMpinState extends State<ReenterMpin> {
   }
 
   Future<void> _saveMpin() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
     String pin = _pinControllerFull.text.trim();
 
     if (pin.length == 6 && _nominatedPin == pin) {
@@ -369,7 +373,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
 
         if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
           _document.update({'mpin': _nominatedPin}).whenComplete(() {
-            Fluttertoast.showToast(msg: "PIN change successful");
+             _errorMsg = "PIN change successful";
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -385,14 +389,17 @@ class _ReenterMpinState extends State<ReenterMpin> {
           });
         }
       } on FirebaseAuthException catch (e) {
-        Fluttertoast.showToast(msg: e.toString());
+         _errorMsg = e.toString();
       } catch (e) {
-        Fluttertoast.showToast(msg: e.toString());
+         _errorMsg = e.toString();
       }
     } else {
-      Fluttertoast.showToast(msg: "PINs doesn't match.");
+       _errorMsg = "PINs doesn't match.";
     }
 
     setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 }
