@@ -15,10 +15,10 @@ class UserProfile extends ModelBase {
   @JsonKey(name: "phone_number")
   String? phoneNumber;
   @JsonKey(name: "logged_in")
-  bool loggedIn;
+  bool? loggedIn = false;
   int? members;
 
-  UserProfile({id, this.displayName, this.members, this.loggedIn = false});
+  UserProfile();
 
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);

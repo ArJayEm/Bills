@@ -1,9 +1,8 @@
+import 'package:bills/pages/pin/pin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../mpin/mpin.dart';
 
 enum MobileVerificationState { SHOW_MOBILE_FORM_STATE, SHOW_OTP_FORM_STATE }
 
@@ -193,9 +192,9 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
         },
       );
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.message.toString();
+      Fluttertoast.showToast(msg: e.toString());
     } catch (e) {
-      _errorMsg = e.toString();
+      Fluttertoast.showToast(msg: e.toString());
     }
 
     if (_errorMsg.length > 0) {
@@ -215,15 +214,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           verificationId: _verificationId!, smsCode: _otpController.text);
       UserCredential userCredential =
           await _auth.signInWithCredential(phoneAuthCredential);
-      late String displayName;
 
       if (userCredential.user != null) {
         setState(() {
           _user = userCredential.user!;
         });
-        var _document =
+        DocumentReference _document =
             FirebaseFirestore.instance.collection('users').doc(_user.uid);
-        displayName = _user.displayName ?? _user.phoneNumber ?? 'User';
+        String displayName = _user.phoneNumber ?? '';
 
         _document.get().then((snapshot) {
           if (!snapshot.exists) {
@@ -242,13 +240,13 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      MpinSignInPage(auth: _auth, displayName: displayName)));
+                      PinHome(auth: _auth, displayName: displayName)));
         });
       }
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.message.toString();
+      Fluttertoast.showToast(msg: e.toString());
     } catch (e) {
-      _errorMsg = e.toString();
+      Fluttertoast.showToast(msg: e.toString());
     }
 
     if (_errorMsg.length > 0) {

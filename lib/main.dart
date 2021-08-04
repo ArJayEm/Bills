@@ -1,6 +1,8 @@
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
-import 'package:bills/pages/mpin/mpin.dart';
+import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/pages/signin/email.dart';
+import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'package:bills/pages/signin/home.dart';
 
 enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, PIN }
 
@@ -98,7 +99,8 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       debugShowCheckedModeBanner: false,
       home: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : SignInPage(auth: _auth),
+          : SignInHome(auth: _auth),
+          //: EmailSignInPage(auth: _auth, isSignin: true),
     );
   }
 
@@ -135,7 +137,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MpinSignInPage(
+                builder: (context) => PinHome(
                     auth: _auth,
                     displayName: _userProfile.displayName ??
                         userProfile.displayName ??

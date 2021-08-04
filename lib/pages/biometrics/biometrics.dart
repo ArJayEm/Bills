@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bills/pages/settings/settings.dart';
+import 'package:bills/pages/settings/settings_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,10 +54,10 @@ class _BiometricsState extends State<Biometrics> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SettingsPage(auth: _auth)),
+                  builder: (context) => SettingsHome(auth: _auth)),
             );
           },
-          child: Icon(Icons.chevron_left),
+          child: Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         title: const Text('Plugin example app'),
@@ -69,7 +69,7 @@ class _BiometricsState extends State<Biometrics> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_supportState == _SupportState.unknown)
-                CircularProgressIndicator()
+                Center(child: CircularProgressIndicator())
               else if (_supportState == _SupportState.supported)
                 Text("This device is supported")
               else

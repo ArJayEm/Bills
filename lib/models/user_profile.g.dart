@@ -7,9 +7,7 @@ part of 'user_profile.dart';
 // **************************************************************************
 
 UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
-  return UserProfile(
-    loggedIn: json['logged_in'] as bool,
-  )
+  return UserProfile()
     ..id = json['id'] as String?
     ..createdOn = DateTime.parse(json['created_on'] as String)
     ..modifiedOn = json['modified_on'] == null
@@ -18,7 +16,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
     ..displayName = json['display_name'] as String?
     ..email = json['email'] as String?
     ..photoUrl = json['photo_url'] as String?
-    ..phoneNumber = json['phone_number'] as String?;
+    ..phoneNumber = json['phone_number'] as String?
+    ..loggedIn = json['logged_in'] as bool?
+    ..members = json['members'] as int?;
 }
 
 Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
@@ -38,5 +38,6 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   val['photo_url'] = instance.photoUrl;
   val['phone_number'] = instance.phoneNumber;
   val['logged_in'] = instance.loggedIn;
+  val['members'] = instance.members;
   return val;
 }

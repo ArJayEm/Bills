@@ -80,7 +80,7 @@ class _ManagementState extends State<Management> {
         : widget.title;
 
     return _fetchingPayers
-        ? CircularProgressIndicator()
+        ? Center(child: CircularProgressIndicator())
         : generateModalBody(
             Form(
               key: _formKey,
@@ -257,16 +257,13 @@ class _ManagementState extends State<Management> {
       var collection = FirebaseFirestore.instance.collection('users');
 
       collection.get().then((snapshot) {
+        UserProfile up = UserProfile();
         for (var i = 0; i < snapshot.docs.length; i++) {
-          String id = snapshot.docs[i].id.toString();
-          String displayName = snapshot.docs[i].get('display_name').toString();
-          int members = 0;
-          // int.parse(snapshot.docs[i].get('members'));
-          _ps.add(UserProfile(
-              id: id,
-              displayName: displayName,
-              members: members,
-              loggedIn: false));
+          up.id = snapshot.docs[i].id.toString();
+          up.displayName = snapshot.docs[i].get('display_name').toString();
+          up.members = int.parse(snapshot.docs[i].get('members'));
+          up.loggedIn = snapshot.docs[i].get('logged_in');
+          _ps.add(up);
         }
       }).whenComplete(() {
         setState(() {

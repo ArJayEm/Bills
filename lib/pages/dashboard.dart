@@ -1,12 +1,13 @@
 // import 'dart:js';
 
 import 'package:bills/models/menu.dart';
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/expandable.dart';
 import 'package:bills/pages/new.dart';
-import 'package:bills/pages/profile/profile.dart';
-import 'package:bills/pages/settings/settings.dart';
+import 'package:bills/pages/profile/profile_home.dart';
+import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -157,7 +158,7 @@ class _DashboardState extends State<Dashboard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => SettingsPage(auth: _auth)),
+                          builder: (context) => SettingsHome(auth: _auth)),
                     ).whenComplete(
                         () => _scaffoldKey.currentState!.openDrawer());
                   },
@@ -254,19 +255,19 @@ class _DashboardState extends State<Dashboard> {
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        late String displayname;
+        UserProfile up = UserProfile();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
-            displayname = snapshot.get('display_name') ?? "";
+            up.displayName = snapshot.get('display_name') ?? "";
+            up.email = snapshot.get('email');
           }
         }).whenComplete(() {
           setState(() {
             _isLoadingUser = false;
-            _displayName = displayname;
+            _displayName = up.displayName ?? "";
           });
-          if (_auth.currentUser!.displayName != displayname &&
-              _auth.currentUser!.displayName != null) {
+          if (_auth.currentUser?.email != up.email) {
             _document.update({'display_name': _auth.currentUser!.displayName});
           }
         });
