@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:bills/helpers/extensions/format_extension.dart';
 
 import 'components/bottom_navigation.dart';
 
@@ -23,7 +22,7 @@ class ListViewPage extends StatefulWidget {
 
 class _ListViewPage extends State<ListViewPage> {
   late FToast fToast = FToast();
-  Bills? _bill;
+  Bills _bill = Bills();
   late Stream<QuerySnapshot> _listStream;
   String _quantification = '';
   String _collectionName = '';
@@ -102,9 +101,7 @@ class _ListViewPage extends State<ListViewPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ListTile(
-                            title: Text(DateTime.fromMillisecondsSinceEpoch(
-                                    _bill.billdate!)
-                                .format(dateOnly: true)),
+                            title: Text(_bill.billdate.toString()),
                             //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
                             subtitle: Text(
                                 'id: ${document.id} | ${_bill.payerIds!.length}'),

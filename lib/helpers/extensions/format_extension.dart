@@ -2,56 +2,43 @@ import 'package:intl/intl.dart';
 
 extension NumberFormatHelper on num {
   String format() {
-    return NumberFormat.currency(locale: "en_US", symbol: "").format(this);
-  }
-
-  String formatForDisplay() {
-    return NumberFormat.currency(locale: "en_US", symbol: "₱").format(this);
-  }
-}
-
-extension MsEpochToDateTimeFormat on int {
-  DateTime formatToDateTime() {
-    return DateTime.fromMillisecondsSinceEpoch(this);
-  }
-
-  String formatToDateTimeString() {
-    return DateTime.fromMillisecondsSinceEpoch(this).format(dateOnly: true);
-  }
-
-  String toVerboseDateTime(int? modifiedon) {
-    bool isModified = modifiedon != null;
-    String prefix = isModified ? 'M: ' : 'C: ';
-    return '$prefix ${(isModified ? modifiedon : this).formatToDateTime().formatLocalize()}';
+    return NumberFormat.currency(locale: "en_US", symbol: "PHP ").format(this);
   }
 }
 
 extension DateFormatHelper on DateTime {
   String format({bool dateOnly = false}) {
-    return DateFormat(dateOnly ? "MMM dd, yyyy" : "MMM dd, yyyy hh:mm aaa")
+    return DateFormat(dateOnly ? "MMMM dd, yyyy" : "MMMM dd, yyyy hh:mm aaa")
         .format(this);
   }
 
-  String formatNoSpace({bool dateOnly = false}) {
-    return DateFormat(dateOnly ? "yyyyMMdd" : "yyyyMMdd_hhmmss_aaa")
-        .format(this);
+  String backupDate() {
+    return DateFormat("MMMMddyyyyhhmmaaa").format(this);
   }
 
-  DateTime getLastDay() {
-    DateTime date = DateTime(this.year, this.month + 1, 1);
-    return date.add(Duration(days: -1));
+  bool isCurrentMonth() {
+    DateTime first = DateTime(this.year, this.month, 1);
+    DateTime last =
+        DateTime(this.year, this.month + 1, 1).add(Duration(days: -1));
+    return this.millisecondsSinceEpoch >= first.millisecondsSinceEpoch &&
+        this.millisecondsSinceEpoch <= last.millisecondsSinceEpoch;
   }
 
-  String formatToMonth() {
-    return DateFormat("MMM").format(this);
+  DateTime previousMonth() {
+    return DateTime(this.year - (this.month == 1 ? 1 : 0),
+        (this.month > 1 ? this.month - 1 : 12), this.day);
   }
 
   String formatToMonthYear() {
-    return DateFormat("MMM yyyy").format(this);
+    return DateFormat("MMMM yyyy").format(this);
+  }
+
+  String formatToMonth() {
+    return DateFormat("MMMM").format(this);
   }
 
   String formatToMonthDay() {
-    return DateFormat("MMM dd").format(this);
+    return DateFormat("MMMM dd").format(this);
   }
 
   String formatToYear() {
@@ -67,7 +54,7 @@ extension DateFormatHelper on DateTime {
   }
 
   String formatToMonthDayHour() {
-    return DateFormat("MMM dd, hh:mm aaa").format(this);
+    return DateFormat("MMMM dd, hh:mm aaa").format(this);
   }
 
   String formatToDayHourYear() {
@@ -76,7 +63,7 @@ extension DateFormatHelper on DateTime {
 
   String formatLocalize() {
     var diff = DateTime.now().difference(this);
-    //print(diff.inDays);
+    print(diff.inDays);
     if (this.format() == DateTime.now().format())
       return "Just Now";
     else if (diff.inMinutes >= 1 && diff.inDays == 0)
@@ -95,11 +82,8 @@ extension DateFormatHelper on DateTime {
   }
 }
 
-/// Sample documentation
-///
-/// safddsf
 extension ArrayHelper on Iterable<dynamic> {
-  dynamic firstOrDefault() => this.length == 0 ? null : this.first;
+  dynamic firstOrNull() => this.length == 0 ? null : this.first;
 }
 
 class DateRangeFormatter {

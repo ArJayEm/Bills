@@ -44,7 +44,7 @@ class _ManagementState extends State<Management> {
 
   TextEditingController _ctrlSelectedPayers = TextEditingController();
 
-  late Bills _bill;
+  Bills _bill = Bills();
 
   List<dynamic> _selectedList = [];
   List<dynamic> _selectList = [];
@@ -63,10 +63,11 @@ class _ManagementState extends State<Management> {
     _getPayers();
     setState(() {
       _bill = widget.data;
-      _selectedList = _bill.payerIds!;
+      _selectedList = _bill.payerIds ?? [];
       _quantification = widget
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
-      _ctrlBillDate.text = _bill.billdate!.formatToDateTimeString();
+      _bill.billdate = _bill.billdate ?? DateTime.now();
+      _ctrlBillDate.text = _bill.billdate!.format();
       _ctrlAmount.text = _bill.amount.toString();
       _ctrlQuantif.text = _bill.quantification.toString();
       //_ctrlSelectedPayers.text = 'No Payers Selected';
@@ -259,15 +260,14 @@ class _ManagementState extends State<Management> {
   _getDate() async {
     var date = await showDatePicker(
       context: context,
-      initialDate: DateTime.fromMillisecondsSinceEpoch(_bill.billdate!),
+      initialDate: _bill.billdate!,
       firstDate: _firstdate,
       lastDate: _lastdate,
     );
     if (date != null) {
       setState(() {
-        _bill.billdate =
-            DateTime(date.year, date.month, date.day).millisecondsSinceEpoch;
-        _ctrlBillDate.text = _bill.billdate!.formatToDateTimeString();
+        _bill.billdate = DateTime(date.year, date.month, date.day);
+        _ctrlBillDate.text = _bill.billdate.toString();
       });
     }
   }
@@ -276,6 +276,7 @@ class _ManagementState extends State<Management> {
     setState(() {
       _errorMsg = "";
       _isSaving = true;
+      _bill.payerIds = _selectedList;
     });
 
     if (_formKey.currentState!.validate()) {
@@ -287,25 +288,13 @@ class _ManagementState extends State<Management> {
             FirebaseFirestore.instance.collection(collection);
         if (_bill.id == null) {
           list
-              .add({
-                'bill_date': _bill.billdate,
-                'amount': _bill.amount,
-                _quantification: _bill.quantification,
-                'created_on': DateTime.now().millisecondsSinceEpoch,
-                'payer_ids': _selectedList
-              })
+              .add(_bill.toJson())
               .then((value) => print("Bill added."))
               .catchError((error) => print("Failed to add bill: $error"));
         } else {
           list
               .doc(_bill.id)
-              .update({
-                'bill_date': _bill.billdate,
-                'amount': _bill.amount,
-                _quantification: _bill.quantification,
-                'created_on': DateTime.now().millisecondsSinceEpoch,
-                'payer_ids': _selectedList
-              })
+              .update(_bill.toJson())
               .then((value) => print("Bill added."))
               .catchError((error) => print("Failed to add bill: $error"));
         }
