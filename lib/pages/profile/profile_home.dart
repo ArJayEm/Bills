@@ -1,7 +1,9 @@
-import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/models/payer.dart';
+//import 'package:bills/pages/pin/pin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfileHome extends StatefulWidget {
   const ProfileHome({Key? key, required this.auth}) : super(key: key);
@@ -14,10 +16,19 @@ class ProfileHome extends StatefulWidget {
 
 class _ProfileHomeState extends State<ProfileHome> {
   late FirebaseAuth _auth;
-  late String _displayName;
+  //late String _displayName;
 
-  CollectionReference _collection =
-      FirebaseFirestore.instance.collection('users');
+  Payer _payer = Payer();
+
+  // final _displayNameController = TextEditingController();
+  // final _emailController = TextEditingController();
+  // final _phoneNumberController = TextEditingController();
+  // final _membersController = TextEditingController();
+
+  String _errorMsg = '';
+  bool _isLoading = false;
+
+  //final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -25,6 +36,7 @@ class _ProfileHomeState extends State<ProfileHome> {
     setState(() {
       _auth = widget.auth;
     });
+    _getPayer();
   }
 
   @override
@@ -45,59 +57,87 @@ class _ProfileHomeState extends State<ProfileHome> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: ListView(
-          children: [
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.logout),
-              minLeadingWidth: 0,
-              title: Text('Log Out'),
-              onTap: _logoutDialog,
-            ),
-            Divider(),
-          ],
-        ),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _getPayerDisplay(),
       ),
     );
   }
 
-  Future<String?> _logoutDialog() {
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Are you sure you want to logout?'),
-        content: const Text('Your account will be removed from the device.'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () async {
-              DocumentReference _document =
-                  _collection.doc(_auth.currentUser!.uid);
-              late String displayName;
-
-              _document.get().then((snapshot) {
-                if (snapshot.exists) {
-                  displayName = snapshot.get('display_name');
-                  _document.update({'logged_in': false});
-                }
-              }).whenComplete(() {
-                setState(() {
-                  _displayName = displayName;
-                });
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            PinHome(auth: _auth, displayName: _displayName)));
-              });
-            },
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
+  Widget _getPayerDisplay() {
+    return ListView(
+      children: [
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.person),
+          minLeadingWidth: 0,
+          title: Text('Display Name'),
+          trailing: Text("${_payer.displayName}"),
+          //onTap: _logoutDialog,
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.email),
+          minLeadingWidth: 0,
+          title: Text('Email'),
+          trailing: Text("${_payer.email}"),
+          //onTap: _logoutDialog,
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.mobile_friendly),
+          minLeadingWidth: 0,
+          title: Text('Mobile Number'),
+          trailing: Text("${_payer.phoneNumber}"),
+          //onTap: _logoutDialog,
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.group),
+          minLeadingWidth: 0,
+          title: Text('Members'),
+          trailing: Text("${_payer.members}"),
+          //onTap: _logoutDialog,
+        ),
+        Divider(),
+      ],
     );
+  }
+
+  _getPayer() {
+    setState(() {
+      _errorMsg = "";
+      _isLoading = true;
+    });
+
+    try {
+      DocumentReference _document = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser!.uid);
+      Payer payer = Payer();
+
+      _document.get().then((snapshot) {
+        if (snapshot.exists) {
+          //payer = Payer.fromJson(snapshot.data() as Map<String, dynamic>);
+          payer.displayName = snapshot.get('display_name');
+          payer.email = snapshot.get('email');
+          payer.phoneNumber = snapshot.get('phone_number');
+          payer.members = snapshot.get('members');
+        } else {}
+      }).whenComplete(() {
+        setState(() {
+          _payer = payer;
+        });
+      });
+    } on FirebaseAuthException catch (e) {
+      _errorMsg = '${e.message}';
+    } catch (error) {
+      _errorMsg = error.toString();
+    }
+
+    setState(() => _isLoading = false);
+    if (_errorMsg.length > 0) {
+      Fluttertoast.showToast(msg: _errorMsg);
+    }
   }
 }

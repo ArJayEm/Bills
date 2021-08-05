@@ -7,22 +7,17 @@ Widget generateModalBody(Widget body, List<Widget> footer,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SizedBox(height: 10),
           headWidget == null
               ? Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 20),
                   child: Text(
                     header ?? '',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 )
               : headWidget,
-          Container(
-            child: Container(
-              width: 30,
-            ),
-            alignment: Alignment.center,
-          ),
+          Divider(),
           Container(margin: EdgeInsets.only(left: 20, right: 20), child: body),
           Container(
             margin: EdgeInsets.fromLTRB(20, 10, 20, 5),

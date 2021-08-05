@@ -8,6 +8,8 @@ part 'bills.g.dart';
 class Bills extends ModelBase {
   @JsonKey(name: "bill_date")
   DateTime? billdate = DateTime.now();
+  @JsonKey(name: "description")
+  String? desciption = "";
   @JsonKey(name: "amount")
   num? amount = 0;
   @JsonKey(name: "quantification")
@@ -18,6 +20,7 @@ class Bills extends ModelBase {
   Bills(
       {id,
       this.billdate,
+      this.desciption,
       this.amount = 0,
       this.quantification = 0,
       this.payerIds});

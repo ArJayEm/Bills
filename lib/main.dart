@@ -1,20 +1,23 @@
-import 'package:bills/models/user_profile.dart';
+import 'package:bills/models/payer.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 //import 'package:bills/pages/signin/email.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
 enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, PIN }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
   await Firebase.initializeApp();
 
   runApp(
@@ -79,7 +82,7 @@ class InitializerWidget extends StatefulWidget {
 class _InitializerWidgetState extends State<InitializerWidget> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   late User _currentUser;
-  UserProfile _userProfile = UserProfile();
+  Payer _userProfile = Payer();
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
@@ -100,7 +103,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       home: _isLoading
           ? Center(child: CircularProgressIndicator())
           : SignInHome(auth: _auth),
-          //: EmailSignInPage(auth: _auth, isSignin: true),
+      //: EmailSignInPage(auth: _auth, isSignin: true),
     );
   }
 
@@ -116,7 +119,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       });
       try {
         DocumentReference _document = _collection.doc(_currentUser.uid);
-        UserProfile userProfile = UserProfile();
+        Payer userProfile = Payer();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {

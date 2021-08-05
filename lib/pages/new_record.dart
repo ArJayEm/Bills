@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'components/modal_base.dart';
@@ -39,6 +40,7 @@ class _ManagementState extends State<Management> {
   final _formKey = GlobalKey<FormState>();
 
   final _ctrlBillDate = TextEditingController();
+  final _ctrlDesciption = TextEditingController();
   final _ctrlAmount = TextEditingController();
   final _ctrlQuantif = TextEditingController();
 
@@ -55,7 +57,7 @@ class _ManagementState extends State<Management> {
 
   bool _fetchingPayers = false;
   String _errorMsg = '';
-  bool _isSaving = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -68,10 +70,18 @@ class _ManagementState extends State<Management> {
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
       _bill.billdate = _bill.billdate ?? DateTime.now();
       _ctrlBillDate.text = _bill.billdate!.format();
+      _ctrlDesciption.text = _bill.desciption ?? widget.title;
       _ctrlAmount.text = _bill.amount.toString();
       _ctrlQuantif.text = _bill.quantification.toString();
-      //_ctrlSelectedPayers.text = 'No Payers Selected';
+      //_ctrlSelectedPayers.text = 'Selected Payers (${_selectedList.length})';
     });
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    super.dispose();
   }
 
   @override
@@ -88,172 +98,238 @@ class _ManagementState extends State<Management> {
         : generateModalBody(
             Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(5),
-                        icon: Icon(Icons.calendar_today),
-                        labelText: 'Bill Date',
-                        hintText: 'Bill Date'),
-                    controller: _ctrlBillDate,
-                    readOnly: true,
-                    onTap: () {
-                      _getDate();
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == "0") {
-                        return 'Invalid date.';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(5),
-                        icon: Icon(Icons.attach_money_outlined),
-                        labelText: 'Amount',
-                        hintText: 'Amount'),
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.next,
-                    controller: _ctrlAmount,
-                    onChanged: (value) {
-                      setState(() {
-                        _bill.amount = num.parse(value);
-                      });
-                    },
-                    onTap: () {
-                      if (_bill.amount.toString() == "0") {
-                        _ctrlAmount.selection = TextSelection(
-                            baseOffset: 0,
-                            extentOffset: _ctrlAmount.text.length);
-                      }
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == "0") {
-                        return 'Must be geater than 0.';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(5),
-                        icon: Icon(Icons.pin),
-                        labelText: _quantification,
-                        hintText: _quantification),
-                    keyboardType: TextInputType.number,
-                    controller: _ctrlQuantif,
-                    onChanged: (value) {
-                      setState(() {
-                        _bill.quantification = int.parse(value);
-                      });
-                    },
-                    onTap: () {
-                      if (_bill.quantification.toString() == "0") {
-                        _ctrlQuantif.selection = TextSelection(
-                            baseOffset: 0,
-                            extentOffset: _ctrlQuantif.text.length);
-                      }
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == "0") {
-                        return 'Must be geater than 0.';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  ConstrainedBox(
-                    constraints: new BoxConstraints(
-                      minHeight: _isExpanded ? 100 : 0,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(10),
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          icon: Icon(Icons.calendar_today, color: widget.color),
+                          labelText: 'Bill Date',
+                          hintText: 'Bill Date'),
+                      controller: _ctrlBillDate,
+                      readOnly: true,
+                      onTap: () {
+                        _getDate();
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value == "0") {
+                          return 'Invalid date.';
+                        }
+                        return null;
+                      },
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          showCursor: false,
-                          readOnly: true,
-                          controller: _ctrlSelectedPayers,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(5),
-                            icon: Icon(Icons.person),
-                            suffixIcon: _isExpanded
-                                ? CustomAppBarButton(
-                                    onTap: () => setState(() {
-                                      _selectedList.clear();
-                                      if (!_selectedAll) {
-                                        for (int b = 0;
-                                            b < _selectList.length;
-                                            b++) {
-                                          _selectedList.add(_selectList[b][0]);
+                    SizedBox(height: 10),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          icon: Icon(Icons.label, color: widget.color),
+                          labelText: 'Description',
+                          hintText: 'Description'),
+                      keyboardType: TextInputType.name,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.next,
+                      controller: _ctrlDesciption,
+                      onChanged: (value) {
+                        setState(() {
+                          _bill.desciption = value;
+                        });
+                      },
+                      onTap: () {
+                        if (_bill.desciption == null ||
+                            _bill.desciption!.isEmpty ||
+                            _bill.desciption == widget.title) {
+                          _ctrlDesciption.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: _ctrlDesciption.text.length);
+                        }
+                      },
+                      // validator: (value) {
+                      //   if (value == null || value.isEmpty || value == "0") {
+                      //     return 'Must be geater than 0.';
+                      //   }
+                      //   return null;
+                      // },
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          icon: Icon(Icons.attach_money_outlined,
+                              color: widget.color),
+                          labelText: 'Amount',
+                          hintText: 'Amount'),
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      controller: _ctrlAmount,
+                      onChanged: (value) {
+                        setState(() {
+                          _bill.amount = num.parse(value);
+                        });
+                      },
+                      onTap: () {
+                        if (_bill.amount.toString() == "0" ||
+                            _bill.amount.toString() == "") {
+                          _ctrlAmount.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: _ctrlAmount.text.length);
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value == "0") {
+                          return 'Must be geater than 0.';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          icon: Icon(Icons.pin, color: widget.color),
+                          labelText: _quantification,
+                          hintText: _quantification),
+                      keyboardType: TextInputType.number,
+                      controller: _ctrlQuantif,
+                      onChanged: (value) {
+                        setState(() {
+                          _bill.quantification = int.parse(value);
+                        });
+                      },
+                      onTap: () {
+                        if (_bill.quantification.toString() == "0" ||
+                            _bill.quantification.toString() == "") {
+                          _ctrlQuantif.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: _ctrlQuantif.text.length);
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value == "0") {
+                          return 'Must be geater than 0.';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    AnimatedContainer(
+                      height: _isExpanded ? 600 : 50,
+                      duration: Duration(milliseconds: 600),
+                      curve: Curves.fastOutSlowIn,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            showCursor: false,
+                            readOnly: true,
+                            controller: _ctrlSelectedPayers,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              icon: Icon(Icons.person, color: widget.color),
+                              suffixIcon: _isExpanded
+                                  ? CustomAppBarButton(
+                                      onTap: () => setState(() {
+                                        _selectedList.clear();
+                                        if (!_selectedAll) {
+                                          for (int b = 0;
+                                              b < _selectList.length;
+                                              b++) {
+                                            _selectedList
+                                                .add(_selectList[b][0]);
+                                          }
                                         }
-                                      }
-                                      setState(() {
-                                        _selectedAll = !_selectedAll;
-                                      });
-                                    }),
-                                    icon: Icons.select_all,
-                                    checkedColor: Colors.teal,
-                                    uncheckedColor: Colors.white,
-                                    isChecked: _selectedAll,
-                                  )
-                                : SizedBox(),
-                            labelText: 'Payers',
-                            hintText:
-                                'Selected Payers (${_selectedList.length})',
+                                        setState(() {
+                                          _selectedAll = !_selectedAll;
+                                        });
+                                      }),
+                                      icon: Icons.select_all,
+                                      checkedColor: Colors.teal,
+                                      uncheckedColor: Colors.white,
+                                      isChecked: _selectedAll,
+                                    )
+                                  : SizedBox(),
+                              labelText: 'Select a Payer',
+                              hintText: 'Select a Payer',
+                            ),
+                            onTap: () async {
+                              setState(() {
+                                if (_isExpanded) {
+                                  _isExpanded = false;
+                                  SystemChrome.setEnabledSystemUIMode(
+                                      SystemUiMode.manual,
+                                      overlays: SystemUiOverlay.values);
+                                } else {
+                                  _isExpanded = true;
+                                  SystemChrome.setEnabledSystemUIMode(
+                                      SystemUiMode.manual,
+                                      overlays: [SystemUiOverlay.bottom]);
+                                }
+                              });
+                            },
+                            onChanged: (value) {},
+                            validator: (value) {
+                              if (_selectedList.length == 0) {
+                                return 'Must select at least 1';
+                              }
+                              return null;
+                            },
                           ),
-                          onTap: () async {
-                            setState(() {
-                              _isExpanded = !_isExpanded;
-                            });
-                          },
-                          onChanged: (value) {},
-                          validator: (value) {
-                            if (_selectedList.length == 0) {
-                              return 'Must select at least 1';
-                            }
-                            return null;
-                          },
-                        ),
-                        ..._isExpanded
-                            ? <Widget>[
-                                Divider(thickness: 1, height: 0),
-                                createMenuWidget()
-                              ]
-                            : <Widget>[]
-                      ],
+                          ..._isExpanded
+                              ? <Widget>[
+                                  Divider(thickness: 1, height: 0),
+                                  createMenuWidget()
+                                ]
+                              : <Widget>[]
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                  ElevatedButton(
-                    child: _isSaving
-                        ? Center(child: CircularProgressIndicator())
-                        : Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        primary: widget.color,
-                        textStyle: TextStyle(color: Colors.white)),
-                    onPressed: !_isSaving ? _saveRecord : null,
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _cancel,
-                    child: Text('Cancel'),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        primary: Colors.grey.shade800,
-                        textStyle: TextStyle(color: widget.color)),
-                  ),
-                ],
+                    //SizedBox(height: 10),
+                    // ElevatedButton(
+                    //   child: _isLoading
+                    //       ? Center(child: CircularProgressIndicator())
+                    //       : Text('Save'),
+                    //   style: ElevatedButton.styleFrom(
+                    //       minimumSize: Size(double.infinity, 50),
+                    //       primary: widget.color,
+                    //       textStyle: TextStyle(color: Colors.white)),
+                    //   onPressed: !_isLoading ? _saveRecord : null,
+                    // ),
+                    // SizedBox(height: 10),
+                    // ElevatedButton(
+                    //   onPressed: _cancel,
+                    //   child: Text('Cancel'),
+                    //   style: ElevatedButton.styleFrom(
+                    //       minimumSize: Size(double.infinity, 50),
+                    //       primary: Colors.grey.shade800,
+                    //       textStyle: TextStyle(color: widget.color)),
+                    // ),
+                  ],
+                ),
               ),
             ),
             [],
+            headWidget: Row(
+              children: [
+                TextButton(
+                  child: Icon(Icons.close, size: 30, color: Colors.grey),
+                  onPressed: _cancel,
+                ),
+                Spacer(),
+                Text('Add $_title',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Spacer(),
+                TextButton(
+                  child: Icon(Icons.done, size: 30, color: widget.color),
+                  onPressed: !_isLoading ? _saveRecord : null,
+                ),
+              ],
+            ),
             header: 'Add $_title');
   }
 
@@ -272,31 +348,43 @@ class _ManagementState extends State<Management> {
     }
   }
 
-  void _saveRecord() {
+  _saveRecord() {
     setState(() {
       _errorMsg = "";
-      _isSaving = true;
+      _isLoading = true;
       _bill.payerIds = _selectedList;
     });
 
     if (_formKey.currentState!.validate()) {
-      Fluttertoast.showToast(msg: 'Processing Data');
+      Fluttertoast.showToast(msg: 'Saving...');
 
       try {
         String collection = widget.title.toLowerCase();
         CollectionReference list =
             FirebaseFirestore.instance.collection(collection);
         if (_bill.id == null) {
-          list
-              .add(_bill.toJson())
-              .then((value) => print("Bill added."))
-              .catchError((error) => print("Failed to add bill: $error"));
+          list.add(_bill.toJson()).then((value) {
+            Fluttertoast.showToast(msg: 'Bill saved');
+            setState(() {
+              _isExpanded = false;
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+                  overlays: SystemUiOverlay.values);
+            });
+          }).catchError((error) {
+            _errorMsg = "Failed to add bill: $error";
+          });
         } else {
-          list
-              .doc(_bill.id)
-              .update(_bill.toJson())
-              .then((value) => print("Bill added."))
-              .catchError((error) => print("Failed to add bill: $error"));
+          _bill.modifiedOn = DateTime.now();
+          list.doc(_bill.id).update(_bill.toJson()).then((value) {
+            Fluttertoast.showToast(msg: 'Bill updated');
+            setState(() {
+              _isExpanded = false;
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+                  overlays: SystemUiOverlay.values);
+            });
+          }).catchError((error) {
+            _errorMsg = "Failed to update bill: $error";
+          });
         }
       } on FirebaseAuthException catch (e) {
         _errorMsg = '${e.message}';
@@ -305,7 +393,7 @@ class _ManagementState extends State<Management> {
       }
     }
 
-    setState(() => _isSaving = false);
+    setState(() => _isLoading = false);
     if (_errorMsg.length > 0) {
       Fluttertoast.showToast(msg: _errorMsg);
     }
@@ -337,6 +425,7 @@ class _ManagementState extends State<Management> {
         setState(() {
           _selectList.addAll(users);
         });
+        _setSelectedPayersDisplay();
       });
     } on FirebaseAuthException catch (e) {
       _errorMsg = '${e.message}';
@@ -353,7 +442,7 @@ class _ManagementState extends State<Management> {
     List<Widget> mList = <Widget>[];
     for (int b = 0; b < _selectList.length; b++) {
       String id = _selectList[b][0];
-      String displayname = _selectList[b][1];
+      String displayname = _selectList[b][1] ?? "No Name";
       mList.add(CheckboxListTile(
         selected: _selectedList.contains(id),
         onChanged: (bool? value) {
@@ -363,7 +452,7 @@ class _ManagementState extends State<Management> {
             } else {
               _selectedList.remove(id);
             }
-            _selectedAll = _selectList.length == _selectedList.length;
+            _setSelectedPayersDisplay();
           });
           print(_selectedList);
         },
@@ -374,5 +463,33 @@ class _ManagementState extends State<Management> {
       ));
     }
     return ListView(shrinkWrap: true, children: mList);
+  }
+
+  _setSelectedPayersDisplay() {
+    setState(() {
+      if (_selectedList.length > 1) {
+        int left = _selectedList.length - 1;
+        String? payer = _getPayerName(_selectedList[0]);
+        _ctrlSelectedPayers.text =
+            '$payer and $left other${left > 1 ? 's' : ''}';
+      } else if (_selectedList.length == 1) {
+        String? payer = _getPayerName(_selectedList[0]);
+        _ctrlSelectedPayers.text = '$payer';
+      } else {
+        _ctrlSelectedPayers.text = 'Select a Payer';
+      }
+      _selectedAll = _selectList.length == _selectedList.length;
+    });
+  }
+
+  String? _getPayerName(String? id) {
+    String payer = '';
+    for (var p in _selectList) {
+      if (p[0] == id) {
+        payer = p[1];
+        break;
+      }
+    }
+    return payer;
   }
 }

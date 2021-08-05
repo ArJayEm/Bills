@@ -1,10 +1,10 @@
 // import 'dart:js';
 
 import 'package:bills/models/menu.dart';
-import 'package:bills/models/user_profile.dart';
+import 'package:bills/models/payer.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
-import 'package:bills/pages/expandable.dart';
+import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,13 +41,15 @@ class _DashboardState extends State<Dashboard> {
     Menu(
         location: 'Billing',
         view: ListViewPage(
-            title: 'Billing', quantification: '', color: Colors.green.shade800),
+            title: 'Billing',
+            quantification: 'Quantity',
+            color: Colors.green.shade800),
         icon: Icon(Icons.receipt, color: Colors.green.shade800)),
     Menu(
         location: 'Payments',
         view: ListViewPage(
             title: 'Payments',
-            quantification: '',
+            quantification: 'Quantity',
             color: Colors.green.shade800),
         icon: Icon(Icons.payments_outlined, color: Colors.green.shade800)),
     Menu(
@@ -65,18 +67,22 @@ class _DashboardState extends State<Dashboard> {
     Menu(
         location: 'Loans',
         view: ListViewPage(
-            title: 'Loans', quantification: '', color: Colors.yellow.shade200),
+            title: 'Loans',
+            quantification: 'Quantity',
+            color: Colors.yellow.shade200),
         icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
     Menu(
         location: 'Salary',
         view: ListViewPage(
-            title: 'Salarys', quantification: '', color: Colors.lightGreen),
+            title: 'Salarys',
+            quantification: 'Quantity',
+            color: Colors.lightGreen),
         icon: Icon(Icons.attach_money_outlined, color: Colors.lightGreen)),
     Menu(
         location: 'Subscriptions',
         view: ListViewPage(
             title: 'Subscriptions',
-            quantification: '',
+            quantification: 'Quantity',
             color: Colors.red.shade600),
         icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
   ];
@@ -162,16 +168,6 @@ class _DashboardState extends State<Dashboard> {
                         () => _scaffoldKey.currentState!.openDrawer());
                   },
                 ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.expand),
-                  minLeadingWidth: 0,
-                  title: Text('Expandable'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _openBills(context, ExpandableSample());
-                  },
-                ),
                 // Divider(),
                 // ListTile(
                 //   leading: Icon(Icons.expand),
@@ -182,6 +178,34 @@ class _DashboardState extends State<Dashboard> {
                 //     _openBills(context, SelectPayers());
                 //   },
                 // ),
+                // Divider(),
+                // ListTile(
+                //   leading: Icon(Icons.info_outline),
+                //   minLeadingWidth: 0,
+                //   title: Text('Dynamic Form'),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     _openBills(context, DynamicForm());
+                //   },
+                // ),
+                //Divider(),
+                // Divider(),
+                // ListTile(
+                //   leading: Icon(Icons.expand),
+                //   minLeadingWidth: 0,
+                //   title: Text('Expandable'),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     _openBills(context, ExpandableSample());
+                //   },
+                // ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.logout),
+                  minLeadingWidth: 0,
+                  title: Text('Log Out'),
+                  onTap: _logoutDialog,
+                ),
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.info_outline),
@@ -254,7 +278,7 @@ class _DashboardState extends State<Dashboard> {
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        UserProfile up = UserProfile();
+        Payer up = Payer();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
@@ -370,5 +394,45 @@ class _DashboardState extends State<Dashboard> {
         menu[i].isSelected = false;
       }
     });
+  }
+
+  Future<String?> _logoutDialog() {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Are you sure you want to logout?'),
+        content: const Text('Your account will be removed from the device.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () async {
+              DocumentReference _document =
+                  _collection.doc(_auth.currentUser!.uid);
+              late String displayName;
+
+              _document.get().then((snapshot) {
+                if (snapshot.exists) {
+                  displayName = snapshot.get('display_name');
+                  _document.update({'logged_in': false});
+                }
+              }).whenComplete(() {
+                setState(() {
+                  _displayName = displayName;
+                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            PinHome(auth: _auth, displayName: _displayName)));
+              });
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -448,9 +448,20 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
         setState(() {
           _user = userCredential.user!;
         });
-        DocumentReference _document =
-            FirebaseFirestore.instance.collection('users').doc(_user.uid);
-        String displayName = _user.phoneNumber ?? '';
+        CollectionReference _collection =
+            FirebaseFirestore.instance.collection('users');
+        DocumentReference _document = _collection.doc(_user.uid);
+        String? displayName = _user.phoneNumber;
+        var count = 0;
+        if (displayName == null) {
+          _collection.get().then((querySnapshot) {
+            querySnapshot.docs.forEach((doc) {
+              count++;
+            });
+          }).whenComplete(() {
+            displayName = 'User $count';
+          });
+        }
 
         _document.get().then((snapshot) {
           if (!snapshot.exists) {
@@ -469,7 +480,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      PinHome(auth: _auth, displayName: displayName)));
+                      PinHome(auth: _auth, displayName: displayName!)));
         });
       }
     } on FirebaseAuthException catch (e) {

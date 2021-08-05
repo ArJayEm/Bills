@@ -1,9 +1,13 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'payer.dart';
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
-  return UserProfile()
+Payer _$PayerFromJson(Map<String, dynamic> json) {
+  return Payer()
     ..id = json['id'] as String?
     ..createdOn = DateTime.parse(json['created_on'] as String)
     ..modifiedOn = json['modified_on'] == null
@@ -17,7 +21,7 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
     ..members = json['members'] as int?;
 }
 
-Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
+Map<String, dynamic> _$PayerToJson(Payer instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {

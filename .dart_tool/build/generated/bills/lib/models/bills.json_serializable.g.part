@@ -8,6 +8,7 @@ Bills _$BillsFromJson(Map<String, dynamic> json) {
     billdate: json['bill_date'] == null
         ? null
         : DateTime.parse(json['bill_date'] as String),
+    desciption: json['description'] as String?,
     amount: json['amount'] as num?,
     quantification: json['quantification'] as int?,
     payerIds: json['payer_ids'] as List<dynamic>?,
@@ -31,6 +32,7 @@ Map<String, dynamic> _$BillsToJson(Bills instance) {
   val['created_on'] = instance.createdOn.toIso8601String();
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['bill_date'] = instance.billdate?.toIso8601String();
+  val['description'] = instance.desciption;
   val['amount'] = instance.amount;
   val['quantification'] = instance.quantification;
   val['payer_ids'] = instance.payerIds;
