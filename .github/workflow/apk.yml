@@ -29,7 +29,7 @@ jobs:
       - name: Configure Github
         run: |
           git config --local user.email "contact@ishandeveloper.com"
-          git config --local user.name "ishandeveloper"
+          git config --local user.displayName "ishandeveloper"
           git commit -m "Generated APK" -a
 
       - name: Push changes

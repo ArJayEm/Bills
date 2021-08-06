@@ -1,7 +1,7 @@
 // import 'dart:js';
 
 import 'package:bills/models/menu.dart';
-import 'package:bills/models/payer.dart';
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/pin/pin_home.dart';
@@ -30,12 +30,11 @@ class _DashboardState extends State<Dashboard> {
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
 
-  late String _displayName;
+  String? _displayname;
   num _curentAmount = 0;
 
   bool _getAmountToPayLoading = false;
   bool _isLoadingUser = false;
-  String _errorMsg = '';
 
   List<Menu> menu = [
     Menu(
@@ -138,7 +137,7 @@ class _DashboardState extends State<Dashboard> {
                                         ))))
                             : null,
                         title: Text(
-                          "$_displayName",
+                          "$_displayname",
                           style: TextStyle(fontSize: 20.0),
                         ),
                         trailing: Icon(Icons.chevron_right, size: 20),
@@ -148,8 +147,10 @@ class _DashboardState extends State<Dashboard> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ProfileHome(auth: _auth)),
-                          ).whenComplete(
-                              () => _scaffoldKey.currentState!.openDrawer());
+                          ).whenComplete(() {
+                            _getCurrentUser();
+                            _scaffoldKey.currentState!.openDrawer();
+                          });
                         },
                       ),
                 Divider(),
@@ -270,40 +271,34 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _getCurrentUser() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoadingUser = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        Payer up = Payer();
+        UserProfile userprofile = UserProfile();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
-            up.displayName = snapshot.get('display_name') ?? "";
-            up.email = snapshot.get('email');
+            userprofile =
+                UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+            userprofile.id = snapshot.id;
           }
         }).whenComplete(() {
           setState(() {
-            _isLoadingUser = false;
-            _displayName = up.displayName ?? "";
+            _displayname = userprofile.displayName ?? "No Name";
           });
-          if (_auth.currentUser?.email != up.email) {
-            _document.update({'display_name': _auth.currentUser!.displayName});
+          if (_auth.currentUser?.email == userprofile.email) {
+            _document.update(
+                {'name': _displayname ?? _auth.currentUser!.displayName});
           }
+          _showProgressUi(false, "");
         });
       }
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    if (_errorMsg.length > 0) {
-      setState(() => _isLoadingUser = false);
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
@@ -411,22 +406,22 @@ class _DashboardState extends State<Dashboard> {
             onPressed: () async {
               DocumentReference _document =
                   _collection.doc(_auth.currentUser!.uid);
-              late String displayName;
+              late String name;
 
               _document.get().then((snapshot) {
                 if (snapshot.exists) {
-                  displayName = snapshot.get('display_name');
+                  name = snapshot.get('name');
                   _document.update({'logged_in': false});
                 }
               }).whenComplete(() {
                 setState(() {
-                  _displayName = displayName;
+                  _displayname = name;
                 });
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            PinHome(auth: _auth, displayName: _displayName)));
+                            PinHome(auth: _auth, displayName: _displayname!)));
               });
             },
             child: const Text('Yes'),
@@ -434,5 +429,12 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
     );
+  }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoadingUser = isLoading);
   }
 }

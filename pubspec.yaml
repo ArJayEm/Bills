@@ -57,6 +57,7 @@ dependencies:
   local_auth: #^1.1.6
   expandable: #^5.0.1
   email_auth: #^0.0.1+4
+  global_configuration: #^2.0.0-nullsafety.1
 
   flutter_localizations:
     sdk: flutter
@@ -84,6 +85,7 @@ flutter:
     #   - images/a_dot_ham.jpeg
     - assets/icons/
     - assets/buttons/
+    - assets/cfg/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

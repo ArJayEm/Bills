@@ -1,4 +1,4 @@
-import 'package:bills/models/payer.dart';
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 //import 'package:bills/pages/signin/email.dart';
@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:global_configuration/global_configuration.dart';
 
 enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, PIN }
 
@@ -19,6 +20,7 @@ Future<void> main() async {
     statusBarColor: Colors.transparent,
   ));
   await Firebase.initializeApp();
+  await GlobalConfiguration().loadFromAsset("app_settings");
 
   runApp(
     // MultiProvider(
@@ -33,6 +35,14 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  MyApp() {
+    // Access configuration at constructor
+    GlobalConfiguration cfg = new GlobalConfiguration();
+    print("isDebug has value ${cfg.get("isDebug")}");
+    print("isDebug has value ${GlobalConfiguration().get("isDebug")}");
+    print("isDebug has value ${cfg.get("isDebug")}, this should be null!");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -82,13 +92,12 @@ class InitializerWidget extends StatefulWidget {
 class _InitializerWidgetState extends State<InitializerWidget> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   late User _currentUser;
-  Payer _userProfile = Payer();
+  UserProfile _userProfile = UserProfile();
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
 
   bool _isLoading = false;
-  String _errorMsg = '';
 
   @override
   void initState() {
@@ -108,10 +117,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   }
 
   _getCurrentUser() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     if (_auth.currentUser != null) {
       setState(() {
@@ -119,13 +125,15 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       });
       try {
         DocumentReference _document = _collection.doc(_currentUser.uid);
-        Payer userProfile = Payer();
+        UserProfile userProfile = UserProfile();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
+            userProfile =
+                UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
             userProfile.id = snapshot.id;
-            userProfile.displayName = snapshot.get('display_name');
-            userProfile.loggedIn = snapshot.get('logged_in');
+            // userProfile.displayName = snapshot.get('name');
+            // userProfile.loggedIn = snapshot.get('logged_in');
           }
         }).whenComplete(() {
           setState(() {
@@ -150,15 +158,19 @@ class _InitializerWidgetState extends State<InitializerWidget> {
           }
         });
       } on FirebaseAuthException catch (e) {
-        _errorMsg = '${e.message}';
-      } catch (error) {
-        _errorMsg = error.toString();
+        _showProgressUi(false, "${e.message}.");
+      } catch (e) {
+        _showProgressUi(false, "$e.");
       }
-    } else {}
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+    } else {
+      _showProgressUi(false, "");
     }
+  }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoading = isLoading);
   }
 }

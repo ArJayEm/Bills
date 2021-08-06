@@ -1,3 +1,4 @@
+//import 'package:bills/pages/components/custom_pin_widget.dart';
 import 'package:bills/pages/pin/enter.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,7 +34,6 @@ class _EnterCurrentState extends State<EnterCurrent> {
   final _pinFocusNode6 = FocusNode();
 
   bool _isLoading = false;
-  String _errorMsg = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -72,270 +72,323 @@ class _EnterCurrentState extends State<EnterCurrent> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _getPinWidget(),
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 20),
+                Center(
+                    child: Text('Enter your current PIN',
+                        style: TextStyle(fontSize: 20, color: Colors.white))),
+                SizedBox(height: 10),
+                _getPinWidget(),
+              ],
+            ),
     );
   }
 
   Widget _getPinWidget() {
-    return SafeArea(
-      child: Container(
-        color: Colors.grey.shade800,
-        padding: EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 20),
-            Center(
-                child: Text('Enter your current PIN',
-                    style: TextStyle(fontSize: 20, color: Colors.white))),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController1,
-                    focusNode: _pinFocusNode1,
-                    autofocus: _pinControllerFull.text.length == 0,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    // onTap: () {
-                    //   FocusScope.of(context).requestFocus(_pinFocusNode1);
-                    // },
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController1.text = "";
-                        _pinControllerFull.text = "";
-                        FocusScope.of(context).unfocus();
-                        //FocusScope.of(context).requestFocus(_pinFocusNode1);
-                      } else if (value.length == 1) {
-                        _pinController1.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).requestFocus(_pinFocusNode2);
-                      } else {
-                        // String overValue = value.substring(1, 2);
-                        // value = value.substring(0, 1);
-                        // _pinController1.text = value;
-                        // _pinController2.text = overValue;
-                        // FocusScope.of(context).requestFocus(_pinFocusNode3);
+    return Row(
+      children: [
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController1,
+            focusNode: _pinFocusNode1,
+            autofocus: _pinControllerFull.text.length == 0,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            // onTap: () {
+            //   FocusScope.of(context).requestFocus(_pinFocusNode1);
+            // },
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController1.text = "";
+                _pinControllerFull.text = "";
+                FocusScope.of(context).unfocus();
+                //FocusScope.of(context).requestFocus(_pinFocusNode1);
+              } else if (value.length == 1) {
+                _pinController1.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).requestFocus(_pinFocusNode2);
+              } else {
+                // String overValue = value.substring(1, 2);
+                // value = value.substring(0, 1);
+                // _pinController1.text = value;
+                // _pinController2.text = overValue;
+                // FocusScope.of(context).requestFocus(_pinFocusNode3);
 
-                        var splittedPin = value.split("");
-                        for (var i = 0; i < splittedPin.length; i++) {
-                          if (i == 0) {
-                            _pinController1.text = splittedPin[i];
-                            FocusScope.of(context).requestFocus(_pinFocusNode2);
-                          }
-                          if (i == 1) {
-                            _pinController2.text = splittedPin[i];
-                            FocusScope.of(context).requestFocus(_pinFocusNode3);
-                          }
-                          if (i == 2) {
-                            _pinController3.text = splittedPin[i];
-                            FocusScope.of(context).requestFocus(_pinFocusNode4);
-                          }
-                          if (i == 3) {
-                            _pinController4.text = splittedPin[i];
-                            FocusScope.of(context).requestFocus(_pinFocusNode5);
-                          }
-                          if (i == 4) {
-                            _pinController5.text = splittedPin[i];
-                            FocusScope.of(context).requestFocus(_pinFocusNode6);
-                          }
-                          if (i == 5) {
-                            _pinController6.text = splittedPin[i];
-                            _pinControllerFull.text = splittedPin.join();
-                            _nominate();
-                          }
-                        }
-                      }
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController2,
-                    focusNode: _pinFocusNode2,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController2.text = "";
-                        _pinControllerFull.text =
-                            _pinControllerFull.text.substring(0, 1);
-                        FocusScope.of(context).requestFocus(_pinFocusNode1);
-                      } else if (value.length == 1) {
-                        _pinController2.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).requestFocus(_pinFocusNode3);
-                      } else {
-                        String overValue = value.substring(1, 2);
-                        value = value.substring(0, 1);
-                        _pinController2.text = value;
-                        _pinController3.text = overValue;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$overValue';
-                        FocusScope.of(context).requestFocus(_pinFocusNode4);
-                      }
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController3,
-                    focusNode: _pinFocusNode3,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController3.text = "";
-                        _pinControllerFull.text =
-                            _pinControllerFull.text.substring(0, 2);
-                        FocusScope.of(context).requestFocus(_pinFocusNode2);
-                      } else if (value.length == 1) {
-                        _pinController3.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).requestFocus(_pinFocusNode4);
-                      } else {
-                        String overValue = value.substring(1, 2);
-                        value = value.substring(0, 1);
-                        _pinController3.text = value;
-                        _pinController4.text = overValue;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$overValue';
-                        FocusScope.of(context).requestFocus(_pinFocusNode5);
-                      }
-
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController4,
-                    focusNode: _pinFocusNode4,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController4.text = "";
-                        _pinControllerFull.text =
-                            _pinControllerFull.text.substring(0, 3);
-                        FocusScope.of(context).requestFocus(_pinFocusNode3);
-                      } else if (value.length == 1) {
-                        _pinController4.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).requestFocus(_pinFocusNode5);
-                      } else {
-                        String overValue = value.substring(1, 2);
-                        value = value.substring(0, 1);
-                        _pinController4.text = value;
-                        _pinController5.text = overValue;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$overValue';
-                        FocusScope.of(context).requestFocus(_pinFocusNode6);
-                      }
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController5,
-                    focusNode: _pinFocusNode5,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController5.text = "";
-                        _pinControllerFull.text =
-                            _pinControllerFull.text.substring(0, 4);
-                        FocusScope.of(context).requestFocus(_pinFocusNode4);
-                      } else if (value.length == 1) {
-                        _pinController5.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).requestFocus(_pinFocusNode6);
-                      } else {
-                        String overValue = value.substring(1, 2);
-                        value = value.substring(0, 1);
-                        _pinController5.text = value;
-                        _pinController6.text = overValue;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$overValue';
-                        FocusScope.of(context).requestFocus(_pinFocusNode6);
-                        _nominate();
-                      }
-
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-                Flexible(
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _pinController6,
-                    focusNode: _pinFocusNode6,
-                    style: TextStyle(fontSize: 25),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      if (value.length == 0) {
-                        _pinController6.text = "";
-                        _pinControllerFull.text =
-                            _pinControllerFull.text.substring(0, 5);
-                        FocusScope.of(context).requestFocus(_pinFocusNode5);
-                      } else if (value.length == 1) {
-                        _pinController6.text = value;
-                        _pinControllerFull.text =
-                            '${_pinControllerFull.text}$value';
-                        FocusScope.of(context).unfocus();
-                        _nominate();
-                      } else {
-                        value = value.substring(0, 1);
-                        _pinController6.text = value;
-                        FocusScope.of(context).unfocus();
-                        _nominate();
-                      }
-                      print('nom pin: ${_pinControllerFull.text}');
-                    },
-                  ),
-                ),
-                Spacer(),
-              ],
-            )
-          ],
+                var splittedPin = value.split("");
+                for (var i = 0; i < splittedPin.length; i++) {
+                  if (i == 0) {
+                    _pinController1.text = splittedPin[i];
+                    FocusScope.of(context).requestFocus(_pinFocusNode2);
+                  }
+                  if (i == 1) {
+                    _pinController2.text = splittedPin[i];
+                    FocusScope.of(context).requestFocus(_pinFocusNode3);
+                  }
+                  if (i == 2) {
+                    _pinController3.text = splittedPin[i];
+                    FocusScope.of(context).requestFocus(_pinFocusNode4);
+                  }
+                  if (i == 3) {
+                    _pinController4.text = splittedPin[i];
+                    FocusScope.of(context).requestFocus(_pinFocusNode5);
+                  }
+                  if (i == 4) {
+                    _pinController5.text = splittedPin[i];
+                    FocusScope.of(context).requestFocus(_pinFocusNode6);
+                  }
+                  if (i == 5) {
+                    _pinController6.text = splittedPin[i];
+                    _pinControllerFull.text = splittedPin.join();
+                    _verify();
+                  }
+                }
+              }
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
         ),
-      ),
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController2,
+            focusNode: _pinFocusNode2,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController2.text = "";
+                _pinControllerFull.text =
+                    _pinControllerFull.text.substring(0, 1);
+                FocusScope.of(context).requestFocus(_pinFocusNode1);
+              } else if (value.length == 1) {
+                _pinController2.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).requestFocus(_pinFocusNode3);
+              } else {
+                String overValue = value.substring(1, 2);
+                value = value.substring(0, 1);
+                _pinController2.text = value;
+                _pinController3.text = overValue;
+                _pinControllerFull.text =
+                    '${_pinControllerFull.text}$overValue';
+                FocusScope.of(context).requestFocus(_pinFocusNode4);
+              }
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
+        ),
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController3,
+            focusNode: _pinFocusNode3,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController3.text = "";
+                _pinControllerFull.text =
+                    _pinControllerFull.text.substring(0, 2);
+                FocusScope.of(context).requestFocus(_pinFocusNode2);
+              } else if (value.length == 1) {
+                _pinController3.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).requestFocus(_pinFocusNode4);
+              } else {
+                String overValue = value.substring(1, 2);
+                value = value.substring(0, 1);
+                _pinController3.text = value;
+                _pinController4.text = overValue;
+                _pinControllerFull.text =
+                    '${_pinControllerFull.text}$overValue';
+                FocusScope.of(context).requestFocus(_pinFocusNode5);
+              }
+
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
+        ),
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController4,
+            focusNode: _pinFocusNode4,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController4.text = "";
+                _pinControllerFull.text =
+                    _pinControllerFull.text.substring(0, 3);
+                FocusScope.of(context).requestFocus(_pinFocusNode3);
+              } else if (value.length == 1) {
+                _pinController4.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).requestFocus(_pinFocusNode5);
+              } else {
+                String overValue = value.substring(1, 2);
+                value = value.substring(0, 1);
+                _pinController4.text = value;
+                _pinController5.text = overValue;
+                _pinControllerFull.text =
+                    '${_pinControllerFull.text}$overValue';
+                FocusScope.of(context).requestFocus(_pinFocusNode6);
+              }
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
+        ),
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController5,
+            focusNode: _pinFocusNode5,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController5.text = "";
+                _pinControllerFull.text =
+                    _pinControllerFull.text.substring(0, 4);
+                FocusScope.of(context).requestFocus(_pinFocusNode4);
+              } else if (value.length == 1) {
+                _pinController5.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).requestFocus(_pinFocusNode6);
+              } else {
+                String overValue = value.substring(1, 2);
+                value = value.substring(0, 1);
+                _pinController5.text = value;
+                _pinController6.text = overValue;
+                _pinControllerFull.text =
+                    '${_pinControllerFull.text}$overValue';
+                FocusScope.of(context).requestFocus(_pinFocusNode6);
+                _verify();
+              }
+
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
+        ),
+        Spacer(),
+        Flexible(
+          child: TextFormField(
+            obscureText: true,
+            controller: _pinController6,
+            focusNode: _pinFocusNode6,
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.length == 0) {
+                _pinController6.text = "";
+                _pinControllerFull.text =
+                    _pinControllerFull.text.substring(0, 5);
+                FocusScope.of(context).requestFocus(_pinFocusNode5);
+              } else if (value.length == 1) {
+                _pinController6.text = value;
+                _pinControllerFull.text = '${_pinControllerFull.text}$value';
+                FocusScope.of(context).unfocus();
+                _verify();
+              } else {
+                value = value.substring(0, 1);
+                _pinController6.text = value;
+                FocusScope.of(context).unfocus();
+                _verify();
+              }
+              print('nom pin: ${_pinControllerFull.text}');
+            },
+          ),
+        ),
+        Spacer(),
+      ],
     );
   }
 
-  _nominate() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+  // Widget _getPinFormWidget() {
+  //   return Row(
+  //     children: [
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController1,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode1,
+  //         focusNodeNext: _pinFocusNode2,
+  //         isFirst: true,
+  //         isLast: false,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController2,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode2,
+  //         focusNodeNext: _pinFocusNode3,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController3,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode3,
+  //         focusNodeNext: _pinFocusNode4,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController4,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode4,
+  //         focusNodeNext: _pinFocusNode5,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController5,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode5,
+  //         focusNodeNext: _pinFocusNode6,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController6,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode6,
+  //         focusNodeNext: _pinFocusNode6,
+  //         isFirst: false,
+  //         isLast: true,
+  //         onChanged: _verify(),
+  //       ),
+  //       Spacer(),
+  //     ],
+  //   );
+  // }
+
+  _verify() async {
+    _showProgressUi(true, "");
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -366,18 +419,20 @@ class _EnterCurrentState extends State<EnterCurrent> {
           //   FocusScope.of(context).requestFocus(_pinFocusNode1);
           // });
           FocusScope.of(context).requestFocus(_pinFocusNode6);
-          _errorMsg = "Incorrect pin.";
+          _showProgressUi(false, "Incorrect pin.");
         }
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.message.toString();
-    } catch (error) {
-      _errorMsg = error.toString();
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
+  }
 
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
+    setState(() => _isLoading = isLoading);
   }
 }

@@ -1,3 +1,4 @@
+//import 'package:bills/pages/components/custom_pin_widget.dart';
 import 'package:bills/pages/pin/reenter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,7 +48,6 @@ class _EnterMpinState extends State<EnterMpin> {
   final _pinFocusNode6 = FocusNode();
 
   bool _isLoading = false;
-  String _errorMsg = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -144,6 +144,74 @@ class _EnterMpinState extends State<EnterMpin> {
     );
   }
 
+  // Widget _getPinFormWidget() {
+  //   return Row(
+  //     children: [
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController1,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode1,
+  //         focusNodeNext: _pinFocusNode2,
+  //         isFirst: true,
+  //         isLast: false,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController2,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode2,
+  //         focusNodeNext: _pinFocusNode3,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController3,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode3,
+  //         focusNodeNext: _pinFocusNode4,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController4,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode4,
+  //         focusNodeNext: _pinFocusNode5,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController5,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode5,
+  //         focusNodeNext: _pinFocusNode6,
+  //         isFirst: false,
+  //         isLast: false,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //       CustomPinWidget(
+  //         controllerSingle: _pinController6,
+  //         controllerAll: _pinControllerFull,
+  //         focusNode: _pinFocusNode6,
+  //         focusNodeNext: _pinFocusNode6,
+  //         isFirst: false,
+  //         isLast: true,
+  //         onChanged: _reEnter(),
+  //       ),
+  //       Spacer(),
+  //     ],
+  //   );
+  // }
+
   Widget _getPinWidget() {
     return Row(
       children: [
@@ -168,9 +236,12 @@ class _EnterMpinState extends State<EnterMpin> {
                 _pinControllerFull.text = '${_pinControllerFull.text}$value';
                 FocusScope.of(context).requestFocus(_pinFocusNode2);
               } else {
-                var splittedPin = value.split("");
-                _splitPin(splittedPin);
+                _splitPin(value.split(""));
               }
+            },
+            onTap: () {
+              _pinController1.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController1.text.length);
             },
           ),
         ),
@@ -202,6 +273,10 @@ class _EnterMpinState extends State<EnterMpin> {
                 FocusScope.of(context).requestFocus(_pinFocusNode4);
               }
             },
+            onTap: () {
+              _pinController2.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController2.text.length);
+            },
           ),
         ),
         Spacer(),
@@ -232,6 +307,10 @@ class _EnterMpinState extends State<EnterMpin> {
                 FocusScope.of(context).requestFocus(_pinFocusNode5);
               }
             },
+            onTap: () {
+              _pinController3.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController3.text.length);
+            },
           ),
         ),
         Spacer(),
@@ -261,6 +340,10 @@ class _EnterMpinState extends State<EnterMpin> {
                 _pinControllerFull.text += value;
                 FocusScope.of(context).requestFocus(_pinFocusNode6);
               }
+            },
+            onTap: () {
+              _pinController4.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController4.text.length);
             },
           ),
         ),
@@ -293,6 +376,10 @@ class _EnterMpinState extends State<EnterMpin> {
                 //_autoValidate();
               }
             },
+            onTap: () {
+              _pinController5.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController5.text.length);
+            },
           ),
         ),
         Spacer(),
@@ -322,6 +409,10 @@ class _EnterMpinState extends State<EnterMpin> {
                 //_autoValidate();
               }
             },
+            onTap: () {
+              _pinController6.selection = TextSelection(
+                  baseOffset: 1, extentOffset: _pinController6.text.length);
+            },
           ),
         ),
         Spacer(),
@@ -330,10 +421,7 @@ class _EnterMpinState extends State<EnterMpin> {
   }
 
   _reEnter() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       DocumentReference _document = FirebaseFirestore.instance
@@ -347,8 +435,8 @@ class _EnterMpinState extends State<EnterMpin> {
         }
       }).whenComplete(() {
         if (pin == _pinControllerFull.text) {
-          Fluttertoast.showToast(
-              msg: "Your new PIN must not be the same as your current PIN");
+          _showProgressUi(
+              false, "Your new PIN must not be the same as your current PIN");
         } else {
           Navigator.push(
               context,
@@ -360,14 +448,9 @@ class _EnterMpinState extends State<EnterMpin> {
         }
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.toString();
+      _showProgressUi(false, "${e.message}.");
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
 
@@ -399,5 +482,12 @@ class _EnterMpinState extends State<EnterMpin> {
         //_autoValidate();
       }
     }
+  }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoading = isLoading);
   }
 }

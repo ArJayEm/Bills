@@ -6,8 +6,8 @@ part 'record.g.dart';
 
 @JsonSerializable()
 class Record extends ModelBase {
-  @JsonKey(name: "display_name")
-  String? displayName = "";
+  @JsonKey(name: "name")
+  String? name = "";
 
   //List<Payer?> payers;
 

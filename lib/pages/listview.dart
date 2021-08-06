@@ -30,7 +30,7 @@ class _ListViewPage extends State<ListViewPage> {
   Stream<QuerySnapshot>? _listStream;
   String _quantification = '';
   String _collectionName = '';
-  String _errorMsg = '';
+
   bool _isExpanded = false;
   bool _isLoading = false;
 
@@ -163,10 +163,7 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   Future<void> _getlist() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       var collection = FirebaseFirestore.instance.collection(_collectionName);
@@ -181,16 +178,12 @@ class _ListViewPage extends State<ListViewPage> {
         setState(() {
           _listStream = stream;
         });
+        _showProgressUi(false, "");
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
@@ -212,7 +205,7 @@ class _ListViewPage extends State<ListViewPage> {
     String payer = '';
     for (var p in _selectList) {
       if (p[0] == id) {
-        payer = p[1];
+        payer = p[1] ?? '';
         break;
       }
     }
@@ -220,10 +213,7 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   Future<void> _getPayers() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       List<dynamic> users = [];
@@ -231,23 +221,26 @@ class _ListViewPage extends State<ListViewPage> {
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
         querySnapshot.docs.forEach((doc) {
-          users.add([doc.id, doc.get('display_name')]);
+          users.add([doc.id, doc.get('name')]);
         });
       }).whenComplete(() {
         setState(() {
           _selectList.addAll(users);
         });
+        _showProgressUi(false, "");
         _getlist();
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
+  }
 
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
+    setState(() => _isLoading = isLoading);
   }
 }

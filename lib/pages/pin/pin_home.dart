@@ -31,7 +31,7 @@ class PinHome extends StatefulWidget {
 
 class _PinHomeState extends State<PinHome> {
   late FirebaseAuth _auth;
-  late String _displayName;
+  late String _name;
 
   List _mpinButtons = [
     '1',
@@ -59,14 +59,13 @@ class _PinHomeState extends State<PinHome> {
 
   bool _isLoading = false;
   bool _isButtonPressed = false;
-  String _errorMsg = "";
 
   @override
   void initState() {
     super.initState();
     setState(() {
       _auth = widget.auth;
-      _displayName = widget.displayName;
+      _name = widget.displayName;
     });
     _checkIfExistingUser();
   }
@@ -87,9 +86,7 @@ class _PinHomeState extends State<PinHome> {
         child: Container(
           padding: EdgeInsets.all(20),
           color: Colors.grey.shade300, // Color.fromARGB(255, 0, 125, 253),
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : getEnterMpinWidget(),
+          child: getEnterMpinWidget(),
         ),
       ),
     );
@@ -105,30 +102,23 @@ class _PinHomeState extends State<PinHome> {
             Spacer(),
             Row(
               children: [
-                _auth.currentUser!.email != null
-                    ? Image(
-                        height: 20, image: AssetImage('assets/icons/email.png'))
-                    : _auth.currentUser!.phoneNumber != null
-                        ? Image(
-                            height: 20,
-                            image: AssetImage('assets/icons/mobile.png'))
-                        : _auth.currentUser!.photoURL != null
-                            ? Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: NetworkImage(
-                                      _auth.currentUser!.photoURL.toString(),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : SizedBox(),
+                _auth.currentUser!.photoURL != null
+                    ? Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.fill,
+                            image: NetworkImage(
+                              _auth.currentUser!.photoURL.toString(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
                 Text(
-                  '  $_displayName',
+                  '  $_name',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
               ],
@@ -218,24 +208,26 @@ class _PinHomeState extends State<PinHome> {
             return _mpinButtons[index].length > 0 && _mpinButtons[index] != '<'
                 ? FloatingActionButton(
                     onPressed: () {
-                      if (_pinController.text.length < 6) {
-                        _pinController.text =
-                            '${_pinController.text}${_mpinButtons[index]}';
-                        _setBoolean();
-                        if (_pinController.text.length == 6) {
+                      if (!_isLoading) {
+                        if (_pinController.text.length < 6) {
+                          _pinController.text =
+                              '${_pinController.text}${_mpinButtons[index]}';
+                          _setBoolean();
+                          if (_pinController.text.length == 6) {
+                            _verifyMpin();
+                          }
+                        } else if (_pinController.text.length == 6) {
                           _verifyMpin();
                         }
-                      } else if (_pinController.text.length == 6) {
-                        _verifyMpin();
+                        _buttonPressed(index);
                       }
-                      _buttonPressed(index);
                     },
                     child: Container(
                       decoration: BoxDecoration(
                         border:
-                            Border.all(color: Colors.grey.shade500, width: 1.5),
+                            Border.all(color: Colors.grey.shade700, width: 1.5),
                         borderRadius: BorderRadius.circular(35),
-                        color: _isButtonPressed
+                        color: _isLoading
                             ? Colors.grey.shade700
                             : Colors.grey.shade800,
                       ),
@@ -256,11 +248,13 @@ class _PinHomeState extends State<PinHome> {
                     ? _showBackSpace == true
                         ? GestureDetector(
                             onTap: () {
-                              if (_pinController.text.isNotEmpty) {
-                                _pinController.text = _pinController.text
-                                    .substring(
-                                        0, _pinController.text.length - 1);
-                                _setBoolean();
+                              if (!_isLoading) {
+                                if (_pinController.text.isNotEmpty) {
+                                  _pinController.text = _pinController.text
+                                      .substring(
+                                          0, _pinController.text.length - 1);
+                                  _setBoolean();
+                                }
                               }
                             },
                             onLongPress: () {
@@ -279,7 +273,9 @@ class _PinHomeState extends State<PinHome> {
                               child: Center(
                                 child: Icon(
                                   Icons.backspace,
-                                  color: Colors.grey.shade800,
+                                  color: _isLoading
+                                      ? Colors.grey.shade700
+                                      : Colors.grey.shade800,
                                   size: 35,
                                 ),
                               ),
@@ -318,11 +314,7 @@ class _PinHomeState extends State<PinHome> {
   }
 
   Future<void> _verifyMpin() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
-
+    _showProgressUi(true, "");
     try {
       DocumentReference _document = FirebaseFirestore.instance
           .collection('users')
@@ -339,27 +331,18 @@ class _PinHomeState extends State<PinHome> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
-          _errorMsg = "Incorrect pin.";
+          _showProgressUi(false, "Incorrect pin.");
         }
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.message.toString();
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, e.message.toString());
+    } catch (e) {
+      _showProgressUi(false, e.toString());
     }
   }
 
   Future<void> _checkIfExistingUser() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
-
+    _showProgressUi(true, "");
     try {
       DocumentReference _document = FirebaseFirestore.instance
           .collection('users')
@@ -373,11 +356,9 @@ class _PinHomeState extends State<PinHome> {
           pin = snapshot.get('mpin');
         } else {
           _auth.signOut();
-          _errorMsg = "User not found";
-          Navigator.pushNamed(context, '/SignInHome',
-              arguments: <FirebaseAuth>{_auth});
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
+          _showProgressUi(false, "User not found.");
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
         }
       }).whenComplete(() {
         if (loggedIn) {
@@ -390,26 +371,19 @@ class _PinHomeState extends State<PinHome> {
                 MaterialPageRoute(
                     builder: (context) => EnterMpin(
                         auth: _auth, isChange: false, nominatedPin: '')));
-          }
+          } else {}
         }
+        _showProgressUi(false, "");
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.message.toString();
+      _showProgressUi(false, "${e.message}.");
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
 
   _handleSignOut() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       _auth.signOut();
@@ -423,12 +397,31 @@ class _PinHomeState extends State<PinHome> {
         ),
       );
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoading = isLoading);
+  }
+
+  // _showProgressDialog() {
+  //   return _isLoading
+  //       ? showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return Center(
+  //               child: CircularProgressIndicator(),
+  //             );
+  //           },
+  //         ).whenComplete(
+  //           () {
+  //             Navigator.pop(context);
+  //           },
+  //         )
+  //       : null;
+  // }
 }

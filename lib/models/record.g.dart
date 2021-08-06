@@ -13,7 +13,7 @@ Record _$RecordFromJson(Map<String, dynamic> json) {
     ..modifiedOn = json['modified_on'] == null
         ? null
         : DateTime.parse(json['modified_on'] as String)
-    ..displayName = json['display_name'] as String?;
+    ..name = json['name'] as String?;
 }
 
 Map<String, dynamic> _$RecordToJson(Record instance) {
@@ -28,6 +28,6 @@ Map<String, dynamic> _$RecordToJson(Record instance) {
   writeNotNull('id', instance.id);
   val['created_on'] = instance.createdOn.toIso8601String();
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
-  val['display_name'] = instance.displayName;
+  val['name'] = instance.name;
   return val;
 }

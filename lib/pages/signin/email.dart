@@ -1,3 +1,4 @@
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,7 +51,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   String _title = "";
-  String _errorMsg = "";
+
   bool _verifyOtpEnabled = false;
 
   UserCredential? _userCredential;
@@ -254,74 +255,63 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   }
 
   _signIn() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       if (!_emailRegex.hasMatch(_email.toString())) {
-        _errorMsg = "Invalid email format.";
+        _showProgressUi(false, "Invalid email format.");
       }
       if (_password.toString().length == 0) {
-        _errorMsg = "Password is required.";
+        _showProgressUi(false, "Password is required.");
       }
 
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _email!, password: _password!);
-      late String displayName;
+      late String name;
       User? user = userCredential.user;
 
       if (user != null) {
         DocumentReference document = _collection.doc(user.uid);
         document.get().then((snapshot) {
           if (snapshot.exists) {
-            displayName = snapshot.get("display_name");
+            name = snapshot.get("name");
           }
         }).whenComplete(() {
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      PinHome(auth: _auth, displayName: displayName)));
+                      PinHome(auth: _auth, displayName: name)));
         });
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        _errorMsg = 'User not found.';
+        _showProgressUi(false, "User not found.");
         FocusScope.of(context).requestFocus(_emailFocusNode);
       } else if (e.code == 'wrong-password') {
-        _errorMsg = 'Invalid password';
+        _showProgressUi(false, "Invalid password.");
         FocusScope.of(context).requestFocus(_passwordFocusNode);
       } else if (e.code == "unknown") {
-        _errorMsg = e.toString();
+        _showProgressUi(false, "${e.message}.");
       } else {
-        _errorMsg = e.toString();
+        _showProgressUi(false, "${e.message}.");
       }
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
   _signUp() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     if (!_emailRegex.hasMatch(_email.toString())) {
-      _errorMsg = "Invalid email format.";
+      _showProgressUi(false, "Invalid email format.");
     } else if (_password.toString().length == 0) {
-      _errorMsg = "Password is required.";
+      _showProgressUi(false, "Password is required.");
     } else if (_confirmPassword.toString().length == 0) {
-      _errorMsg = "Confirm password is required.";
+      _showProgressUi(false, "Confirm password is required.");
     } else if (_password.toString() != _confirmPassword.toString()) {
-      _errorMsg = "Password and confirm password doesn't match.";
+      _showProgressUi(false, "Password and confirm password doesn't match.");
     } else {
       try {
         UserCredential userCredential =
@@ -337,23 +327,18 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          _errorMsg = "The password provided is too weak.";
+          _showProgressUi(false, "The password provided is too weak.");
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         } else if (e.code == 'email-already-in-use') {
-          _errorMsg = "Email already used";
+          _showProgressUi(false, "Email already used.");
           FocusScope.of(context).requestFocus(_emailFocusNode);
         } else if (e.code == "unknown") {
-          _errorMsg = e.toString();
+          _showProgressUi(false, "${e.message}.");
           FocusScope.of(context).requestFocus(_confirmPassFocusNode);
         }
       } catch (e) {
-        _errorMsg = e.toString();
+        _showProgressUi(false, "$e.");
       }
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
@@ -407,11 +392,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     );
   }
 
-  void _sendOtp() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+  _sendOtp() async {
+    _showProgressUi(true, "");
 
     try {
       EmailAuth.sessionName = "Bills App";
@@ -425,20 +407,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         });
       }
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
 
   void _verifyOtp() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     bool verified = EmailAuth.validate(
         receiverMail: _emailController.text, userOTP: _otpController.text);
@@ -448,55 +422,56 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         // UserCredential userCredential =
         //     await _auth.createUserWithEmailAndPassword(
         //         email: _email!, password: _password!);
-        late String displayName;
-        User? user = _userCredential?.user;
+        User? _firebaseAuthUser = _userCredential?.user;
 
-        if (user != null) {
-          DocumentReference document = _collection.doc(user.uid);
-          displayName = user.displayName ?? user.email ?? 'User';
+        if (_firebaseAuthUser != null) {
+          DocumentReference document = _collection.doc(_firebaseAuthUser.uid);
+          UserProfile userProfile = UserProfile();
 
           document.get().then((snapshot) {
             if (!snapshot.exists) {
-              document.set({
-                'display_name': displayName,
-                'email': user.email,
-                'photo_url': user.photoURL,
-                'logged_in': false
-              }).then((value) {
-                _errorMsg = "User added";
+              userProfile.displayName = _firebaseAuthUser.email;
+              userProfile.email = _firebaseAuthUser.email;
+              userProfile.registeredUsing = 'email';
+              userProfile.photoUrl = _firebaseAuthUser.photoURL;
+
+              document.set(userProfile.toJson()).then((value) {
+                _showProgressUi(false, "User added");
               }).catchError((error) {
-                _errorMsg = "Failed to add user: $error";
+                _showProgressUi(false, "Failed to add user: $error");
               });
             }
           }).whenComplete(() {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        PinHome(auth: _auth, displayName: displayName)));
+                    builder: (context) => PinHome(
+                        auth: _auth, displayName: userProfile.displayName!)));
           });
         }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          _errorMsg = 'The password provided is too weak.';
+          _showProgressUi(false, "The password provided is too weak.");
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         } else if (e.code == 'email-already-in-use') {
-          _errorMsg = 'Email already used';
+          _showProgressUi(false, "Email already used.");
           FocusScope.of(context).requestFocus(_emailFocusNode);
         } else if (e.code == "unknown") {
-          _errorMsg = e.message.toString();
+          _showProgressUi(false, e.message.toString());
           FocusScope.of(context).requestFocus(_confirmPassFocusNode);
         }
       } catch (e) {
-        _errorMsg = e.toString();
+        _showProgressUi(false, "$e.");
       }
     } else {
-      _errorMsg = "Invalid OTP.";
+      _showProgressUi(false, "Invalid OTP.");
     }
+  }
 
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
+    setState(() => _isLoading = isLoading);
   }
 }

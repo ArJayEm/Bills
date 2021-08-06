@@ -56,7 +56,7 @@ class _ManagementState extends State<Management> {
   String _quantification = '';
 
   bool _fetchingPayers = false;
-  String _errorMsg = '';
+
   bool _isLoading = false;
 
   @override
@@ -350,13 +350,11 @@ class _ManagementState extends State<Management> {
 
   _saveRecord() {
     setState(() {
-      _errorMsg = "";
-      _isLoading = true;
       _bill.payerIds = _selectedList;
     });
 
     if (_formKey.currentState!.validate()) {
-      Fluttertoast.showToast(msg: 'Saving...');
+      _showProgressUi(true, "Saving");
 
       try {
         String collection = widget.title.toLowerCase();
@@ -364,38 +362,33 @@ class _ManagementState extends State<Management> {
             FirebaseFirestore.instance.collection(collection);
         if (_bill.id == null) {
           list.add(_bill.toJson()).then((value) {
-            Fluttertoast.showToast(msg: 'Bill saved');
+            _showProgressUi(false, ".");
             setState(() {
               _isExpanded = false;
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                   overlays: SystemUiOverlay.values);
             });
           }).catchError((error) {
-            _errorMsg = "Failed to add bill: $error";
+            _showProgressUi(false, "Failed to add bill: $error.");
           });
         } else {
           _bill.modifiedOn = DateTime.now();
           list.doc(_bill.id).update(_bill.toJson()).then((value) {
-            Fluttertoast.showToast(msg: 'Bill updated');
+            _showProgressUi(false, "Bill updated.");
             setState(() {
               _isExpanded = false;
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                   overlays: SystemUiOverlay.values);
             });
           }).catchError((error) {
-            _errorMsg = "Failed to update bill: $error";
+            _showProgressUi(false, "Failed to update bill: $error.");
           });
         }
       } on FirebaseAuthException catch (e) {
-        _errorMsg = '${e.message}';
-      } catch (error) {
-        _errorMsg = error.toString();
+        _showProgressUi(false, "${e.message}.");
+      } catch (e) {
+        _showProgressUi(false, "$e.");
       }
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
     }
   }
 
@@ -409,9 +402,7 @@ class _ManagementState extends State<Management> {
   }
 
   Future<void> _getPayers() async {
-    setState(() {
-      _errorMsg = "";
-    });
+    _showProgressUi(true, "");
 
     try {
       List<dynamic> users = [];
@@ -419,22 +410,19 @@ class _ManagementState extends State<Management> {
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
         querySnapshot.docs.forEach((doc) {
-          users.add([doc.id, doc.get('display_name')]);
+          users.add([doc.id, doc.get('name')]);
         });
       }).whenComplete(() {
         setState(() {
           _selectList.addAll(users);
         });
+        _showProgressUi(false, "");
         _setSelectedPayersDisplay();
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
@@ -491,5 +479,12 @@ class _ManagementState extends State<Management> {
       }
     }
     return payer;
+  }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoading = isLoading);
   }
 }

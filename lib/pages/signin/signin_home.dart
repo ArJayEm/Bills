@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bills/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bills/pages/pin/pin_home.dart';
@@ -38,18 +39,17 @@ class SignInHome extends StatefulWidget {
 
 class _SignInHomeState extends State<SignInHome> {
   late FirebaseAuth _auth;
-  late User _user;
+  late User _firebaseAuthUser;
   var facebookProfile;
 
   bool _isLoading = false;
-  String _errorMsg = '';
 
   @override
   void initState() {
     super.initState();
     setState(() {
       _auth = widget.auth;
-      //_user = _auth.currentUser!;
+      //_firebaseAuthUser = _auth.currentUser!;
     });
   }
 
@@ -193,10 +193,7 @@ class _SignInHomeState extends State<SignInHome> {
   }
 
   Future<void> _signInWithGoogle() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -212,28 +209,20 @@ class _SignInHomeState extends State<SignInHome> {
             await _auth.signInWithCredential(credential);
         if (userCredential.user != null) {
           setState(() {
-            _user = userCredential.user!;
+            _firebaseAuthUser = userCredential.user!;
           });
-          await _createLoginAccount();
+          await _createLoginAccount('google');
         }
       }
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
   void initiateFacebookLogin() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       final FacebookLoginResult result = await FacebookLogin().logIn();
@@ -241,13 +230,13 @@ class _SignInHomeState extends State<SignInHome> {
         case FacebookLoginStatus.error:
           // var values = FacebookLoginStatus.values;
           // print('values: $values');
-          _errorMsg = FacebookLoginStatus.error.toString();
+          _showProgressUi(false, FacebookLoginStatus.error.toString());
           break;
         case FacebookLoginStatus.cancel:
-          _errorMsg = FacebookLoginStatus.cancel.toString();
+          _showProgressUi(false, FacebookLoginStatus.cancel.toString());
           break;
         case FacebookLoginStatus.success:
-          _errorMsg = FacebookLoginStatus.success.toString();
+          _showProgressUi(false, FacebookLoginStatus.success.toString());
 
           final facebookAuthCredential =
               FacebookAuthProvider.credential(result.accessToken!.token);
@@ -255,9 +244,9 @@ class _SignInHomeState extends State<SignInHome> {
               await _auth.signInWithCredential(facebookAuthCredential);
           if (userCredential.user != null) {
             setState(() {
-              _user = userCredential.user!;
+              _firebaseAuthUser = userCredential.user!;
             });
-            await _createLoginAccount();
+            await _createLoginAccount('facebook');
           }
 
           if (result.accessToken != null) {
@@ -266,70 +255,67 @@ class _SignInHomeState extends State<SignInHome> {
             var graphResponse = await http.get(uri);
             var profile = json.decode(graphResponse.body);
             setState(() {
-              _user = userCredential.user!;
+              _firebaseAuthUser = userCredential.user!;
             });
-            await _createLoginAccount();
+            await _createLoginAccount('facebook');
             print(profile.toString());
           }
           break;
       }
     } on FirebaseAuthException catch (e) {
-      _errorMsg = '${e.message}';
-    } catch (error) {
-      _errorMsg = error.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
   }
 
-  Future<void> _createLoginAccount() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+  Future<void> _createLoginAccount(String registeredUsing) async {
+    _showProgressUi(true, "");
 
     try {
       CollectionReference _collection =
           FirebaseFirestore.instance.collection('users');
 
-      DocumentReference _document = _collection.doc(_user.uid);
-      String displayName = _user.displayName ?? _user.email ?? '';
+      DocumentReference _document = _collection.doc(_firebaseAuthUser.uid);
+      UserProfile userProfile = UserProfile();
+
+      String name =
+          _firebaseAuthUser.displayName ?? _firebaseAuthUser.email ?? '';
       _document.get().then((snapshot) {
         if (!snapshot.exists) {
-          _document.set({
-            'display_name': displayName,
-            'email': _user.email,
-            'photo_url': _user.photoURL,
-            'logged_in': false
-          }).then((value) {
-            _errorMsg = "User added";
+          userProfile.displayName = _firebaseAuthUser.displayName;
+          userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
+          userProfile.email = _firebaseAuthUser.email;
+          userProfile.photoUrl = _firebaseAuthUser.photoURL;
+          userProfile.registeredUsing = registeredUsing;
+
+          _document.set(userProfile.toJson()).then((value) {
+            _showProgressUi(false, "User added.");
           }).catchError((error) {
-            _errorMsg = "Failed to add user: $error";
+            _showProgressUi(false, "Failed to add user: $error.");
           });
         } else {
-          _document.update({'display_name': displayName});
+          _document.update({'name': name});
         }
       }).whenComplete(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                PinHome(auth: _auth, displayName: displayName),
+            builder: (context) => PinHome(auth: _auth, displayName: name),
           ),
         );
       });
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.toString();
+      _showProgressUi(false, "${e.message}.");
     } catch (e) {
-      _errorMsg = e.toString();
+      _showProgressUi(false, "$e.");
     }
+  }
 
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
     }
+    setState(() => _isLoading = isLoading);
   }
 }

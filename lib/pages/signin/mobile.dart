@@ -1,3 +1,4 @@
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +19,7 @@ class MobileSignInPage extends StatefulWidget {
 
 class _MobileSignInPageState extends State<MobileSignInPage> {
   late FirebaseAuth _auth;
-  late User _user;
+  late User _firebaseAuthUser;
   MobileVerificationState _mobileVerificationState =
       MobileVerificationState.SHOW_MOBILE_FORM_STATE;
 
@@ -26,7 +27,6 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   final _otpController = TextEditingController();
   bool _sendOtpEnabled = false;
   bool _isLoading = false;
-  String _errorMsg = '';
 
   String? _verificationId;
 
@@ -392,10 +392,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   }
 
   _sendOTP() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       await _auth.verifyPhoneNumber(
@@ -404,7 +401,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           //signInWithPhoneAuthCredential(phoneAuthCredential);
         },
         verificationFailed: (verificationFailed) async {
-          _errorMsg = verificationFailed.message.toString();
+          _showProgressUi(false, verificationFailed.message.toString());
         },
         codeSent: (verificationId, resendingToken) async {
           setState(() {
@@ -417,26 +414,18 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           });
         },
         codeAutoRetrievalTimeout: (verificationId) async {
-          _errorMsg = 'Code auto retrieval timed out';
+          _showProgressUi(false, "Code auto retrieval timed out");
         },
       );
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.toString();
+      _showProgressUi(false, "${e.message}.");
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
 
   _verifyOTP() async {
-    setState(() {
-      _errorMsg = "";
-      _isLoading = true;
-    });
+    _showProgressUi(true, "");
 
     try {
       PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -446,52 +435,48 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
       if (userCredential.user != null) {
         setState(() {
-          _user = userCredential.user!;
+          _firebaseAuthUser = userCredential.user!;
         });
         CollectionReference _collection =
             FirebaseFirestore.instance.collection('users');
-        DocumentReference _document = _collection.doc(_user.uid);
-        String? displayName = _user.phoneNumber;
-        var count = 0;
-        if (displayName == null) {
-          _collection.get().then((querySnapshot) {
-            querySnapshot.docs.forEach((doc) {
-              count++;
-            });
-          }).whenComplete(() {
-            displayName = 'User $count';
-          });
-        }
+        DocumentReference _document = _collection.doc(_firebaseAuthUser.uid);
+        UserProfile userProfile = UserProfile();
+        // String? name = _firebaseAuthUser.phoneNumber;
+        // var count = 0;
+        // if (name == null) {
+        //   _collection.get().then((querySnapshot) {
+        //     querySnapshot.docs.forEach((doc) {
+        //       count++;
+        //     });
+        //   }).whenComplete(() {
+        //     name = 'User $count';
+        //   });
+        // }
 
         _document.get().then((snapshot) {
           if (!snapshot.exists) {
-            _document.set({
-              'display_name': displayName,
-              'phone_number': _user.phoneNumber,
-              'logged_in': false
-            }).then((value) {
-              _errorMsg = "User added";
+            userProfile.displayName = _firebaseAuthUser.phoneNumber;
+            userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
+            userProfile.registeredUsing = 'mobile';
+
+            _document.set(userProfile.toJson()).then((value) {
+              _showProgressUi(false, "User added.");
             }).catchError((error) {
-              _errorMsg = "Failed to add user: $error";
+              _showProgressUi(false, "Failed to add user: $error.");
             });
           } else {}
         }).whenComplete(() {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      PinHome(auth: _auth, displayName: displayName!)));
+                  builder: (context) => PinHome(
+                      auth: _auth, displayName: userProfile.displayName!)));
         });
       }
     } on FirebaseAuthException catch (e) {
-      _errorMsg = e.toString();
+      _showProgressUi(false, "${e.message}.");
     } catch (e) {
-      _errorMsg = e.toString();
-    }
-
-    setState(() => _isLoading = false);
-    if (_errorMsg.length > 0) {
-      Fluttertoast.showToast(msg: _errorMsg);
+      _showProgressUi(false, "$e.");
     }
   }
 
@@ -525,7 +510,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
     }
   }
 
-  void _autoValidate() {
+  _autoValidate() {
     _verifyOTP();
+  }
+
+  _showProgressUi(bool isLoading, String msg) {
+    if (msg.length > 0) {
+      Fluttertoast.showToast(msg: msg);
+    }
+    setState(() => _isLoading = isLoading);
   }
 }

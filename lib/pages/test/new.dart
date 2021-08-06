@@ -21,7 +21,7 @@
 //   List<dynamic> _selectList = [];
 
 //   bool _sampleCheckState = false;
-//   String _errorMsg = '';
+//   
 //   bool _selectedAll = false;
 
 //   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -138,7 +138,7 @@
 //                     onChanged: (bool? val) {
 //                       setState(() => _sampleCheckState = val ?? false);
 //                     },
-//                     title: Text(data[index].get('display_name').toString()),
+//                     title: Text(data[index].get('name').toString()),
 //                     subtitle: Text('id: ${data[index].id.toString()}'),
 //                     controlAffinity: ListTileControlAffinity.leading,
 //                     activeColor: Colors.green,
@@ -160,31 +160,28 @@
 //           FirebaseFirestore.instance.collection("users");
 //       _collection.get().then((querySnapshot) {
 //         querySnapshot.docs.forEach((doc) {
-//           users.add([doc.id, doc.get('display_name')]);
+//           users.add([doc.id, doc.get('name')]);
 //         });
 //       }).whenComplete(() {
 //         setState(() {
 //           _selectList.addAll(users);
 //         });
+//         _showProgressUi(false, "");
 //       });
 //       // var snapshots = FirebaseFirestore.instance
 //       //     .collection("users")
-//       //     .orderBy('display_name')
+//       //     .orderBy('name')
 //       //     .snapshots();
 //       // snapshots.forEach((snapshot) {
 //       //   var data = snapshot.docs.first;
 //       //   setState(() {
-//       //     _selectList.add([data.id, data.get('display_name')]);
+//       //     _selectList.add([data.id, data.get('name')]);
 //       //   });
 //       // });
 //     } on FirebaseAuthException catch (e) {
-//       _errorMsg = '${e.message}';
-//     } catch (error) {
-//       _errorMsg = error.toString();
-//     }
-
-//     if (_errorMsg.length > 0) {
-//       Fluttertoast.showToast(msg: _errorMsg);
+//      _showProgressUi(false, "${e.message}.");
+//     } catch (e) {
+//      _showProgressUi(false, "$e.");
 //     }
 //   }
 // }
