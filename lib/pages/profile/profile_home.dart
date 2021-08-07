@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:badges/badges.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
@@ -5,6 +7,7 @@ import 'package:bills/pages/dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
@@ -29,6 +32,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   List<dynamic> _selectList = [];
 
   final _displayNameController = TextEditingController();
+  final _userCodeController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   final _membersController = TextEditingController();
@@ -234,23 +238,6 @@ class _ProfileHomeState extends State<ProfileHome> {
     );
   }
 
-  _getDate() async {
-    var date = await showDatePicker(
-      context: context,
-      initialDate: _userProfile.billingGenDate ?? _lastdate,
-      firstDate: _firstdate,
-      lastDate: _lastdate,
-    );
-    if (date != null) {
-      setState(() {
-        _userProfile.billingGenDate = DateTime(date.year, date.month, date.day);
-        _billGenDateController.text =
-            DateFormat('MMM dd, yyyy').format(_userProfile.billingGenDate!);
-        _isUpdate = true;
-      });
-    }
-  }
-
   Widget _getPayerDisplay() {
     return ListView(
       physics: const BouncingScrollPhysics(),
@@ -265,9 +252,9 @@ class _ProfileHomeState extends State<ProfileHome> {
               ),
               CustomDivider(),
               ListTile(
-                leading: Icon(Icons.person),
+                leading: _getUserImage(),
                 minLeadingWidth: 0,
-                title: Text("${_userProfile.displayName}"),
+                title: Text(_displayNameController.text),
                 subtitle: Text("Name"),
                 trailing: Icon(Icons.edit),
                 onTap: () => showDialog(
@@ -278,7 +265,9 @@ class _ProfileHomeState extends State<ProfileHome> {
                     content: TextFormField(
                       keyboardType: TextInputType.name,
                       textCapitalization: TextCapitalization.words,
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        //_displayNameController.text = value;
+                      },
                       controller: _displayNameController,
                       //autofocus: true,
                       decoration: InputDecoration(hintText: "Name"),
@@ -295,13 +284,13 @@ class _ProfileHomeState extends State<ProfileHome> {
                           child: Text('Cancel')),
                       TextButton(
                           onPressed: () {
-                            if ((_userProfile.members ?? 0) > 0) {
-                              Navigator.pop(context);
+                            if (_displayNameController.text.isNotEmpty) {
                               setState(() {
                                 _userProfile.displayName =
                                     _displayNameController.text;
                               });
                               _isUpdate = true;
+                              Navigator.pop(context);
                             } else {
                               Fluttertoast.showToast(msg: "Name required.");
                             }
@@ -323,6 +312,24 @@ class _ProfileHomeState extends State<ProfileHome> {
               ),
               CustomDivider(),
               ListTile(
+                leading: Icon(Icons.code),
+                minLeadingWidth: 0,
+                title: Text(_userCodeController.text),
+                subtitle:
+                    Text("${_userTypeController.text.split(' ')[0]} Code"),
+                trailing: Icon(Icons.copy),
+                onTap: () {
+                  Clipboard.setData(
+                          new ClipboardData(text: _userCodeController.text))
+                      .then((_) {
+                    Fluttertoast.showToast(
+                        msg:
+                            "${_userTypeController.text.split(' ')[0]} Code copied to clipboard");
+                  });
+                },
+              ),
+              Divider(indent: 15, endIndent: 15),
+              ListTile(
                 leading: _userProfile.userType?.isEmpty ?? true
                     ? Badge(
                         badgeContent: Text(''),
@@ -330,8 +337,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                       )
                     : Icon(Icons.person),
                 minLeadingWidth: 0,
-                title: Text(
-                    "${_getUserTypeDescription(_userProfile.userType ?? "No User Type")}"),
+                title: Text(_userTypeController.text),
                 subtitle: Text("User Type"),
                 trailing: Icon(Icons.edit),
                 onTap: () => showDialog(
@@ -375,7 +381,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                       )
                     : Icon(Icons.people_alt_outlined),
                 minLeadingWidth: 0,
-                title: Text("${_userProfile.members}"),
+                title: Text(_membersController.text),
                 subtitle: Text("Members"),
                 trailing: Icon(Icons.edit),
                 onTap: () => showDialog(
@@ -387,8 +393,8 @@ class _ProfileHomeState extends State<ProfileHome> {
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
                         setState(() {
-                          _userProfile.members = int.parse(value);
-                          _membersController.text = value;
+                          //_userProfile.members = int.parse(value);
+                          //_membersController.text = value;
                         });
                       },
                       controller: _membersController,
@@ -411,6 +417,8 @@ class _ProfileHomeState extends State<ProfileHome> {
                               Navigator.pop(context);
                               setState(() {
                                 _isUpdate = true;
+                                _userProfile.members =
+                                    int.parse(_membersController.text);
                               });
                             } else {
                               Fluttertoast.showToast(
@@ -432,10 +440,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                       )
                     : Icon(Icons.calendar_today),
                 minLeadingWidth: 0,
-                title: Text(_userProfile.billingGenDate != null
-                    ? DateFormat('MMM dd, yyyy')
-                        .format(_userProfile.billingGenDate!)
-                    : 'No Bill Generation Date'),
+                title: Text(_billGenDateController.text),
                 subtitle: Text("Bill Generation Date"),
                 trailing: Icon(Icons.edit),
                 onTap: () {
@@ -459,6 +464,24 @@ class _ProfileHomeState extends State<ProfileHome> {
       ],
     );
   }
+
+  Widget _getUserImage() {
+    return Container(
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white, width: 1.5),
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: _auth.currentUser!.photoURL != null
+              ? NetworkImage(_auth.currentUser!.photoURL.toString())
+              : AssetImage('assets/icons/user.png') as ImageProvider,
+        ),
+      ),
+    );
+  }
+
   // Widget _getPayerDisplay() {
   //   return ListView(
   //     children: [
@@ -513,27 +536,32 @@ class _ProfileHomeState extends State<ProfileHome> {
           // var bb = json.encode(aa);
           // var cc = UserProfile.fromJson(bb as Map<String, dynamic>);
           userProfile.displayName = snapshot.get('display_name') as String?;
+          userProfile.userCode = snapshot.get('user_code') as String?;
           userProfile.userType = snapshot.get('user_type') as String?;
           userProfile.members = snapshot.get('members') as int?;
           userProfile.billingGenDate =
               DateTime.parse(snapshot.get('billing_generation_date') as String);
+          userProfile.userCode = _userProfile.userCode?.isEmpty ?? true
+              ? _generateUserCode()
+              : _userProfile.userCode!;
           userProfile.id = snapshot.id;
         } else {}
       }).whenComplete(() {
         setState(() {
           _userProfile = userProfile;
           _displayNameController.text = _userProfile.displayName ?? "No Name";
+          _userCodeController.text = _userProfile.userCode ?? "No User Code";
           _userTypeController.text =
               _getUserTypeDescription(_userProfile.userType ?? "No User Type");
           _emailController.text = _userProfile.email ?? "No Email";
           _phoneNumberController.text =
               _userProfile.phoneNumber ?? "No Mobile Number";
-          _membersController.text = (_userProfile.members ?? 0).toString();
+          _membersController.text = (_userProfile.members ?? 1).toString();
           _billGenDateController.text = _userProfile.billingGenDate != null
               ? DateFormat('MMM dd, yyyy')
                   .format(_userProfile.billingGenDate!)
                   .toString()
-              : "No Date";
+              : "No Billing Generation Date";
         });
         _showProgressUi(false, "");
       });
@@ -544,6 +572,14 @@ class _ProfileHomeState extends State<ProfileHome> {
     }
   }
 
+  String _generateUserCode() {
+    var rng = new Random();
+    var code1 = rng.nextInt(9000) + 1000;
+    var code2 = rng.nextInt(9000) + 1000;
+    var code3 = rng.nextInt(9000) + 1000;
+    return "$code1 $code2 $code3";
+  }
+
   _updatePayer() {
     _showProgressUi(true, "Saving");
 
@@ -552,7 +588,13 @@ class _ProfileHomeState extends State<ProfileHome> {
         DocumentReference _document =
             FirebaseFirestore.instance.collection('users').doc(_id);
         _userProfile.modifiedOn = DateTime.now();
-        _document.update(_userProfile.toJson()).whenComplete(() {
+        _document.update({
+          'display_name': _userProfile.displayName,
+          'user_code': _userProfile.userCode,
+          'user_type': _userProfile.userType,
+          'members': _userProfile.members,
+          'billing_generation_date': _userProfile.billingGenDate.toString()
+        }).whenComplete(() {
           setState(() {
             _isUpdate = false;
           });
@@ -566,6 +608,23 @@ class _ProfileHomeState extends State<ProfileHome> {
       _showProgressUi(false, "${e.message}.");
     } catch (e) {
       _showProgressUi(false, "$e.");
+    }
+  }
+
+  _getDate() async {
+    var date = await showDatePicker(
+      context: context,
+      initialDate: _userProfile.billingGenDate ?? _lastdate,
+      firstDate: _firstdate,
+      lastDate: _lastdate,
+    );
+    if (date != null) {
+      setState(() {
+        _billGenDateController.text = DateFormat('MMM dd, yyyy')
+            .format(DateTime(date.year, date.month, date.day));
+        _userProfile.billingGenDate = DateTime(date.year, date.month, date.day);
+        _isUpdate = true;
+      });
     }
   }
 
@@ -633,17 +692,23 @@ class _ProfileHomeState extends State<ProfileHome> {
 
   _selectedUserTypeDisplay() {
     setState(() {
-      if (_selectedList.length == 1) {
-        String? payer = _getUserTypeDescription(_selectedList[0]);
-        _userTypeController.text = '$payer';
-      } else {
-        _userTypeController.text = 'Select a Payer';
-      }
+      // if (_selectedList.length == 1) {
+      //   String? payer = _getUserTypeDescription(_selectedList[0]);
+      //   _userTypeController.text = '$payer';
+      // } else {
+      //   _userTypeController.text = 'Select a Payer';
+      // }
+      //if (_userTypeController.text.isNotEmpty) {
+      //_userProfile.userType = _userTypeController.text;
+      //_isUpdate = true;
+      //} else {
+      //  _userProfile.userType = "";
+      //}
     });
   }
 
   String _getUserTypeDescription(String id) {
-    String desc = '';
+    String desc = id;
     for (var p in _selectList) {
       if (p[0] == id) {
         desc = p[1] ?? "";

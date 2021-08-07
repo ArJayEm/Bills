@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
@@ -432,6 +434,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             if (!snapshot.exists) {
               userProfile.displayName = _firebaseAuthUser.email;
               userProfile.email = _firebaseAuthUser.email;
+              userProfile.userCode = _generateUserCode();
               userProfile.registeredUsing = 'email';
               userProfile.photoUrl = _firebaseAuthUser.photoURL;
 
@@ -466,6 +469,14 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     } else {
       _showProgressUi(false, "Invalid OTP.");
     }
+  }
+
+  String _generateUserCode() {
+    var rng = new Random();
+    var code1 = rng.nextInt(9000) + 1000;
+    var code2 = rng.nextInt(9000) + 1000;
+    var code3 = rng.nextInt(9000) + 1000;
+    return "$code1 $code2 $code3";
   }
 
   _showProgressUi(bool isLoading, String msg) {

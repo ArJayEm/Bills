@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
@@ -457,6 +459,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           if (!snapshot.exists) {
             userProfile.displayName = _firebaseAuthUser.phoneNumber;
             userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
+            userProfile.userCode = _generateUserCode();
             userProfile.registeredUsing = 'mobile';
 
             _document.set(userProfile.toJson()).then((value) {
@@ -478,6 +481,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
     } catch (e) {
       _showProgressUi(false, "$e.");
     }
+  }
+
+  String _generateUserCode() {
+    var rng = new Random();
+    var code1 = rng.nextInt(9000) + 1000;
+    var code2 = rng.nextInt(9000) + 1000;
+    var code3 = rng.nextInt(9000) + 1000;
+    return "$code1 $code2 $code3";
   }
 
   void _splitPin(List<String> splittedPin) {

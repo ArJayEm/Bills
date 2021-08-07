@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/pin_home.dart';
@@ -123,6 +125,9 @@ class _InitializerWidgetState extends State<InitializerWidget> {
             userProfile =
                 UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
             userProfile.id = snapshot.id;
+            if (userProfile.userCode?.isEmpty ?? true) {
+              _document.update({"user_code": _generateUserCode()});
+            }
             // userProfile.displayName = snapshot.get('display_name') as String?;
             // userProfile.loggedIn = snapshot.get('logged_in') as bool?;
           }
@@ -156,6 +161,14 @@ class _InitializerWidgetState extends State<InitializerWidget> {
     } else {
       _showProgressUi(false, "");
     }
+  }
+
+  String _generateUserCode() {
+    var rng = new Random();
+    var code1 = rng.nextInt(9000) + 1000;
+    var code2 = rng.nextInt(9000) + 1000;
+    var code3 = rng.nextInt(9000) + 1000;
+    return "$code1 $code2 $code3";
   }
 
   _showProgressUi(bool isLoading, String msg) {

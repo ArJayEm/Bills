@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:bills/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 
@@ -284,6 +285,7 @@ class _SignInHomeState extends State<SignInHome> {
       _document.get().then((snapshot) {
         if (!snapshot.exists) {
           userProfile.displayName = _firebaseAuthUser.displayName;
+          userProfile.userCode = _generateUserCode();
           userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
           userProfile.email = _firebaseAuthUser.email;
           userProfile.photoUrl = _firebaseAuthUser.photoURL;
@@ -310,6 +312,14 @@ class _SignInHomeState extends State<SignInHome> {
     } catch (e) {
       _showProgressUi(false, "$e.");
     }
+  }
+
+  String _generateUserCode() {
+    var rng = new Random();
+    var code1 = rng.nextInt(9000) + 1000;
+    var code2 = rng.nextInt(9000) + 1000;
+    var code3 = rng.nextInt(9000) + 1000;
+    return "$code1 $code2 $code3";
   }
 
   _showProgressUi(bool isLoading, String msg) {

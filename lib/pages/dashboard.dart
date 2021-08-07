@@ -245,11 +245,13 @@ class _DashboardState extends State<Dashboard> {
                 icon: Badge(
                     badgeContent: Text(''),
                     animationType: BadgeAnimationType.scale,
-                    child: Icon(Icons.menu)),
+                    //child: Icon(Icons.menu)),
+                    child: _getUserImage()),
                 onPressed: () => _scaffoldKey.currentState!.openDrawer(),
               )
             : IconButton(
-                icon: Icon(Icons.menu),
+                //icon: Icon(Icons.menu),
+                icon: _getUserImage(),
                 onPressed: () => _scaffoldKey.currentState!.openDrawer(),
               ),
       ),
@@ -360,8 +362,9 @@ class _DashboardState extends State<Dashboard> {
                 userProfile.billingGenDate == null;
           });
           if (_auth.currentUser?.email == userProfile.email) {
-            _document.update(
-                {'name': _displayname ?? _auth.currentUser!.displayName});
+            _document.update({
+              'display_name': _displayname ?? _auth.currentUser!.displayName
+            });
           }
           _showProgressUi(false, "");
 
