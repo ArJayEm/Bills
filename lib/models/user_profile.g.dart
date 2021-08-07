@@ -19,7 +19,12 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
     ..phoneNumber = json['phone_number'] as String?
     ..loggedIn = json['logged_in'] as bool?
     ..members = json['members'] as int?
-    ..registeredUsing = json['registered_using'] as String?;
+    ..registeredUsing = json['registered_using'] as String?
+    ..billingGenDate = json['billing_generation_date'] == null
+        ? null
+        : DateTime.parse(json['billing_generation_date'] as String)
+    ..userType = json['user_type'] as String?
+    ..pin = json['pin'] as String?;
 }
 
 Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
@@ -41,5 +46,8 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   val['logged_in'] = instance.loggedIn;
   val['members'] = instance.members;
   val['registered_using'] = instance.registeredUsing;
+  val['billing_generation_date'] = instance.billingGenDate?.toIso8601String();
+  val['user_type'] = instance.userType;
+  val['pin'] = instance.pin;
   return val;
 }

@@ -58,6 +58,7 @@ dependencies:
   expandable: #^5.0.1
   email_auth: #^0.0.1+4
   global_configuration: #^2.0.0-nullsafety.1
+  badges: #^2.0.1
 
   flutter_localizations:
     sdk: flutter

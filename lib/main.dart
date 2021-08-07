@@ -35,14 +35,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp() {
-    // Access configuration at constructor
-    GlobalConfiguration cfg = new GlobalConfiguration();
-    print("isDebug has value ${cfg.get("isDebug")}");
-    print("isDebug has value ${GlobalConfiguration().get("isDebug")}");
-    print("isDebug has value ${cfg.get("isDebug")}, this should be null!");
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -112,7 +104,6 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       home: _isLoading
           ? Center(child: CircularProgressIndicator())
           : SignInHome(auth: _auth),
-      //: EmailSignInPage(auth: _auth, isSignin: true),
     );
   }
 
@@ -132,8 +123,8 @@ class _InitializerWidgetState extends State<InitializerWidget> {
             userProfile =
                 UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
             userProfile.id = snapshot.id;
-            // userProfile.displayName = snapshot.get('name');
-            // userProfile.loggedIn = snapshot.get('logged_in');
+            // userProfile.displayName = snapshot.get('display_name') as String?;
+            // userProfile.loggedIn = snapshot.get('logged_in') as bool?;
           }
         }).whenComplete(() {
           setState(() {

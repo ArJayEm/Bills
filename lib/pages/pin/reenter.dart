@@ -368,7 +368,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
             FirebaseFirestore.instance.collection('users').doc(_user.uid);
 
         if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
-          _document.update({'mpin': _nominatedPin}).whenComplete(() {
+          _document.update({"pin": _nominatedPin}).whenComplete(() {
             _showProgressUi(false, "PIN change successful.");
             Navigator.push(
                 context,
@@ -377,7 +377,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
           });
         } else {
           _document.update(
-              {'mpin': _nominatedPin, 'logged_in': true}).whenComplete(() {
+              {"pin": _nominatedPin, 'logged_in': true}).whenComplete(() {
             Navigator.push(
                 context,
                 MaterialPageRoute(

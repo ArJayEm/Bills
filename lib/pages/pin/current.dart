@@ -398,7 +398,7 @@ class _EnterCurrentState extends State<EnterCurrent> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          pin = snapshot.get('mpin');
+          pin = snapshot.get("pin") as String?;
         }
       }).whenComplete(() {
         if (pin == _pinControllerFull.text) {

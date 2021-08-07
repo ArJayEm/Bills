@@ -43,8 +43,7 @@ class _ManagementState extends State<Management> {
   final _ctrlDesciption = TextEditingController();
   final _ctrlAmount = TextEditingController();
   final _ctrlQuantif = TextEditingController();
-
-  TextEditingController _ctrlSelectedPayers = TextEditingController();
+  final _ctrlSelectedPayers = TextEditingController();
 
   Bills _bill = Bills();
 
@@ -70,7 +69,7 @@ class _ManagementState extends State<Management> {
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
       _bill.billdate = _bill.billdate ?? DateTime.now();
       _ctrlBillDate.text = _bill.billdate!.format();
-      _ctrlDesciption.text = _bill.desciption ?? widget.title;
+      _ctrlDesciption.text = _bill.desciption ?? "";
       _ctrlAmount.text = _bill.amount.toString();
       _ctrlQuantif.text = _bill.quantification.toString();
       //_ctrlSelectedPayers.text = 'Selected Payers (${_selectedList.length})';
@@ -139,7 +138,7 @@ class _ManagementState extends State<Management> {
                         });
                       },
                       onTap: () {
-                        if (_bill.desciption == null ||
+                        if ((_bill.desciption?.isEmpty ?? true) ||
                             _bill.desciption!.isEmpty ||
                             _bill.desciption == widget.title) {
                           _ctrlDesciption.selection = TextSelection(
@@ -246,6 +245,7 @@ class _ManagementState extends State<Management> {
                                         setState(() {
                                           _selectedAll = !_selectedAll;
                                         });
+                                        _setSelectedPayersDisplay();
                                       }),
                                       icon: Icons.select_all,
                                       checkedColor: Colors.teal,
@@ -282,7 +282,7 @@ class _ManagementState extends State<Management> {
                           ..._isExpanded
                               ? <Widget>[
                                   Divider(thickness: 1, height: 0),
-                                  createMenuWidget()
+                                  _payersSelectionWidget()
                                 ]
                               : <Widget>[]
                         ],
@@ -360,7 +360,7 @@ class _ManagementState extends State<Management> {
         String collection = widget.title.toLowerCase();
         CollectionReference list =
             FirebaseFirestore.instance.collection(collection);
-        if (_bill.id == null) {
+        if (_bill.id?.isEmpty ?? true) {
           list.add(_bill.toJson()).then((value) {
             _showProgressUi(false, ".");
             setState(() {
@@ -409,8 +409,8 @@ class _ManagementState extends State<Management> {
       CollectionReference _collection =
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          users.add([doc.id, doc.get('name')]);
+        querySnapshot.docs.forEach((document) {
+          users.add([document.id, document.get('display_name')]);
         });
       }).whenComplete(() {
         setState(() {
@@ -426,7 +426,7 @@ class _ManagementState extends State<Management> {
     }
   }
 
-  Widget createMenuWidget() {
+  Widget _payersSelectionWidget() {
     List<Widget> mList = <Widget>[];
     for (int b = 0; b < _selectList.length; b++) {
       String id = _selectList[b][0];
@@ -446,7 +446,7 @@ class _ManagementState extends State<Management> {
         },
         value: _selectedList.contains(id),
         title: new Text(displayname),
-        subtitle: new Text(id),
+        //subtitle: new Text(id),
         controlAffinity: ListTileControlAffinity.leading,
       ));
     }

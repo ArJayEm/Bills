@@ -1,5 +1,6 @@
 // import 'dart:js';
 
+import 'package:badges/badges.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
@@ -7,10 +8,14 @@ import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
+import 'package:bills/pages/transactions/billing_history.dart';
+import 'package:bills/pages/transactions/payer_list.dart';
+import 'package:bills/pages/transactions/payment_history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:global_configuration/global_configuration.dart';
 
 import 'listview.dart';
 
@@ -25,7 +30,16 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  bool isDebug = false;
+  _DashboardState() {
+    // Access configuration at constructor
+    GlobalConfiguration cfg = new GlobalConfiguration();
+    isDebug = cfg.get("isDebug");
+    //Fluttertoast.showToast(msg: "isDebug: $isDebug");
+  }
+
   late FirebaseAuth _auth;
+  UserProfile _userProfile = UserProfile();
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
@@ -36,21 +50,25 @@ class _DashboardState extends State<Dashboard> {
   bool _getAmountToPayLoading = false;
   bool _isLoadingUser = false;
 
+  int _selectedIndex = 0;
+  bool _isNewUser = false;
+  bool _hasRequiredFields = false;
+
   List<Menu> menu = [
-    Menu(
-        location: 'Billing',
-        view: ListViewPage(
-            title: 'Billing',
-            quantification: 'Quantity',
-            color: Colors.green.shade800),
-        icon: Icon(Icons.receipt, color: Colors.green.shade800)),
+    // Menu(
+    //     location: 'Billing',
+    //     view: ListViewPage(
+    //         title: 'Billing',
+    //         quantification: 'Quantity',
+    //         color: Colors.green.shade800),
+    //     icon: Icon(Icons.receipt, color: Colors.green.shade800)),
     Menu(
         location: 'Payments',
         view: ListViewPage(
             title: 'Payments',
             quantification: 'Quantity',
             color: Colors.green.shade800),
-        icon: Icon(Icons.payments_outlined, color: Colors.green.shade800)),
+        icon: Icon(Icons.payment, color: Colors.green.shade800)),
     Menu(
         location: 'Electricity',
         view: ListViewPage(
@@ -85,8 +103,20 @@ class _DashboardState extends State<Dashboard> {
             color: Colors.red.shade600),
         icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
   ];
+  static List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+    ),
+    Text(
+      'Index 1: Business',
+    ),
+    Text(
+      'Index 2: School',
+    ),
+  ];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  final GlobalKey _drawerKey = GlobalKey();
 
   @override
   void initState() {
@@ -97,6 +127,9 @@ class _DashboardState extends State<Dashboard> {
     });
     _getCurrentUser();
     _loadLandingPage();
+    // _widgetOptions.add(_buildDashboard());
+    // _widgetOptions.add(SettingsHome(auth: _auth));
+    // _widgetOptions.add(ProfileHome(auth: _auth));
   }
 
   @override
@@ -104,8 +137,14 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
+      onDrawerChanged: (isOpen) {
+        if (!isOpen && _hasRequiredFields) {
+          _getCurrentUser();
+        }
+      },
       drawer: SafeArea(
         child: Drawer(
+          key: _drawerKey,
           child: Container(
             //decoration: BoxDecoration(color: Color(0xFF0098c2)),
             child: ListView(
@@ -121,55 +160,29 @@ class _DashboardState extends State<Dashboard> {
                       )
                     : ListTile(
                         contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
-                        leading: _auth.currentUser!.photoURL != null
-                            ? Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white, width: 1.5),
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: NetworkImage(
-                                          _auth.currentUser!.photoURL
-                                              .toString(),
-                                        ))))
-                            : null,
+                        leading: _hasRequiredFields
+                            ? Badge(
+                                badgeContent: Text(''),
+                                animationType: BadgeAnimationType.scale,
+                                child: _getUserImage(),
+                              )
+                            : _getUserImage(),
                         title: Text(
                           "$_displayname",
                           style: TextStyle(fontSize: 20.0),
                         ),
                         trailing: Icon(Icons.chevron_right, size: 20),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfileHome(auth: _auth)),
-                          ).whenComplete(() {
-                            _getCurrentUser();
-                            _scaffoldKey.currentState!.openDrawer();
-                          });
-                        },
+                        onTap: _profile,
                       ),
-                Divider(),
+                Divider(indent: 15, endIndent: 15, thickness: 1),
                 ListTile(
                   leading: Icon(Icons.settings),
                   minLeadingWidth: 0,
                   title: Text('Settings'),
                   trailing: Icon(Icons.chevron_right, size: 20),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SettingsHome(auth: _auth)),
-                    ).whenComplete(
-                        () => _scaffoldKey.currentState!.openDrawer());
-                  },
+                  onTap: _settings,
                 ),
-                // Divider(),
+                //Divider(indent: 15, endIndent: 15, thickness: 1),
                 // ListTile(
                 //   leading: Icon(Icons.expand),
                 //   minLeadingWidth: 0,
@@ -179,7 +192,7 @@ class _DashboardState extends State<Dashboard> {
                 //     _openBills(context, SelectPayers());
                 //   },
                 // ),
-                // Divider(),
+                //Divider(indent: 15, endIndent: 15, thickness: 1),
                 // ListTile(
                 //   leading: Icon(Icons.info_outline),
                 //   minLeadingWidth: 0,
@@ -190,7 +203,7 @@ class _DashboardState extends State<Dashboard> {
                 //   },
                 // ),
                 //Divider(),
-                // Divider(),
+                //Divider(indent: 15, endIndent: 15, thickness: 1),
                 // ListTile(
                 //   leading: Icon(Icons.expand),
                 //   minLeadingWidth: 0,
@@ -200,14 +213,14 @@ class _DashboardState extends State<Dashboard> {
                 //     _openBills(context, ExpandableSample());
                 //   },
                 // ),
-                Divider(),
+                Divider(indent: 15, endIndent: 15, thickness: 1),
                 ListTile(
                   leading: Icon(Icons.logout),
                   minLeadingWidth: 0,
                   title: Text('Log Out'),
                   onTap: _logoutDialog,
                 ),
-                Divider(),
+                Divider(indent: 15, endIndent: 15, thickness: 1),
                 ListTile(
                   leading: Icon(Icons.info_outline),
                   minLeadingWidth: 0,
@@ -217,7 +230,7 @@ class _DashboardState extends State<Dashboard> {
                     _openBills(context, About());
                   },
                 ),
-                Divider(),
+                Divider(indent: 15, endIndent: 15, thickness: 1),
               ],
             ),
           ),
@@ -227,6 +240,18 @@ class _DashboardState extends State<Dashboard> {
         iconTheme: Theme.of(context).iconTheme,
         textTheme: Theme.of(context).textTheme,
         title: Text('Bills'),
+        leading: _hasRequiredFields
+            ? IconButton(
+                icon: Badge(
+                    badgeContent: Text(''),
+                    animationType: BadgeAnimationType.scale,
+                    child: Icon(Icons.menu)),
+                onPressed: () => _scaffoldKey.currentState!.openDrawer(),
+              )
+            : IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () => _scaffoldKey.currentState!.openDrawer(),
+              ),
       ),
       body: RefreshIndicator(
         onRefresh: _loadLandingPage,
@@ -235,32 +260,48 @@ class _DashboardState extends State<Dashboard> {
             padding: EdgeInsets.all(10),
             physics: BouncingScrollPhysics(),
             child: _buildDashboard(),
+            //  _widgetOptions.elementAt(_selectedIndex),
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Dashboard',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.receipt_long),
-      //       label: 'Billing',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person),
-      //       label: 'Me',
-      //     ),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: Color.fromARGB(255, 255, 158, 0),
-      //   onTap: () {
-      // setState(() {
-      //   _selectedIndex = index;
-      // });
-      // }),
-      // ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Me',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        backgroundColor: Colors.grey.shade800,
+        selectedItemColor: Colors.white,
+        selectedFontSize: 12,
+        unselectedItemColor: Colors.grey.shade700,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          // switch (index) {
+          //   case 2:
+          //     _profile();
+          //     break;
+          //   case 1:
+          //     _settings();
+          //     break;
+          //   default:
+          //     _home();
+          //     break;
+          // }
+        },
+      ),
+      //),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: addUser,
       //   tooltip: 'Add ${widget.title}',
@@ -270,29 +311,63 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _getUserImage() {
+    return Container(
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white, width: 1.5),
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: _auth.currentUser!.photoURL != null
+              ? NetworkImage(_auth.currentUser!.photoURL.toString())
+              : AssetImage('assets/icons/user.png') as ImageProvider,
+        ),
+      ),
+    );
+  }
+
   Future<void> _getCurrentUser() async {
     _showProgressUi(true, "");
 
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        UserProfile userprofile = UserProfile();
+        UserProfile userProfile = UserProfile();
 
         _document.get().then((snapshot) {
           if (snapshot.exists) {
-            userprofile =
-                UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-            userprofile.id = snapshot.id;
+            // var data = snapshot.data().toString();
+            // userProfile = UserProfile.fromJson(data as Map<String, dynamic>);
+            // userProfile.id = snapshot.id;
+            userProfile.displayName = snapshot.get('display_name') as String?;
+            userProfile.userType = snapshot.get('user_type') as String?;
+            userProfile.members = snapshot.get('members') as int?;
+            userProfile.billingGenDate = DateTime.parse(
+                snapshot.get('billing_generation_date') as String);
+            userProfile.id = snapshot.id;
           }
         }).whenComplete(() {
           setState(() {
-            _displayname = userprofile.displayName ?? "No Name";
+            _userProfile = userProfile;
+            _displayname = userProfile.displayName ?? "No Name";
+            _isNewUser = (userProfile.userType?.isEmpty ?? true) &&
+                userProfile.members == 0 &&
+                userProfile.billingGenDate == null;
+            _hasRequiredFields = (userProfile.userType?.isEmpty ?? true) ||
+                userProfile.members == 0 ||
+                userProfile.billingGenDate == null;
           });
-          if (_auth.currentUser?.email == userprofile.email) {
+          if (_auth.currentUser?.email == userProfile.email) {
             _document.update(
                 {'name': _displayname ?? _auth.currentUser!.displayName});
           }
           _showProgressUi(false, "");
+
+          if (_isNewUser) {
+            _welcomeDialog();
+          }
         });
       }
     } on FirebaseAuthException catch (e) {
@@ -309,71 +384,158 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildDashboard() {
-    return Column(
-      children: [..._amountToPay(), _menuButtons()],
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      shrinkWrap: true,
+      children: [
+        _amountToPay(),
+        _menuButtons(),
+        _billingPayment(),
+        Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.people_alt_outlined),
+                minLeadingWidth: 0,
+                title: Text('Payers'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PayerList(auth: _auth)));
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  List<Widget> _amountToPay() {
-    return [
-      ListTile(
-        title: Text('Amount to pay'),
-        trailing: Text(_curentAmount.format(), style: TextStyle(fontSize: 20)),
+  Widget _billingPayment() {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.receipt),
+            minLeadingWidth: 0,
+            title: Text('Billing History'),
+            trailing: Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BillingHistory(auth: _auth)));
+            },
+          ),
+          Divider(indent: 15, endIndent: 15, thickness: 1),
+          ListTile(
+            leading: Icon(Icons.payment),
+            minLeadingWidth: 0,
+            title: Text('Payment History'),
+            trailing: Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PaymentHistory(auth: _auth)));
+            },
+          ),
+        ],
       ),
-      Divider(height: 2, indent: 10, endIndent: 10, color: Colors.grey),
-      _curentAmount > 0
-          ? SizedBox()
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Thank you for your payment!',
-                  style: TextStyle(fontSize: 20, height: 3),
-                ),
-                Text(
-                  '',
-                  style: TextStyle(height: 6),
+    );
+  }
+
+  Widget _amountToPay() {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: Text('Amount to pay', style: TextStyle(fontSize: 20)),
+            trailing:
+                Text(_curentAmount.format(), style: TextStyle(fontSize: 20)),
+          ),
+          Divider(indent: 15, endIndent: 15, thickness: 1),
+          _curentAmount > 0
+              ? SizedBox()
+              : ListTile(
+                  dense: true,
+                  title: Text(
+                    'Thank you for your payment!',
+                    style: TextStyle(fontSize: 15),
+                    textAlign: TextAlign.center,
+                  ),
                 )
-              ],
-            ),
-    ];
+          // const ListTile(
+          //   leading: Icon(Icons.album),
+          //   title: Text('The Enchanted Nightingale'),
+          //   subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+          // ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: <Widget>[
+          //     TextButton(
+          //       child: const Text('BUY TICKETS'),
+          //       onPressed: () {/* ... */},
+          //     ),
+          //     const SizedBox(width: 8),
+          //     TextButton(
+          //       child: const Text('LISTEN'),
+          //       onPressed: () {/* ... */},
+          //     ),
+          //     const SizedBox(width: 8),
+          //   ],
+          // ),
+        ],
+      ),
+    );
   }
 
   Widget _menuButtons() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: BouncingScrollPhysics(),
-      itemCount: menu.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          childAspectRatio: 1,
-          crossAxisCount: 3,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0),
-      itemBuilder: (BuildContext context, int index) {
-        return Card(
-          child: InkWell(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                menu[index].icon!,
-                SizedBox(height: 20),
-                Text(
-                  menu[index].location!,
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
-            onTap: () {
-              _setAllFalse();
-              menu[index].isSelected = true;
-              _openBills(context, menu[index].view!);
-            },
-          ),
-        );
-      },
-    );
+    return isDebug
+        ? Column(
+            children: [
+              GridView.builder(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                itemCount: menu.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: 1,
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 4.0,
+                    mainAxisSpacing: 4.0),
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    child: InkWell(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          menu[index].icon!,
+                          SizedBox(height: 20),
+                          Text(
+                            menu[index].location!,
+                            textAlign: TextAlign.center,
+                          )
+                        ],
+                      ),
+                      onTap: () {
+                        _setAllFalse();
+                        menu[index].isSelected = true;
+                        _openBills(context, menu[index].view!);
+                      },
+                    ),
+                  );
+                },
+              )
+            ],
+          )
+        : SizedBox();
   }
 
   _openBills(context, view) async {
@@ -394,9 +556,10 @@ class _DashboardState extends State<Dashboard> {
   Future<String?> _logoutDialog() {
     return showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Are you sure you want to logout?'),
-        content: const Text('Your account will be removed from the device.'),
+        content: const Text('account will be removed from the device.'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -404,25 +567,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           TextButton(
             onPressed: () async {
-              DocumentReference _document =
-                  _collection.doc(_auth.currentUser!.uid);
-              late String name;
-
-              _document.get().then((snapshot) {
-                if (snapshot.exists) {
-                  name = snapshot.get('name');
-                  _document.update({'logged_in': false});
-                }
-              }).whenComplete(() {
-                setState(() {
-                  _displayname = name;
-                });
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            PinHome(auth: _auth, displayName: _displayname!)));
-              });
+              _logout();
             },
             child: const Text('Yes'),
           ),
@@ -431,10 +576,112 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  _welcomeDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Welcome to Bills'),
+        content:
+            const Text("Before using this app, let's set up a few things."),
+        actions: <Widget>[
+          // TextButton(
+          //   onPressed: () => Navigator.pop(context, 'Cancel'),
+          //   child: const Text('No'),
+          // ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileHome(auth: _auth)),
+              );
+            },
+            child: const Text("Let's go"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _logout() {
+    _showProgressUi(true, "Logging Out.");
+
+    try {
+      DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
+      UserProfile userProfile = UserProfile();
+
+      _document.get().then((snapshot) {
+        if (snapshot.exists) {
+          //userProfile =
+          //    UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+          //userProfile.displayName = userProfile.displayName ?? _auth.currentUser!.displayName;
+          userProfile.displayName = snapshot.get('display_name');
+          _document.update({'logged_in': false});
+        }
+      }).whenComplete(() {
+        setState(() {
+          _displayname = userProfile.displayName;
+        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    PinHome(auth: _auth, displayName: _displayname!)));
+      });
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
+    }
+  }
+
   _showProgressUi(bool isLoading, String msg) {
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoadingUser = isLoading);
+  }
+
+  void _profile() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProfileHome(auth: _auth)),
+    ).whenComplete(() {
+      _getCurrentUser();
+      _scaffoldKey.currentState!.openDrawer();
+    });
+  }
+
+  void _settings() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SettingsHome(auth: _auth)),
+    ).whenComplete(() => _scaffoldKey.currentState!.openDrawer());
+  }
+
+  void _home() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
+  }
+}
+
+class CustomDivider extends StatelessWidget {
+  // final double height;
+  // final double indent;
+  // final double endIndent;
+  // final Color color;
+
+  // CustomDivider(
+  //     {this.height = 2,
+  //     this.indent = 10,
+  //     this.endIndent = 10,
+  //     this.color = Colors.grey});
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: 2, indent: 10, endIndent: 10, color: Colors.grey);
   }
 }

@@ -267,21 +267,21 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _email!, password: _password!);
-      late String name;
+      late String _displayName;
       User? user = userCredential.user;
 
       if (user != null) {
         DocumentReference document = _collection.doc(user.uid);
         document.get().then((snapshot) {
           if (snapshot.exists) {
-            name = snapshot.get("name");
+            _displayName = snapshot.get("display_name") as String;
           }
         }).whenComplete(() {
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      PinHome(auth: _auth, displayName: name)));
+                      PinHome(auth: _auth, displayName: _displayName)));
         });
       }
     } on FirebaseAuthException catch (e) {

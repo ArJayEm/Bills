@@ -20,6 +20,13 @@ class UserProfile extends ModelBase {
   int? members = 0;
   @JsonKey(name: "registered_using")
   String? registeredUsing = "";
+  @JsonKey(name: "billing_generation_date")
+  DateTime? billingGenDate;
+  @JsonKey(name: "user_type")
+  String? userType = "";
+
+  @JsonKey(name: "pin")
+  String? pin = "";
 
   UserProfile();
 

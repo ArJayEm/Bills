@@ -1,3 +1,4 @@
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/enter.dart';
 //import 'package:bills/pages/signin/email.dart';
@@ -31,7 +32,7 @@ class PinHome extends StatefulWidget {
 
 class _PinHomeState extends State<PinHome> {
   late FirebaseAuth _auth;
-  late String _name;
+  late String _displayName;
 
   List _mpinButtons = [
     '1',
@@ -65,7 +66,7 @@ class _PinHomeState extends State<PinHome> {
     super.initState();
     setState(() {
       _auth = widget.auth;
-      _name = widget.displayName;
+      _displayName = widget.displayName;
     });
     _checkIfExistingUser();
   }
@@ -118,7 +119,7 @@ class _PinHomeState extends State<PinHome> {
                       )
                     : SizedBox(),
                 Text(
-                  '  $_name',
+                  '  $_displayName',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
               ],
@@ -126,6 +127,7 @@ class _PinHomeState extends State<PinHome> {
             Spacer(),
             TextButton(
               onPressed: () => showDialog<String>(
+                barrierDismissible: false,
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Are you sure you want to logout?'),
@@ -323,7 +325,7 @@ class _PinHomeState extends State<PinHome> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          mpin = snapshot.get('mpin');
+          mpin = snapshot.get("pin") as String;
         }
       }).whenComplete(() {
         if (mpin == _pinController.text) {
@@ -347,13 +349,14 @@ class _PinHomeState extends State<PinHome> {
       DocumentReference _document = FirebaseFirestore.instance
           .collection('users')
           .doc(_auth.currentUser!.uid);
-      bool loggedIn = false;
-      String? pin;
+      UserProfile userProfile = UserProfile();
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          loggedIn = snapshot.get('logged_in');
-          pin = snapshot.get('mpin');
+          userProfile.displayName = snapshot.get('display_name') as String?;
+          userProfile.loggedIn = snapshot.get('logged_in') as bool?;
+          userProfile.pin = snapshot.get("pin") as String?;
+          _document.update({'pin': userProfile.pin});
         } else {
           _auth.signOut();
           _showProgressUi(false, "User not found.");
@@ -361,11 +364,11 @@ class _PinHomeState extends State<PinHome> {
               MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
         }
       }).whenComplete(() {
-        if (loggedIn) {
+        if (userProfile.loggedIn == true) {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
-          if (pin == null) {
+          if (userProfile.pin?.isEmpty ?? true) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -373,6 +376,11 @@ class _PinHomeState extends State<PinHome> {
                         auth: _auth, isChange: false, nominatedPin: '')));
           } else {}
         }
+        setState(() {
+          _displayName = userProfile.displayName ??
+              _auth.currentUser!.displayName ??
+              '???';
+        });
         _showProgressUi(false, "");
       });
     } on FirebaseAuthException catch (e) {

@@ -113,7 +113,7 @@ class _ListViewPage extends State<ListViewPage> {
                             title: Text(_formattedBillDate),
                             //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
                             subtitle: Text(
-                                "${_setSelectedPayersDisplay(_bill.payerIds ?? [])} | ${_bill.desciption}"),
+                                "${_setSelectedPayersDisplay(_bill.payerIds ?? [])}${_bill.desciption!.isNotEmpty ? " | ${_bill.desciption}" : ""}"),
                             trailing: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -220,8 +220,8 @@ class _ListViewPage extends State<ListViewPage> {
       CollectionReference _collection =
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          users.add([doc.id, doc.get('name')]);
+        querySnapshot.docs.forEach((document) {
+          users.add([document.id, document.get('display_name')]);
         });
       }).whenComplete(() {
         setState(() {
