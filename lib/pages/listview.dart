@@ -70,95 +70,103 @@ class _ListViewPage extends State<ListViewPage> {
           icon: Icons.add,
           color: widget.color,
           onTap: () {
-            _showDataManager(_bill, widget.title);
+            _showDataManager(_bill);
           }),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
     );
   }
 
   Widget _buildBody() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _listStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Something went wrong'));
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        return !snapshot.hasData
-            ? Center(child: Text('No ${widget.title} Yet.'))
-            : ListView(
-                children: snapshot.data!.docs.map(
-                  (DocumentSnapshot document) {
-                    Bills _bill =
-                        Bills.fromJson(document.data() as Map<String, dynamic>);
-                    _bill.id = document.id;
-                    _bill.desciption = _bill.desciption ?? widget.title;
-                    String _formattedBillDate =
-                        DateFormat('MMM dd, yyyy').format(_bill.billdate!);
-                    String _lastModified = DateFormat('MMM dd, yyyy hh:mm aaa')
-                        .format(_bill.modifiedOn ?? _bill.createdOn);
-                    return ConstrainedBox(
-                      constraints: new BoxConstraints(
-                        minHeight: _isExpanded ? 100 : 0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            //isThreeLine: true,
-                            title: Text(_formattedBillDate),
-                            //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
-                            subtitle: Text(
-                                "${_setSelectedPayersDisplay(_bill.payerIds ?? [])}${_bill.desciption!.isNotEmpty ? " | ${_bill.desciption}" : ""}"),
-                            trailing: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'P ${_bill.amount}',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                      fontSize: 25, color: widget.color),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(10),
+        physics: BouncingScrollPhysics(),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _listStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Something went wrong'));
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            return !snapshot.hasData
+                ? Center(child: Text('No ${widget.title} Yet.'))
+                : Card(
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      children: snapshot.data!.docs.map(
+                        (DocumentSnapshot document) {
+                          Bills _bill = Bills.fromJson(
+                              document.data() as Map<String, dynamic>);
+                          _bill.id = document.id;
+                          _bill.desciption = _bill.desciption ?? widget.title;
+                          String _formattedBillDate = DateFormat('MMM dd, yyyy')
+                              .format(_bill.billdate!);
+                          String _lastModified =
+                              DateFormat('MMM dd, yyyy hh:mm aaa')
+                                  .format(_bill.modifiedOn ?? _bill.createdOn);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                //isThreeLine: true,
+                                title: Text(_formattedBillDate),
+                                //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
+                                subtitle: Text(
+                                    "${_setSelectedPayersDisplay(_bill.payerIds ?? [])}${_bill.desciption!.isNotEmpty ? " | ${_bill.desciption}" : ""}"),
+                                trailing: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'P ${_bill.amount}',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 25, color: widget.color),
+                                    ),
+                                    Text(
+                                      '${_bill.quantification} $_quantification',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w200),
+                                    ),
+                                    Text(
+                                      '$_lastModified',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w200),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  '${_bill.quantification} $_quantification',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w200),
-                                ),
-                                Text(
-                                  '$_lastModified',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(fontWeight: FontWeight.w200),
-                                ),
-                              ],
-                            ),
-                            onTap: () {
-                              // setState(() {
-                              //   _isExpanded = !_isExpanded;
-                              // });
-                              _showDataManager(_bill, widget.title);
-                            },
-                          ),
-                          Divider(),
-                        ],
-                      ),
-                    );
-                  },
-                ).toList(),
-              );
-      },
+                                onTap: () {
+                                  // setState(() {
+                                  //   _isExpanded = !_isExpanded;
+                                  // });
+                                  _showDataManager(_bill);
+                                },
+                              ),
+                              Divider()
+                            ],
+                          );
+                        },
+                      ).toList(),
+                    ),
+                  );
+          },
+        ),
+      ),
     );
   }
 
-  _showDataManager(data, title) async {
+  _showDataManager(data) async {
     if ((await showAddRecord(
-            context, data, _quantification, title, widget.color)) ??
+            context, data, _quantification, widget.title, widget.color)) ??
         false) _getlist();
   }
 
@@ -201,17 +209,6 @@ class _ListViewPage extends State<ListViewPage> {
     }
   }
 
-  String _getPayerName(String? id) {
-    String payer = '';
-    for (var p in _selectList) {
-      if (p[0] == id) {
-        payer = p[1] ?? '';
-        break;
-      }
-    }
-    return payer;
-  }
-
   Future<void> _getPayers() async {
     _showProgressUi(true, "");
 
@@ -235,6 +232,17 @@ class _ListViewPage extends State<ListViewPage> {
     } catch (e) {
       _showProgressUi(false, "$e.");
     }
+  }
+
+  String _getPayerName(String? id) {
+    String payer = '';
+    for (var p in _selectList) {
+      if (p[0] == id) {
+        payer = p[1] ?? '';
+        break;
+      }
+    }
+    return payer;
   }
 
   _showProgressUi(bool isLoading, String msg) {

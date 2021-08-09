@@ -365,7 +365,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
     if (pin.length == 6 && _nominatedPin == pin) {
       try {
         DocumentReference _document =
-            FirebaseFirestore.instance.collection('users').doc(_user.uid);
+            FirebaseFirestore.instance.collection("users").doc(_user.uid);
 
         if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
           _document.update({"pin": _nominatedPin}).whenComplete(() {

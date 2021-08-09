@@ -1,4 +1,4 @@
-#Sun Aug 08 03:37:25 SGT 2021
+#Sun Aug 08 16:41:54 SGT 2021
 base.0=C\:\\source\\apps\\bills\\build\\app\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

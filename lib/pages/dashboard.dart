@@ -30,16 +30,17 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  bool isDebug = false;
+  bool _isDebug = false;
   _DashboardState() {
     // Access configuration at constructor
     GlobalConfiguration cfg = new GlobalConfiguration();
-    isDebug = cfg.get("isDebug");
+    _isDebug = cfg.get("isDebug");
     //Fluttertoast.showToast(msg: "isDebug: $isDebug");
   }
 
   late FirebaseAuth _auth;
   UserProfile _userProfile = UserProfile();
+  String? _id;
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
@@ -47,6 +48,7 @@ class _DashboardState extends State<Dashboard> {
   String? _displayname;
   num _curentAmount = 0;
 
+  bool _isPayer = false;
   bool _getAmountToPayLoading = false;
   bool _isLoadingUser = false;
 
@@ -149,31 +151,32 @@ class _DashboardState extends State<Dashboard> {
             //decoration: BoxDecoration(color: Color(0xFF0098c2)),
             child: ListView(
               children: <Widget>[
-                _isLoadingUser
-                    ? Container(
-                        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Center(child: CircularProgressIndicator())
-                            ]),
-                      )
-                    : ListTile(
-                        contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
-                        leading: _hasRequiredFields
-                            ? Badge(
-                                badgeContent: Text(''),
-                                animationType: BadgeAnimationType.scale,
-                                child: _getUserImage(),
-                              )
-                            : _getUserImage(),
-                        title: Text(
-                          "$_displayname",
-                          style: TextStyle(fontSize: 20.0),
-                        ),
-                        trailing: Icon(Icons.chevron_right, size: 20),
-                        onTap: _profile,
-                      ),
+                // _isLoadingUser
+                //     ? Container(
+                //         padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                //         child: Row(
+                //             mainAxisAlignment: MainAxisAlignment.center,
+                //             children: [
+                //               Center(child: CircularProgressIndicator())
+                //             ]),
+                //       )
+                //     :
+                ListTile(
+                  contentPadding: EdgeInsets.fromLTRB(18, 20, 15, 15),
+                  leading: _hasRequiredFields
+                      ? Badge(
+                          badgeContent: Text(''),
+                          animationType: BadgeAnimationType.scale,
+                          child: _getUserImage(),
+                        )
+                      : _getUserImage(),
+                  title: Text(
+                    "$_displayname",
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  trailing: Icon(Icons.chevron_right, size: 20),
+                  onTap: _profile,
+                ),
                 Divider(indent: 15, endIndent: 15, thickness: 1),
                 ListTile(
                   leading: Icon(Icons.settings),
@@ -277,10 +280,15 @@ class _DashboardState extends State<Dashboard> {
             label: 'Settings',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: ImageIcon(
+              AssetImage("assets/icons/google.png"),
+              color: Color(0xFF3A5A98),
+            ),
             label: 'Me',
           ),
         ],
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         backgroundColor: Colors.grey.shade800,
         selectedItemColor: Colors.white,
@@ -338,28 +346,25 @@ class _DashboardState extends State<Dashboard> {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
         UserProfile userProfile = UserProfile();
 
-        _document.get().then((snapshot) {
-          if (snapshot.exists) {
-            // var data = snapshot.data().toString();
-            // userProfile = UserProfile.fromJson(data as Map<String, dynamic>);
-            // userProfile.id = snapshot.id;
-            userProfile.displayName = snapshot.get('display_name') as String?;
-            userProfile.userType = snapshot.get('user_type') as String?;
-            userProfile.members = snapshot.get('members') as int?;
-            userProfile.billingGenDate = DateTime.parse(
-                snapshot.get('billing_generation_date') as String);
-            userProfile.id = snapshot.id;
-          }
+        _collection.get().then((snapshots) {
+          snapshots.docs.forEach((document) {
+            if (document.id == _auth.currentUser!.uid) {
+              userProfile =
+                  UserProfile.fromJson(document.data() as Map<String, dynamic>);
+              userProfile.id = document.id;
+            }
+          });
         }).whenComplete(() {
           setState(() {
             _userProfile = userProfile;
             _displayname = userProfile.displayName ?? "No Name";
             _isNewUser = (userProfile.userType?.isEmpty ?? true) &&
-                userProfile.members == 0 &&
-                userProfile.billingGenDate == null;
+                userProfile.members == 0;
             _hasRequiredFields = (userProfile.userType?.isEmpty ?? true) ||
-                userProfile.members == 0 ||
-                userProfile.billingGenDate == null;
+                (_userProfile.displayName?.isEmpty ?? true) ||
+                userProfile.members == 0;
+            _isPayer = !(_userProfile.userType?.isEmpty ?? true) &&
+                _userProfile.userType == "ZeJRdubCHiBLgjz229n7";
           });
           if (_auth.currentUser?.email == userProfile.email) {
             _document.update({
@@ -367,7 +372,7 @@ class _DashboardState extends State<Dashboard> {
             });
           }
           _showProgressUi(false, "");
-
+          Fluttertoast.showToast(msg: _isPayer.toString());
           if (_isNewUser) {
             _welcomeDialog();
           }
@@ -391,9 +396,9 @@ class _DashboardState extends State<Dashboard> {
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       children: [
-        _amountToPay(),
+        _isDebug || _isPayer ? _amountToPay() : SizedBox(),
+        _isDebug || _isPayer ? _billingPayment() : SizedBox(),
         _menuButtons(),
-        _billingPayment(),
         Card(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -402,6 +407,19 @@ class _DashboardState extends State<Dashboard> {
                 leading: Icon(Icons.people_alt_outlined),
                 minLeadingWidth: 0,
                 title: Text('Payers'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PayerList(auth: _auth)));
+                },
+              ),
+              CustomDivider(),
+              ListTile(
+                leading: Icon(Icons.receipt_long),
+                minLeadingWidth: 0,
+                title: Text('Generate Bills'),
                 trailing: Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.push(
@@ -434,7 +452,7 @@ class _DashboardState extends State<Dashboard> {
                       builder: (context) => BillingHistory(auth: _auth)));
             },
           ),
-          Divider(indent: 15, endIndent: 15, thickness: 1),
+          CustomDivider(),
           ListTile(
             leading: Icon(Icons.payment),
             minLeadingWidth: 0,
@@ -462,7 +480,7 @@ class _DashboardState extends State<Dashboard> {
             trailing:
                 Text(_curentAmount.format(), style: TextStyle(fontSize: 20)),
           ),
-          Divider(indent: 15, endIndent: 15, thickness: 1),
+          CustomDivider(),
           _curentAmount > 0
               ? SizedBox()
               : ListTile(
@@ -499,11 +517,11 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _menuButtons() {
-    return isDebug
+    return _isDebug
         ? Column(
             children: [
               GridView.builder(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 10),
                 shrinkWrap: true,
                 physics: BouncingScrollPhysics(),
                 itemCount: menu.length,
@@ -616,10 +634,11 @@ class _DashboardState extends State<Dashboard> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          //userProfile =
-          //    UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          //userProfile.displayName = userProfile.displayName ?? _auth.currentUser!.displayName;
-          userProfile.displayName = snapshot.get('display_name');
+          userProfile =
+              UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+          //userProfile.id = snapshot.id;
+          _id = snapshot.id;
+          //userProfile.displayName = snapshot.get('display_name');
           _document.update({'logged_in': false});
         }
       }).whenComplete(() {

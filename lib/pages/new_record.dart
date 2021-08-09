@@ -1,4 +1,5 @@
 import 'package:bills/models/bills.dart';
+import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -320,10 +321,16 @@ class _ManagementState extends State<Management> {
                   onPressed: _cancel,
                 ),
                 Spacer(),
-                Text('Add $_title',
+                Text('${_bill.id != null ? 'Manage' : "Add"} $_title',
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 Spacer(),
+                _bill.id != null
+                    ? TextButton(
+                        child: Icon(Icons.delete, size: 30, color: Colors.grey),
+                        onPressed: !_isLoading ? _deleteRecord : null,
+                      )
+                    : SizedBox(),
                 TextButton(
                   child: Icon(Icons.done, size: 30, color: widget.color),
                   onPressed: !_isLoading ? _saveRecord : null,
@@ -348,42 +355,120 @@ class _ManagementState extends State<Management> {
     }
   }
 
-  _saveRecord() {
-    setState(() {
-      _bill.payerIds = _selectedList;
-    });
+  _saveRecord() async {
+    _showProgressUi(true, "Saving");
 
     if (_formKey.currentState!.validate()) {
-      _showProgressUi(true, "Saving");
+      setState(() {
+        _bill.payerIds = _selectedList;
+      });
 
       try {
         String collection = widget.title.toLowerCase();
         CollectionReference list =
             FirebaseFirestore.instance.collection(collection);
         if (_bill.id?.isEmpty ?? true) {
-          list.add(_bill.toJson()).then((value) {
-            _showProgressUi(false, ".");
+          var data = _bill.toJson();
+          list.add(data).then((value) {
             setState(() {
               _isExpanded = false;
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                   overlays: SystemUiOverlay.values);
             });
+            _updateBillingDates();
+            _showProgressUi(false, "");
+            Navigator.pop(context);
           }).catchError((error) {
             _showProgressUi(false, "Failed to add bill: $error.");
           });
         } else {
           _bill.modifiedOn = DateTime.now();
           list.doc(_bill.id).update(_bill.toJson()).then((value) {
-            _showProgressUi(false, "Bill updated.");
             setState(() {
               _isExpanded = false;
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                   overlays: SystemUiOverlay.values);
             });
+            _updateBillingDates();
+            _showProgressUi(false, "Bill updated.");
           }).catchError((error) {
             _showProgressUi(false, "Failed to update bill: $error.");
           });
         }
+      } on FirebaseAuthException catch (e) {
+        _showProgressUi(false, "${e.message}.");
+      } catch (e) {
+        _showProgressUi(false, "$e.");
+      }
+    }
+  }
+
+  _deleteRecord() async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text(
+            'You are about to delete a record. This action is irreversible'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              _showProgressUi(true, "Deleting record...");
+              try {
+                String collection = widget.title.toLowerCase();
+
+                FirebaseFirestore.instance
+                    .collection(collection)
+                    .doc(_bill.id)
+                    .delete()
+                    .then((_) {
+                  _showProgressUi(false, "Record deleted");
+                  Navigator.pop(context);
+                });
+              } on FirebaseAuthException catch (e) {
+                _showProgressUi(false, "${e.message}.");
+              } catch (e) {
+                _showProgressUi(false, "$e.");
+              }
+            },
+            child: const Text('Ok'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _updateBillingDates() {
+    if (widget.title.toLowerCase() != 'payment') {
+      try {
+        CollectionReference collection =
+            FirebaseFirestore.instance.collection("users");
+        UserProfile userProfile = UserProfile();
+        collection.get().then((snapshots) {
+          snapshots.docs.forEach((document) {
+            if (_bill.payerIds!.contains(document.id)) {
+              userProfile =
+                  UserProfile.fromJson(document.data() as Map<String, dynamic>);
+              userProfile.id = document.id;
+              if (userProfile.billingDate == null) {
+                collection.doc(userProfile.id).update({
+                  'billing_date': _bill.billdate?.toIso8601String()
+                }).whenComplete(() {});
+              }
+            }
+          });
+        }).whenComplete(() {
+          setState(() {
+            //_payers.addAll(payers);
+            //_listStream = stream;
+          });
+          _showProgressUi(false, "");
+        });
       } on FirebaseAuthException catch (e) {
         _showProgressUi(false, "${e.message}.");
       } catch (e) {

@@ -87,6 +87,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   late User _currentUser;
   UserProfile _userProfile = UserProfile();
+  String? _id;
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
@@ -124,7 +125,8 @@ class _InitializerWidgetState extends State<InitializerWidget> {
           if (snapshot.exists) {
             userProfile =
                 UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-            userProfile.id = snapshot.id;
+            //userProfile.id = snapshot.id;
+            _id = snapshot.id;
             if (userProfile.userCode?.isEmpty ?? true) {
               _document.update({"user_code": _generateUserCode()});
             }
