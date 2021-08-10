@@ -1,3 +1,4 @@
+import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/enter.dart';
@@ -368,7 +369,7 @@ class _PinHomeState extends State<PinHome> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
-          if (userProfile.pin?.isEmpty ?? true) {
+          if (userProfile.pin.isNullOrEmpty()) {
             Navigator.push(
                 context,
                 MaterialPageRoute(

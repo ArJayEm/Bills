@@ -19,7 +19,7 @@ class _PayerListState extends State<PayerList> {
   Stream<QuerySnapshot>? _listStream;
   List<dynamic> _userIds = [];
   List<dynamic> _payers = [];
-  List<UserProfile> _payerList = [];
+  //List<UserProfile> _payerList = [];
 
   String _title = "Payer List";
 
@@ -175,7 +175,6 @@ class _PayerListState extends State<PayerList> {
             UserProfile userProfile =
                 UserProfile.fromJson(document.data() as Map<String, dynamic>);
             userProfile.id = document.id;
-            userProfile.add(userProfile);
           }
         });
       }).whenComplete(() {
@@ -221,6 +220,23 @@ class _PayerListState extends State<PayerList> {
       var collection = FirebaseFirestore.instance.collection("users");
       var document = collection.doc(_id);
       List<dynamic> userids = [];
+      // Fluttertoast.showToast(
+      //     msg: FirebaseFirestore.instance.collection("users").path);
+      // FirebaseFirestore.instance
+      //     .collection("users").doc()
+      //     .where("user_type", isNotEqualTo: _collectorId)
+      //     .snapshots()
+      //     .forEach((element) {
+      //   element.docs.forEach((document) {
+      //     users.add([document.id, document.get('display_name')]);
+      //   });
+      // }).whenComplete(() {
+      //   setState(() {
+      //     _selectList.addAll(users);
+      //   });
+      //   _showProgressUi(false, "");
+      //   _getlist();
+      // });
 
       document.get().then((snapshot) {
         if (snapshot.exists) {

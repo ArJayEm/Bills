@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:badges/badges.dart';
 import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:bills/pages/dashboard.dart';
 //import 'package:bills/pages/pin/pin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,19 +41,12 @@ class _ProfileHomeState extends State<ProfileHome> {
   final _billGenDateController = TextEditingController();
   final _userTypeController = TextEditingController();
 
-  final DateTime _firstdate = DateTime(DateTime.now().year - 2);
-  final DateTime _lastdate = DateTime.now();
-
-  final _nameFocusNode = FocusNode();
-
   bool _isLoading = false;
   bool _isUpdate = false;
   bool _hasRequiredFields = false;
   //bool _mobileUser = false;
 
   TextStyle _hint = TextStyle(fontSize: 15, color: Colors.white30);
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -175,12 +170,12 @@ class _ProfileHomeState extends State<ProfileHome> {
                 subtitle: Text("Name"),
                 trailing: _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.displayName?.isEmpty ?? true)
+                        (_userProfile.displayName.isNullOrEmpty())
                     ? Icon(Icons.edit)
                     : Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.displayName?.isEmpty ?? true)
+                        (_userProfile.displayName.isNullOrEmpty())
                     ? showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -358,7 +353,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _userProfile.userType?.isEmpty ?? true
+                    _userProfile.userType.isNullOrEmpty()
                         ? Badge(
                             badgeContent: Text(''),
                             child: Icon(Icons.person),
@@ -371,12 +366,12 @@ class _ProfileHomeState extends State<ProfileHome> {
                 subtitle: Text("User Type"),
                 trailing: _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.userType?.isEmpty ?? true)
+                        (_userProfile.userType.isNullOrEmpty())
                     ? Icon(Icons.edit)
                     : Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.userType?.isEmpty ?? true)
+                        (_userProfile.userType.isNullOrEmpty())
                     ? showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -572,20 +567,15 @@ class _ProfileHomeState extends State<ProfileHome> {
     );
   }
 
+
   Widget _getUserImage() {
-    return Container(
+    return GetUserImage(      
       height: 40,
       width: 40,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1.5),
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          image: _auth.currentUser!.photoURL != null
-              ? NetworkImage(_auth.currentUser!.photoURL.toString())
-              : AssetImage('assets/icons/user.png') as ImageProvider,
-        ),
-      ),
+      borderColor: Colors.white,
+      borderWidth: 1.5,
+      //shape: BoxShape.circle,
+      imagePath: _auth.currentUser!.photoURL
     );
   }
 
@@ -610,7 +600,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           // userProfile.billingDate =
           //     DateTime.parse(snapshot.get('billing_date') as String);
           //userProfile.userCode = snapshot.get('user_code') as String?;
-          if (userProfile.userCode?.isEmpty ?? true) {
+          if (userProfile.userCode.isNullOrEmpty()) {
             String usercode = _generateUserCode();
             _document.update({"user_code": usercode}).whenComplete(() {
               userProfile.userCode = usercode;
@@ -638,8 +628,8 @@ class _ProfileHomeState extends State<ProfileHome> {
           //         _userProfile.phoneNumber?.trim() ==
           //             _userProfile.displayName?.trim();
           _hasRequiredFields = //_mobileUser ||
-              (_userProfile.displayName?.isEmpty ?? true) ||
-                  (_userProfile.userType?.isEmpty ?? true) ||
+              (_userProfile.displayName.isNullOrEmpty()) ||
+                  (_userProfile.userType.isNullOrEmpty()) ||
                   _userProfile.members == 0;
 
           _isUpdate = _hasRequiredFields;
@@ -687,23 +677,6 @@ class _ProfileHomeState extends State<ProfileHome> {
       _showProgressUi(false, "${e.message}.");
     } catch (e) {
       _showProgressUi(false, "$e.");
-    }
-  }
-
-  _getDate() async {
-    var date = await showDatePicker(
-      context: context,
-      initialDate: _userProfile.billingDate ?? _lastdate,
-      firstDate: _firstdate,
-      lastDate: _lastdate,
-    );
-    if (date != null) {
-      setState(() {
-        _billGenDateController.text = DateFormat('MMM dd, yyyy')
-            .format(DateTime(date.year, date.month, date.day));
-        _userProfile.billingDate = DateTime(date.year, date.month, date.day);
-        _isUpdate = true;
-      });
     }
   }
 

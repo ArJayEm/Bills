@@ -26,6 +26,13 @@ extension MsEpochToDateTimeFormat on int {
   }
 }
 
+extension DateTimeFormatHelper on DateTime {
+  String formatDate({bool dateOnly = false}) {
+    return DateFormat(dateOnly ? "MMM dd, yyyy" : "MMM dd, yyyy hh:mm aaa")
+        .format(this);
+  }
+}
+
 extension DateFormatHelper on DateTime {
   String format({bool dateOnly = false}) {
     return DateFormat(dateOnly ? "MMM dd, yyyy" : "MMM dd, yyyy hh:mm aaa")
@@ -92,6 +99,12 @@ extension DateFormatHelper on DateTime {
       return this.formatToMonthDayHour();
     else
       return this.format();
+  }
+}
+
+extension StringFormatHelper on String? {
+  bool isNullOrEmpty() {
+    return this?.isEmpty ?? true;
   }
 }
 

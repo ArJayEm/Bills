@@ -188,6 +188,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "dio",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/dio-4.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "dropdown_search",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/dropdown_search-0.6.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "email_auth",
       "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/email_auth-0.0.1+4",
       "packageUri": "lib/",
@@ -818,7 +830,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-08-07T07:49:26.905855Z",
+  "generated": "2021-08-10T09:12:37.032910Z",
   "generator": "pub",
   "generatorVersion": "2.14.0-301.2.beta"
 }

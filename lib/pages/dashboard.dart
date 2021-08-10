@@ -5,9 +5,11 @@ import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
+import 'package:bills/pages/test/dropdown_test.dart';
 import 'package:bills/pages/transactions/billing_history.dart';
 import 'package:bills/pages/transactions/payer_list.dart';
 import 'package:bills/pages/transactions/payment_history.dart';
@@ -31,16 +33,17 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool _isDebug = false;
+  String _collectorId = "";
   _DashboardState() {
     // Access configuration at constructor
     GlobalConfiguration cfg = new GlobalConfiguration();
     _isDebug = cfg.get("isDebug");
+    _collectorId = cfg.get("collectorId");
     //Fluttertoast.showToast(msg: "isDebug: $isDebug");
   }
 
   late FirebaseAuth _auth;
   UserProfile _userProfile = UserProfile();
-  String? _id;
 
   CollectionReference _collection =
       FirebaseFirestore.instance.collection('users');
@@ -50,6 +53,7 @@ class _DashboardState extends State<Dashboard> {
 
   bool _isPayer = false;
   bool _getAmountToPayLoading = false;
+  // ignore: unused_field
   bool _isLoadingUser = false;
 
   int _selectedIndex = 0;
@@ -104,17 +108,6 @@ class _DashboardState extends State<Dashboard> {
             quantification: 'Quantity',
             color: Colors.red.shade600),
         icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
-  ];
-  static List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-    ),
-    Text(
-      'Index 1: Business',
-    ),
-    Text(
-      'Index 2: School',
-    ),
   ];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -216,6 +209,17 @@ class _DashboardState extends State<Dashboard> {
                 //     _openBills(context, ExpandableSample());
                 //   },
                 // ),
+                Divider(),
+                Divider(indent: 15, endIndent: 15, thickness: 1),
+                ListTile(
+                  leading: Icon(Icons.expand),
+                  minLeadingWidth: 0,
+                  title: Text('Dropdown'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openBills(context, DropdDownTest());
+                  },
+                ),
                 Divider(indent: 15, endIndent: 15, thickness: 1),
                 ListTile(
                   leading: Icon(Icons.logout),
@@ -322,20 +326,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _getUserImage() {
-    return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1.5),
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          image: _auth.currentUser!.photoURL != null
-              ? NetworkImage(_auth.currentUser!.photoURL.toString())
-              : AssetImage('assets/icons/user.png') as ImageProvider,
-        ),
-      ),
-    );
+    return GetUserImage(
+        height: 40,
+        width: 40,
+        borderColor: Colors.white,
+        borderWidth: 1.5,
+        //shape: BoxShape.circle,
+        imagePath: _auth.currentUser!.photoURL);
   }
 
   Future<void> _getCurrentUser() async {
@@ -358,13 +355,13 @@ class _DashboardState extends State<Dashboard> {
           setState(() {
             _userProfile = userProfile;
             _displayname = userProfile.displayName ?? "No Name";
-            _isNewUser = (userProfile.userType?.isEmpty ?? true) &&
+            _isNewUser = (userProfile.userType.isNullOrEmpty()) &&
                 userProfile.members == 0;
-            _hasRequiredFields = (userProfile.userType?.isEmpty ?? true) ||
-                (_userProfile.displayName?.isEmpty ?? true) ||
+            _hasRequiredFields = (userProfile.userType.isNullOrEmpty()) ||
+                (_userProfile.displayName.isNullOrEmpty()) ||
                 userProfile.members == 0;
-            _isPayer = !(_userProfile.userType?.isEmpty ?? true) &&
-                _userProfile.userType == "ZeJRdubCHiBLgjz229n7";
+            _isPayer = !_userProfile.userType.isNullOrEmpty() &&
+                _userProfile.userType != _collectorId;
           });
           if (_auth.currentUser?.email == userProfile.email) {
             _document.update({
@@ -398,39 +395,41 @@ class _DashboardState extends State<Dashboard> {
       children: [
         _isDebug || _isPayer ? _amountToPay() : SizedBox(),
         _isDebug || _isPayer ? _billingPayment() : SizedBox(),
-        _menuButtons(),
-        Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.people_alt_outlined),
-                minLeadingWidth: 0,
-                title: Text('Payers'),
-                trailing: Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PayerList(auth: _auth)));
-                },
-              ),
-              CustomDivider(),
-              ListTile(
-                leading: Icon(Icons.receipt_long),
-                minLeadingWidth: 0,
-                title: Text('Generate Bills'),
-                trailing: Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PayerList(auth: _auth)));
-                },
-              ),
-            ],
-          ),
-        ),
+        _isDebug || !_isPayer ? _menuButtons() : SizedBox(),
+        _isDebug || !_isPayer
+            ? Card(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.people_alt_outlined),
+                      minLeadingWidth: 0,
+                      title: Text('Payers'),
+                      trailing: Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PayerList(auth: _auth)));
+                      },
+                    ),
+                    CustomDivider(),
+                    ListTile(
+                      leading: Icon(Icons.receipt_long),
+                      minLeadingWidth: 0,
+                      title: Text('Generate Bills'),
+                      trailing: Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PayerList(auth: _auth)));
+                      },
+                    ),
+                  ],
+                ),
+              )
+            : SizedBox(),
       ],
     );
   }
@@ -636,8 +635,7 @@ class _DashboardState extends State<Dashboard> {
         if (snapshot.exists) {
           userProfile =
               UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          //userProfile.id = snapshot.id;
-          _id = snapshot.id;
+          userProfile.id = snapshot.id;
           //userProfile.displayName = snapshot.get('display_name');
           _document.update({'logged_in': false});
         }
@@ -684,6 +682,7 @@ class _DashboardState extends State<Dashboard> {
     ).whenComplete(() => _scaffoldKey.currentState!.openDrawer());
   }
 
+  // ignore: unused_element
   void _home() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));

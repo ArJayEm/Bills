@@ -1,7 +1,6 @@
 import 'package:bills/models/bills.dart';
 import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/components/custom_icon_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bills/pages/components/custom_widgets.dart';import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +138,7 @@ class _ManagementState extends State<Management> {
                         });
                       },
                       onTap: () {
-                        if ((_bill.desciption?.isEmpty ?? true) ||
+                        if ((_bill.desciption.isNullOrEmpty()) ||
                             _bill.desciption!.isEmpty ||
                             _bill.desciption == widget.title) {
                           _ctrlDesciption.selection = TextSelection(
@@ -367,7 +366,7 @@ class _ManagementState extends State<Management> {
         String collection = widget.title.toLowerCase();
         CollectionReference list =
             FirebaseFirestore.instance.collection(collection);
-        if (_bill.id?.isEmpty ?? true) {
+        if (_bill.id.isNullOrEmpty()) {
           var data = _bill.toJson();
           list.add(data).then((value) {
             setState(() {

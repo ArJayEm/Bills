@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bills/pages/pin/pin_home.dart';
@@ -15,8 +16,6 @@ import 'package:bills/pages/signin/mobile.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-import '../components/custom_icon_button.dart';
 
 // GoogleSignIn _googleSignIn = GoogleSignIn(
 //   // Optional clientId

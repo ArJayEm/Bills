@@ -445,7 +445,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
         UserProfile userProfile = UserProfile();
         // String? name = _firebaseAuthUser.phoneNumber;
         // var count = 0;
-        // if (name?.isEmpty ?? true) {
+        // if (name.isNullOrEmpty()) {
         //   _collection.get().then((querySnapshot) {
         //     querySnapshot.docs.forEach((doc) {
         //       count++;

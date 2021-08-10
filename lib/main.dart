@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/pin/pin_home.dart';
@@ -13,8 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:global_configuration/global_configuration.dart';
-
-enum LoginType { EMAIL, MOBILE_NUMBER, GOOGLE, PIN }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,10 +66,6 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.dark,
         primaryColor: Colors.grey.shade300,
-        textTheme: TextTheme(
-            // headline1: TextStyle(color: Color.fromARGB(255, 112, 88, 52)),
-            // headline6: TextStyle(fontWeight: FontWeight.bold),
-            ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: InitializerWidget(),
@@ -86,17 +81,15 @@ class InitializerWidget extends StatefulWidget {
 class _InitializerWidgetState extends State<InitializerWidget> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   late User _currentUser;
-  UserProfile _userProfile = UserProfile();
-  String? _id;
-
-  CollectionReference _collection =
-      FirebaseFirestore.instance.collection('users');
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _currentUser = _auth.currentUser!;
+    });
     _getCurrentUser();
   }
 
@@ -113,56 +106,43 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   _getCurrentUser() async {
     _showProgressUi(true, "");
 
-    if (_auth.currentUser != null) {
-      setState(() {
-        _currentUser = _auth.currentUser!;
-      });
-      try {
-        DocumentReference _document = _collection.doc(_currentUser.uid);
-        UserProfile userProfile = UserProfile();
+    try {
+      DocumentReference _document =
+          FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
+      UserProfile up = UserProfile();
 
-        _document.get().then((snapshot) {
-          if (snapshot.exists) {
-            userProfile =
-                UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-            //userProfile.id = snapshot.id;
-            _id = snapshot.id;
-            if (userProfile.userCode?.isEmpty ?? true) {
-              _document.update({"user_code": _generateUserCode()});
-            }
-            // userProfile.displayName = snapshot.get('display_name') as String?;
-            // userProfile.loggedIn = snapshot.get('logged_in') as bool?;
-          }
-        }).whenComplete(() {
-          setState(() {
-            _userProfile = userProfile;
-          });
-          if (_userProfile.loggedIn == true) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Dashboard(auth: _auth)));
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PinHome(
-                    auth: _auth,
-                    displayName: _userProfile.displayName ??
-                        userProfile.displayName ??
-                        'User'),
-              ),
-            );
-          }
-        });
-      } on FirebaseAuthException catch (e) {
-        _showProgressUi(false, "${e.message}.");
-      } catch (e) {
-        _showProgressUi(false, "$e.");
-      }
-    } else {
-      _showProgressUi(false, "");
+      _document.get().then((snapshot) {
+        //if (snapshot.exists) {
+        up.displayName = snapshot.get('display_name') as String?;
+        up.userCode = snapshot.get('user_code') as String?;
+        //up = UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+        up.id = snapshot.id;
+        if (up.userCode.isNullOrEmpty()) {
+          _document.update({"user_code": _generateUserCode()});
+        }
+        //}
+      }).whenComplete(() {
+        var view = up.loggedIn == true
+            ? Dashboard(auth: _auth)
+            : PinHome(
+                auth: _auth,
+                displayName: up.displayName ?? up.displayName ?? 'User');
+        _navigateTo(view);
+      });
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
+  }
+
+  _navigateTo(Widget view) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => view,
+      ),
+    );
   }
 
   String _generateUserCode() {

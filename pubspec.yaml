@@ -59,6 +59,8 @@ dependencies:
   email_auth: #^0.0.1+4
   global_configuration: #^2.0.0-nullsafety.1
   badges: #^2.0.1
+  dropdown_search: #^0.6.3
+  dio: #^4.0.0
 
   flutter_localizations:
     sdk: flutter

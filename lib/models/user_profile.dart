@@ -31,6 +31,9 @@ class UserProfile extends ModelBase {
 
   @JsonKey(name: "user_ids")
   List<String>? userIds = [];
+  
+  @JsonKey(ignore: true)
+  List<UserProfile> users = [];
 
   UserProfile();
 
@@ -38,5 +41,8 @@ class UserProfile extends ModelBase {
       _$UserProfileFromJson(json);
   Map<String, dynamic> toJson() => _$UserProfileToJson(this);
 
-  void add(UserProfile userProfile) {}
+  ///custom comparing function to check if two users are equal
+  bool isEqual(UserProfile? model) {
+    return this.id == model?.id;
+  }
 }
