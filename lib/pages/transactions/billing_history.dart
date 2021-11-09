@@ -19,8 +19,7 @@ class _BillingHistoryState extends State<BillingHistory> {
       key: _scaffoldKey,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.grey.shade300),
-        textTheme:
-            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
         title: Text('Billing History'),
         titleSpacing: 0,
         centerTitle: false,

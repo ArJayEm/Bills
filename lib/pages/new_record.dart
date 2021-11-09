@@ -1,8 +1,9 @@
 import 'package:bills/models/bills.dart';
 import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/components/custom_widgets.dart';import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bills/pages/components/custom_widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+//import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/services.dart';
@@ -47,7 +48,8 @@ class _ManagementState extends State<Management> {
 
   Bills _bill = Bills();
 
-  List<dynamic> _selectedList = [];
+  //List<Map<String, dynamic>> _selectedList = [];
+  List<String> _selectedList = [];
   List<dynamic> _selectList = [];
   bool _selectedAll = false;
   bool _isExpanded = false;
@@ -65,6 +67,7 @@ class _ManagementState extends State<Management> {
     setState(() {
       _bill = widget.data;
       _selectedList = _bill.payerIds ?? [];
+      //_selectedList2 =
       _quantification = widget
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
       _bill.billdate = _bill.billdate ?? DateTime.now();
@@ -73,6 +76,7 @@ class _ManagementState extends State<Management> {
       _ctrlAmount.text = _bill.amount.toString();
       _ctrlQuantif.text = _bill.quantification.toString();
       //_ctrlSelectedPayers.text = 'Selected Payers (${_selectedList.length})';
+      //_ctrlSelectedPayers.text = _bill.payerNames ?? "Select Payer(s)";
     });
   }
 
@@ -233,13 +237,15 @@ class _ManagementState extends State<Management> {
                               suffixIcon: _isExpanded
                                   ? CustomAppBarButton(
                                       onTap: () => setState(() {
-                                        _selectedList.clear();
+                                        _selectedList = [];
+                                        //_selectedList2.clear();
                                         if (!_selectedAll) {
                                           for (int b = 0;
                                               b < _selectList.length;
                                               b++) {
                                             _selectedList
-                                                .add(_selectList[b][0]);
+                                                .addAll(_selectList[b]);
+                                            //_selectedList2.add(_selectList)
                                           }
                                         }
                                         setState(() {
@@ -253,8 +259,8 @@ class _ManagementState extends State<Management> {
                                       isChecked: _selectedAll,
                                     )
                                   : SizedBox(),
-                              labelText: 'Select a Payer',
-                              hintText: 'Select a Payer',
+                              labelText: 'Select Payer(s)',
+                              hintText: 'Select Payer(s)',
                             ),
                             onTap: () async {
                               setState(() {
@@ -273,7 +279,7 @@ class _ManagementState extends State<Management> {
                             },
                             onChanged: (value) {},
                             validator: (value) {
-                              if (_selectedList.length == 0) {
+                              if (_selectedList.isEmpty) {
                                 return 'Must select at least 1';
                               }
                               return null;
@@ -360,6 +366,14 @@ class _ManagementState extends State<Management> {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _bill.payerIds = _selectedList;
+        // if (!(_selectedList?.isEmpty ?? true))
+        //   for (var i = 0; i < _selectedList!.length; i++) {
+        //     _bill.payerIds?.addAll({
+        //       'id': _selectList[i][0],
+        //       'display_name': _selectList[i][1]
+        //     });
+        //   }
+        //_bill.payerNames = _ctrlSelectedPayers.text;
       });
 
       try {
@@ -371,9 +385,9 @@ class _ManagementState extends State<Management> {
           list.add(data).then((value) {
             setState(() {
               _isExpanded = false;
-              SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-                  overlays: SystemUiOverlay.values);
             });
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+                overlays: SystemUiOverlay.values);
             _updateBillingDates();
             _showProgressUi(false, "");
             Navigator.pop(context);
@@ -385,9 +399,10 @@ class _ManagementState extends State<Management> {
           list.doc(_bill.id).update(_bill.toJson()).then((value) {
             setState(() {
               _isExpanded = false;
-              SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-                  overlays: SystemUiOverlay.values);
             });
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+                overlays: SystemUiOverlay.values);
+            Navigator.pop(context);
             _updateBillingDates();
             _showProgressUi(false, "Bill updated.");
           }).catchError((error) {
@@ -428,6 +443,7 @@ class _ManagementState extends State<Management> {
                     .then((_) {
                   _showProgressUi(false, "Record deleted");
                   Navigator.pop(context);
+                  Navigator.pop(context);
                 });
               } on FirebaseAuthException catch (e) {
                 _showProgressUi(false, "${e.message}.");
@@ -450,7 +466,7 @@ class _ManagementState extends State<Management> {
         UserProfile userProfile = UserProfile();
         collection.get().then((snapshots) {
           snapshots.docs.forEach((document) {
-            if (_bill.payerIds!.contains(document.id)) {
+            if (_bill.payerIds!.contains((key) => key == document.id)) {
               userProfile =
                   UserProfile.fromJson(document.data() as Map<String, dynamic>);
               userProfile.id = document.id;
@@ -516,19 +532,30 @@ class _ManagementState extends State<Management> {
       String id = _selectList[b][0];
       String displayname = _selectList[b][1] ?? "No Name";
       mList.add(CheckboxListTile(
-        selected: _selectedList.contains(id),
+        selected: _selectedList.toString().contains(id),
+        //selected: _selectedList.contains(id),
+        //selected: _selectedList.contains((value) => value[0] == id),
+        //selected: _selectedList.contains((value) => value.contains(id)),
         onChanged: (bool? value) {
           setState(() {
-            if (value == true) {
+            if (value as bool) {
               _selectedList.add(id);
+              //_selectedList.addAll({{"id": id, "display_name": displayname, "deleted": false}});
+              //_selectedList.addAll({{"id": id, "deleted": false, "display_name": displayname}});
             } else {
+              //_selectedList.removeWhere((value) => value.toString().contains(id));
+              //_selectedList.remove((key, value) => key == id);
               _selectedList.remove(id);
+              //_selectedList.remove((key, value) => key.containsKey(id));
+              //_selectedList.removeWhere((key, value) => key == id);
             }
-            _setSelectedPayersDisplay();
           });
           print(_selectedList);
+          _setSelectedPayersDisplay();
         },
-        value: _selectedList.contains(id),
+        value: _selectedList.toString().contains(id),
+        //value: _selectedList.contains((value) => value[0] == id),
+        //value: _selectedList.contains((value) => value.contains(id)),
         title: new Text(displayname),
         //subtitle: new Text(id),
         controlAffinity: ListTileControlAffinity.leading,
@@ -539,30 +566,24 @@ class _ManagementState extends State<Management> {
 
   _setSelectedPayersDisplay() {
     setState(() {
-      if (_selectedList.length > 1) {
+      if (_selectedList.isNotEmpty) {
         int left = _selectedList.length - 1;
-        String? payer = _getPayerName(_selectedList[0]);
-        _ctrlSelectedPayers.text =
-            '$payer and $left other${left > 1 ? 's' : ''}';
-      } else if (_selectedList.length == 1) {
-        String? payer = _getPayerName(_selectedList[0]);
-        _ctrlSelectedPayers.text = '$payer';
+        String? payer = _getPayerName(_selectedList[
+            0]); //_selectedList[0].values.last; // _selectedList.first[0];
+        String? others =
+            left > 0 ? " and $left other${left > 1 ? 's' : ''}" : "";
+        _ctrlSelectedPayers.text = "$payer$others";
       } else {
-        _ctrlSelectedPayers.text = 'Select a Payer';
+        _ctrlSelectedPayers.text = 'Select Payer(s)';
       }
       _selectedAll = _selectList.length == _selectedList.length;
     });
   }
 
   String? _getPayerName(String? id) {
-    String payer = '';
-    for (var p in _selectList) {
-      if (p[0] == id) {
-        payer = p[1];
-        break;
-      }
-    }
-    return payer;
+    return (_selectList.where((element) => element.first == id).last)
+        .last
+        .toString();
   }
 
   _showProgressUi(bool isLoading, String msg) {

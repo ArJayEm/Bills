@@ -61,6 +61,7 @@ dependencies:
   badges: #^2.0.1
   dropdown_search: #^0.6.3
   dio: #^4.0.0
+  print_color: ^3.0.0-dev.1
 
   flutter_localizations:
     sdk: flutter

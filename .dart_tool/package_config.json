@@ -20,6 +20,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "ansicolor",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/ansicolor-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "archive",
       "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/archive-3.1.2",
       "packageUri": "lib/",
@@ -33,7 +39,7 @@
     },
     {
       "name": "async",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/async-2.7.0",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/async-2.8.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -105,7 +111,7 @@
     },
     {
       "name": "characters",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/characters-1.1.0",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/characters-1.2.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -471,7 +477,7 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/matcher-0.12.10",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/matcher-0.12.11",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -598,6 +604,12 @@
     {
       "name": "pool",
       "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/pool-1.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "print_color",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/print_color-3.0.0-dev.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -765,7 +777,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/test_api-0.4.1",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/test_api-0.4.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -783,9 +795,9 @@
     },
     {
       "name": "vector_math",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/vector_math-2.1.0",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/vector_math-2.1.1",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "watcher",
@@ -830,7 +842,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-08-10T09:12:37.032910Z",
+  "generated": "2021-10-21T06:37:18.542973Z",
   "generator": "pub",
-  "generatorVersion": "2.14.0-301.2.beta"
+  "generatorVersion": "2.15.0-178.1.beta"
 }

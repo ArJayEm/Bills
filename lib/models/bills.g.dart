@@ -15,7 +15,8 @@ Bills _$BillsFromJson(Map<String, dynamic> json) {
     desciption: json['description'] as String?,
     amount: json['amount'] as num?,
     quantification: json['quantification'] as int?,
-    payerIds: json['payer_ids'] as List<dynamic>?,
+    payerIds:
+        (json['payer_ids'] as List<dynamic>?)?.map((e) => e as String).toList(),
   )
     ..createdOn = DateTime.parse(json['created_on'] as String)
     ..modifiedOn = json['modified_on'] == null

@@ -16,12 +16,12 @@ class PayerList extends StatefulWidget {
 class _PayerListState extends State<PayerList> {
   late FirebaseAuth _auth;
   String? _id;
-  Stream<QuerySnapshot>? _listStream;
+  //Stream<QuerySnapshot>? _listStream;
   List<dynamic> _userIds = [];
   List<dynamic> _payers = [];
   //List<UserProfile> _payerList = [];
 
-  String _title = "Payer List";
+  String _title = "Monthly Bills";
 
   bool _isLoading = false;
 
@@ -46,8 +46,7 @@ class _PayerListState extends State<PayerList> {
         key: _scaffoldKey,
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.grey.shade300),
-          textTheme: TextTheme(
-              headline6: TextStyle(color: Colors.white, fontSize: 25)),
+          //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
           title: Text(_title),
           titleSpacing: 0,
           centerTitle: false,
@@ -55,8 +54,8 @@ class _PayerListState extends State<PayerList> {
           elevation: 0,
           bottom: TabBar(
             tabs: [
-              Tab(text: "Payers"),
-              Tab(text: "QR Code"),
+              Tab(text: "Bills"),
+              Tab(text: "Generate"),
             ],
           ),
         ),
@@ -71,71 +70,71 @@ class _PayerListState extends State<PayerList> {
     );
   }
 
-  Widget _buildPayers() {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () => null,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_add),
-                  Text('  Add Payer', style: TextStyle(fontSize: 20))
-                ],
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-                primary: Colors.grey.shade800,
-              ),
-            ),
-            SizedBox(height: 10),
-            StreamBuilder<QuerySnapshot>(
-              stream: _listStream,
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Something went wrong'));
-                }
-                // if (snapshot.connectionState == ConnectionState.waiting) {
-                //   return Center(child: CircularProgressIndicator());
-                // }
-                if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.hasData &&
-                    snapshot.data != null) {
-                  return Card(
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      children: snapshot.data!.docs.map(
-                        (DocumentSnapshot document) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                title: Text(_getPayerName(document.id)),
-                              ),
-                            ],
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  );
-                }
-                return Center(child: Text('No $_title Yet.'));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildPayers() {
+  //   return SafeArea(
+  //     child: SingleChildScrollView(
+  //       padding: EdgeInsets.all(10),
+  //       physics: BouncingScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           ElevatedButton(
+  //             onPressed: () => null,
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               crossAxisAlignment: CrossAxisAlignment.center,
+  //               children: [
+  //                 Icon(Icons.person_add),
+  //                 Text('  Add Payer', style: TextStyle(fontSize: 20))
+  //               ],
+  //             ),
+  //             style: ElevatedButton.styleFrom(
+  //               minimumSize: Size(double.infinity, 50),
+  //               primary: Colors.grey.shade800,
+  //             ),
+  //           ),
+  //           SizedBox(height: 10),
+  //           StreamBuilder<QuerySnapshot>(
+  //             stream: _listStream,
+  //             builder: (BuildContext context,
+  //                 AsyncSnapshot<QuerySnapshot> snapshot) {
+  //               if (snapshot.hasError) {
+  //                 return Center(child: Text('Something went wrong'));
+  //               }
+  //               // if (snapshot.connectionState == ConnectionState.waiting) {
+  //               //   return Center(child: CircularProgressIndicator());
+  //               // }
+  //               if (snapshot.connectionState == ConnectionState.done &&
+  //                   snapshot.hasData &&
+  //                   snapshot.data != null) {
+  //                 return Card(
+  //                   child: ListView(
+  //                     physics: const BouncingScrollPhysics(),
+  //                     shrinkWrap: true,
+  //                     children: snapshot.data!.docs.map(
+  //                       (DocumentSnapshot document) {
+  //                         return Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.stretch,
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             ListTile(
+  //                               title: Text(_getPayerName(document.id)),
+  //                             ),
+  //                           ],
+  //                         );
+  //                       },
+  //                     ).toList(),
+  //                   ),
+  //                 );
+  //               }
+  //               return Center(child: Text('No $_title Yet.'));
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildPayerList() {
     List<Widget> mList = <Widget>[];
@@ -256,21 +255,22 @@ class _PayerListState extends State<PayerList> {
     }
   }
 
-  String _getPayerName(String? id) {
-    String payer = '';
-    for (var p in _userIds) {
-      if (p[0] == id) {
-        payer = p[1] ?? '';
-        break;
-      }
-    }
-    return payer;
-  }
+  // String _getPayerName(String? id) {
+  //   String payer = '';
+  //   for (var p in _userIds) {
+  //     if (p[0] == id) {
+  //       payer = p[1] ?? '';
+  //       break;
+  //     }
+  //   }
+  //   return payer;
+  // }
 
   _showProgressUi(bool isLoading, String msg) {
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
+    print(_isLoading);
   }
 }

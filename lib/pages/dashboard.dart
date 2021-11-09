@@ -95,7 +95,7 @@ class _DashboardState extends State<Dashboard> {
             color: Colors.yellow.shade200),
         icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
     Menu(
-        location: 'Salary',
+        location: 'Salarys',
         view: ListViewPage(
             title: 'Salarys',
             quantification: 'Quantity',
@@ -245,7 +245,7 @@ class _DashboardState extends State<Dashboard> {
       ),
       appBar: AppBar(
         iconTheme: Theme.of(context).iconTheme,
-        textTheme: Theme.of(context).textTheme,
+        //titleTextStyle: Theme.of(context).textTheme,
         title: Text('Bills'),
         leading: _hasRequiredFields
             ? IconButton(

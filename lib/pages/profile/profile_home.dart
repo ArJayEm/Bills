@@ -122,8 +122,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           icon: Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
-        textTheme:
-            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
         title: Text('Profile'),
         titleSpacing: 0,
         centerTitle: false,
@@ -274,30 +273,36 @@ class _ProfileHomeState extends State<ProfileHome> {
                                 "Hint: Let your Collector/Payee scan this QR Code or share your code through the following features:",
                                 style: _hint),
                             SizedBox(height: 10),
-                            TextButton(
-                                onPressed: () {
-                                  Clipboard.setData(new ClipboardData(
-                                          text: _userCodeController.text))
-                                      .then((_) {
-                                    Fluttertoast.showToast(
-                                        msg:
-                                            "${_userCodeController.text} Code copied to clipboard");
-                                  });
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      _userCodeController.text,
-                                      style: TextStyle(
-                                          fontSize: 25, color: Colors.white),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    SizedBox(width: 5),
-                                    Icon(Icons.copy, color: Colors.white)
-                                  ],
-                                )),
+                            Text(
+                              _userCodeController.text,
+                              style:
+                                  TextStyle(fontSize: 25, color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                            // TextButton(
+                            //     onPressed: () {
+                            //       Clipboard.setData(new ClipboardData(
+                            //               text: _userCodeController.text))
+                            //           .then((_) {
+                            //         Fluttertoast.showToast(
+                            //             msg:
+                            //                 "${_userCodeController.text} Code copied to clipboard");
+                            //       });
+                            //     },
+                            //     child: Row(
+                            //       mainAxisAlignment: MainAxisAlignment.center,
+                            //       crossAxisAlignment: CrossAxisAlignment.center,
+                            //       children: [
+                            //         Text(
+                            //           _userCodeController.text,
+                            //           style: TextStyle(
+                            //               fontSize: 25, color: Colors.white),
+                            //           textAlign: TextAlign.center,
+                            //         ),
+                            //         SizedBox(width: 5),
+                            //         Icon(Icons.copy, color: Colors.white)
+                            //       ],
+                            //     )),
                             SizedBox(height: 15),
                             Container(
                               height: 200,
@@ -316,6 +321,18 @@ class _ProfileHomeState extends State<ProfileHome> {
                       ),
                     ),
                     actions: [
+                      IconButton(
+                        onPressed: () {
+                          Clipboard.setData(new ClipboardData(
+                                  text: _userCodeController.text))
+                              .then((_) {
+                            Fluttertoast.showToast(
+                                msg:
+                                    "${_userCodeController.text} Code copied to clipboard");
+                          });
+                        },
+                        icon: Icon(Icons.copy),
+                      ),
                       IconButton(
                         onPressed: () {
                           Fluttertoast.showToast(msg: "Feature not available.");
@@ -567,16 +584,14 @@ class _ProfileHomeState extends State<ProfileHome> {
     );
   }
 
-
   Widget _getUserImage() {
-    return GetUserImage(      
-      height: 40,
-      width: 40,
-      borderColor: Colors.white,
-      borderWidth: 1.5,
-      //shape: BoxShape.circle,
-      imagePath: _auth.currentUser!.photoURL
-    );
+    return GetUserImage(
+        height: 40,
+        width: 40,
+        borderColor: Colors.white,
+        borderWidth: 1.5,
+        //shape: BoxShape.circle,
+        imagePath: _auth.currentUser!.photoURL);
   }
 
   _getPayer() {

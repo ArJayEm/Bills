@@ -43,8 +43,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       key: _scaffoldKey,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.grey.shade300),
-        textTheme:
-            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
         title: Text('Payment History'),
         titleSpacing: 0,
         centerTitle: false,
@@ -148,21 +147,22 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     }
   }
 
-  String _getPayerName(String? id) {
-    String payer = '';
-    for (var p in _userIds) {
-      if (p[0] == id) {
-        payer = p[1] ?? '';
-        break;
-      }
-    }
-    return payer;
-  }
+  // String _getPayerName(String? id) {
+  //   String payer = '';
+  //   for (var p in _userIds) {
+  //     if (p[0] == id) {
+  //       payer = p[1] ?? '';
+  //       break;
+  //     }
+  //   }
+  //   return payer;
+  // }
 
   _showProgressUi(bool isLoading, String msg) {
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
+    print(_isLoading);
   }
 }

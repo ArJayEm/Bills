@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.white),
         appBarTheme: AppBarTheme(
           centerTitle: true,
-          brightness: Brightness.dark,
+          //brightness: Brightness.dark,
           color: Colors.grey.shade800,
         ),
         brightness: Brightness.dark,
@@ -88,7 +88,9 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   void initState() {
     super.initState();
     setState(() {
-      _currentUser = _auth.currentUser!;
+      if (_auth.currentUser != null) {
+        _currentUser = _auth.currentUser!;
+      }
     });
     _getCurrentUser();
   }

@@ -97,8 +97,7 @@ class _EnterMpinState extends State<EnterMpin> {
           //   child: Icon(Icons.arrow_back),
           // ),
           iconTheme: IconThemeData(color: Colors.grey.shade300),
-          textTheme: TextTheme(
-              headline6: TextStyle(color: Colors.white, fontSize: 25)),
+          //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
           title: Text(_title),
           titleSpacing: 0,
           centerTitle: false,

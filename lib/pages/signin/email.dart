@@ -55,6 +55,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   String _title = "";
 
   bool _verifyOtpEnabled = false;
+  bool _showSignUp = false;
 
   UserCredential? _userCredential;
 
@@ -100,8 +101,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           ),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
-        textTheme:
-            TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
+        //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
         title: Text(_title),
         titleSpacing: 0,
         centerTitle: false,
@@ -174,6 +174,23 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             backgroundColor: _proceed ? Colors.grey.shade300 : Colors.white38),
         onPressed: _proceed ? _signIn : null,
       ),
+      _showSignUp ? SizedBox(height: 10) : SizedBox(),
+      _showSignUp
+          ? TextButton(
+              child: Text("Sign Up", style: TextStyle(fontSize: 18)),
+              style: TextButton.styleFrom(
+                  //shape: StadiumBorder(),
+                  minimumSize: Size(double.infinity, 50),
+                  primary: Colors.grey.shade800,
+                  backgroundColor:
+                      _proceed ? Colors.grey.shade300 : Colors.white38),
+              onPressed: () {
+                setState(() {
+                  _emailState = EmailVerificationState.SHOW_SIGN_UP_STATE;
+                });
+              },
+            )
+          : SizedBox(),
     ]);
   }
 
@@ -289,6 +306,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         _showProgressUi(false, "User not found.");
+        setState(() {
+          _showSignUp = true;
+        });
         FocusScope.of(context).requestFocus(_emailFocusNode);
       } else if (e.code == 'wrong-password') {
         _showProgressUi(false, "Invalid password.");
