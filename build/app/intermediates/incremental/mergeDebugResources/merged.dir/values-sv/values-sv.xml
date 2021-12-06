@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Dela med"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Dela med <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Komprimera"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Gå till &lt;b>facebook.com/device&lt;/b> och skriv in koden som visas ovan.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Besök &lt;b>facebook.com/device&lt;/b> och ange koden som visas ovan.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Ett oväntat fel inträffade när en bild skulle laddas ned.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView-inloggning kräver INTERNET-behörighet</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest-fel</string>

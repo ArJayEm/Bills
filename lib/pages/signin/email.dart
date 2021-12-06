@@ -34,6 +34,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   CollectionReference _collection =
       FirebaseFirestore.instance.collection("users");
 
+  EmailAuth emailAuth = new EmailAuth(sessionName: "Bills App");
+
   bool _isLoading = false;
   RegExp _emailRegex = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
@@ -293,7 +295,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         DocumentReference document = _collection.doc(user.uid);
         document.get().then((snapshot) {
           if (snapshot.exists) {
-            _displayName = snapshot.get("display_name") as String;
+            _displayName = snapshot.get("name") as String;
           }
         }).whenComplete(() {
           Navigator.push(
@@ -418,9 +420,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     _showProgressUi(true, "");
 
     try {
-      EmailAuth.sessionName = "Bills App";
       bool optSent =
-          await EmailAuth.sendOtp(receiverMail: _emailController.value.text);
+          await emailAuth.sendOtp(recipientMail: _emailController.value.text);
 
       if (optSent) {
         setState(() {
@@ -436,8 +437,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   void _verifyOtp() async {
     _showProgressUi(true, "");
 
-    bool verified = EmailAuth.validate(
-        receiverMail: _emailController.text, userOTP: _otpController.text);
+    bool verified = emailAuth.validateOtp(
+        recipientMail: _emailController.text, userOtp: _otpController.text);
 
     if (verified) {
       try {
@@ -452,7 +453,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
           document.get().then((snapshot) {
             if (!snapshot.exists) {
-              userProfile.displayName = _firebaseAuthUser.email;
+              userProfile.name = _firebaseAuthUser.email;
               userProfile.email = _firebaseAuthUser.email;
               userProfile.userCode = _generateUserCode();
               userProfile.registeredUsing = 'email';
@@ -468,8 +469,8 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => PinHome(
-                        auth: _auth, displayName: userProfile.displayName!)));
+                    builder: (context) =>
+                        PinHome(auth: _auth, displayName: userProfile.name!)));
           });
         }
       } on FirebaseAuthException catch (e) {

@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"مشاركة مع"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"مشاركة مع <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"تصغير"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">تفضل بزيارة &lt;b>facebook.com/device&lt;/b> وإدخال الرمز الموضح أعلاه.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">يمكنك زيارة &lt;b>facebook.com/device&lt;/b> وإدخال الرمز المعروض أعلاه.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">حدث خطأ غير متوقع أثناء تنزيل صورة.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">يتطلب تسجيل دخول WebView الحصول إلى إذن INTERNET</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">خطأ AndroidManifest</string>

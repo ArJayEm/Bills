@@ -56,7 +56,7 @@ class _ManagementState extends State<Management> {
 
   String _quantification = '';
 
-  bool _fetchingPayers = false;
+  //bool _fetchingPayers = false;
 
   bool _isLoading = false;
 
@@ -96,7 +96,7 @@ class _ManagementState extends State<Management> {
         ? widget.title.substring(0, widget.title.length - 1)
         : widget.title;
 
-    return _fetchingPayers
+    return _isLoading
         ? Center(child: CircularProgressIndicator())
         : generateModalBody(
             Form(
@@ -370,7 +370,7 @@ class _ManagementState extends State<Management> {
         //   for (var i = 0; i < _selectedList!.length; i++) {
         //     _bill.payerIds?.addAll({
         //       'id': _selectList[i][0],
-        //       'display_name': _selectList[i][1]
+        //       'name': _selectList[i][1]
         //     });
         //   }
         //_bill.payerNames = _ctrlSelectedPayers.text;
@@ -510,7 +510,7 @@ class _ManagementState extends State<Management> {
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
         querySnapshot.docs.forEach((document) {
-          users.add([document.id, document.get('display_name')]);
+          users.add([document.id, document.get('name')]);
         });
       }).whenComplete(() {
         setState(() {
@@ -540,8 +540,8 @@ class _ManagementState extends State<Management> {
           setState(() {
             if (value as bool) {
               _selectedList.add(id);
-              //_selectedList.addAll({{"id": id, "display_name": displayname, "deleted": false}});
-              //_selectedList.addAll({{"id": id, "deleted": false, "display_name": displayname}});
+              //_selectedList.addAll({{"id": id, "name": displayname, "deleted": false}});
+              //_selectedList.addAll({{"id": id, "deleted": false, "name": displayname}});
             } else {
               //_selectedList.removeWhere((value) => value.toString().contains(id));
               //_selectedList.remove((key, value) => key == id);

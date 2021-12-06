@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"यांच्यासोबत शेअर करा"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> सह शेअर करा"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"कोलॅप्स करा"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">&lt;b>facebook.com/device&lt;/b> भेट द्या आणि वरील कोड प्रविष्ट करा.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">&lt;b>facebook.com/device&lt;/b> येथे जा आणि वर दाखवलेला कोड प्रविष्ट करा.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">प्रतिमा डाउनलोड करत असताना अनपेक्षित त्रुटी आली.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView लॉग इन ला इंटरनेट परवानगीची आवश्यकता आहे</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest त्रुटी</string>

@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Jaa…"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Jaa: <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Tiivistä"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Siirry osoitteeseen &lt;b>facebook.com/device&lt;/b> ja anna oheinen koodi.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Siirry osoitteeseen &lt;b>facebook.com/device&lt;/b> ja anna yllä oleva koodi.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Kuvaa ladattaessa tapahtui yllättävä virhe.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView-sisäänkirjautuminen edellyttää Internet-lupaa</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest-virhe</string>

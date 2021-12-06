@@ -6,8 +6,10 @@ part 'user_profile.g.dart';
 
 @JsonSerializable()
 class UserProfile extends ModelBase {
-  @JsonKey(name: "display_name")
-  String? displayName = "";
+  @JsonKey(name: "name")
+  String? name = "";
+  @JsonKey(name: "name_separated")
+  List<String>? nameseparated = [];
   @JsonKey(name: "user_code")
   String? userCode = "";
   @JsonKey(name: "email")
@@ -31,7 +33,7 @@ class UserProfile extends ModelBase {
 
   @JsonKey(name: "user_ids")
   List<String>? userIds = [];
-  
+
   @JsonKey(ignore: true)
   List<UserProfile> users = [];
 

@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"వీరితో షేర్ చేస్తుంది"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>తో షేర్ చేస్తుంది"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"కుదిస్తుంది"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">&lt;b>facebook.com/device&lt;/b>ని సందర్శించి ఎగువన చూపిన కోడ్‌ను నమోదు చేయండి.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">&lt;b>facebook.com/device&lt;/b>ని సందర్శించి పైన చూపిన కోడ్‌ను నమోదు చేయండి.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">ఒక చిత్రాన్ని డౌన్‌లోడ్ చేయడంలో అనుకోని లోపం సంభవించింది.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView లాగిన్ కోసం ఇంటర్నెట్ అనుమతి అవసరమవుతుంది</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest లోపం</string>

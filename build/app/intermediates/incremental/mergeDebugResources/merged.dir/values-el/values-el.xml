@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Κοινοποίηση σε"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Κοινοποίηση στην εφαρμογή <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Σύμπτυξη"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Πηγαίνετε στη διεύθυνση &lt;b>facebook.com/device&lt;/b> και εισαγάγετε τον παραπάνω κωδικό.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Πηγαίνετε στο &lt;b>facebook.com/device&lt;/b> και πληκτρολογήστε τον κωδικό που φαίνεται παραπάνω.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Παρουσιάστηκε μη αναμενόμενο σφάλμα κατά τη λήψη μιας εικόνας.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">Για σύνδεση στην εφαρμογή WebView απαιτείται άδεια INTERNET</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">Σφάλμα AndroidManifest</string>

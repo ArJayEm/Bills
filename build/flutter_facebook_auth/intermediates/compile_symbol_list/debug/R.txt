@@ -22,6 +22,13 @@ int anim btn_radio_to_off_mtrl_ring_outer_path_animation 0x0
 int anim btn_radio_to_on_mtrl_dot_group_animation 0x0
 int anim btn_radio_to_on_mtrl_ring_outer_animation 0x0
 int anim btn_radio_to_on_mtrl_ring_outer_path_animation 0x0
+int anim fragment_fast_out_extra_slow_in 0x0
+int animator fragment_close_enter 0x0
+int animator fragment_close_exit 0x0
+int animator fragment_fade_enter 0x0
+int animator fragment_fade_exit 0x0
+int animator fragment_open_enter 0x0
+int animator fragment_open_exit 0x0
 int attr actionBarDivider 0x0
 int attr actionBarItemBackground 0x0
 int attr actionBarPopupTheme 0x0
@@ -120,6 +127,8 @@ int attr com_facebook_confirm_logout 0x0
 int attr com_facebook_foreground_color 0x0
 int attr com_facebook_horizontal_alignment 0x0
 int attr com_facebook_is_cropped 0x0
+int attr com_facebook_login_button_radius 0x0
+int attr com_facebook_login_button_transparency 0x0
 int attr com_facebook_login_text 0x0
 int attr com_facebook_logout_text 0x0
 int attr com_facebook_object_id 0x0
@@ -178,6 +187,7 @@ int attr fontProviderFetchStrategy 0x0
 int attr fontProviderFetchTimeout 0x0
 int attr fontProviderPackage 0x0
 int attr fontProviderQuery 0x0
+int attr fontProviderSystemFontFamily 0x0
 int attr fontStyle 0x0
 int attr fontVariationSettings 0x0
 int attr fontWeight 0x0
@@ -230,6 +240,7 @@ int attr multiChoiceItemLayout 0x0
 int attr navigationContentDescription 0x0
 int attr navigationIcon 0x0
 int attr navigationMode 0x0
+int attr nestedScrollViewStyle 0x0
 int attr numericModifiers 0x0
 int attr overlapAnchor 0x0
 int attr paddingBottomNoButtons 0x0
@@ -247,6 +258,7 @@ int attr progressBarPadding 0x0
 int attr progressBarStyle 0x0
 int attr queryBackground 0x0
 int attr queryHint 0x0
+int attr queryPatterns 0x0
 int attr radioButtonStyle 0x0
 int attr ratingBarStyle 0x0
 int attr ratingBarStyleIndicator 0x0
@@ -257,6 +269,7 @@ int attr searchViewStyle 0x0
 int attr seekBarStyle 0x0
 int attr selectableItemBackground 0x0
 int attr selectableItemBackgroundBorderless 0x0
+int attr shortcutMatchRequired 0x0
 int attr showAsAction 0x0
 int attr showDividers 0x0
 int attr showText 0x0
@@ -811,6 +824,7 @@ int id end_padder 0x0
 int id expand_activities_button 0x0
 int id expanded_menu 0x0
 int id forever 0x0
+int id fragment_container_view_tag 0x0
 int id group_divider 0x0
 int id home 0x0
 int id icon 0x0
@@ -864,6 +878,7 @@ int id select_dialog_listview 0x0
 int id shortcut 0x0
 int id small 0x0
 int id spacer 0x0
+int id special_effects_controller_view_tag 0x0
 int id split_action_bar 0x0
 int id src_atop 0x0
 int id src_in 0x0
@@ -878,10 +893,15 @@ int id tag_accessibility_actions 0x0
 int id tag_accessibility_clickable_spans 0x0
 int id tag_accessibility_heading 0x0
 int id tag_accessibility_pane_title 0x0
+int id tag_on_apply_window_listener 0x0
+int id tag_on_receive_content_listener 0x0
+int id tag_on_receive_content_mime_types 0x0
 int id tag_screen_reader_focusable 0x0
+int id tag_state_description 0x0
 int id tag_transition_group 0x0
 int id tag_unhandled_key_event_manager 0x0
 int id tag_unhandled_key_listeners 0x0
+int id tag_window_insets_animation_callback 0x0
 int id text 0x0
 int id text2 0x0
 int id textSpacerNoButtons 0x0
@@ -896,6 +916,10 @@ int id unchecked 0x0
 int id uniform 0x0
 int id unknown 0x0
 int id up 0x0
+int id view_tree_lifecycle_owner 0x0
+int id view_tree_saved_state_registry_owner 0x0
+int id view_tree_view_model_store_owner 0x0
+int id visible_removing_fragment_view_tag 0x0
 int id wrap_content 0x0
 int integer abc_config_activityDefaultDur 0x0
 int integer abc_config_activityShortDur 0x0
@@ -1619,6 +1643,9 @@ int styleable AppCompatTheme_windowMinWidthMinor 123
 int styleable AppCompatTheme_windowNoTitle 124
 int[] styleable ButtonBarLayout { 0x0 }
 int styleable ButtonBarLayout_allowStacking 0
+int[] styleable Capability { 0x0, 0x0 }
+int styleable Capability_queryPatterns 0
+int styleable Capability_shortcutMatchRequired 1
 int[] styleable CardView { 0x1010140, 0x101013f, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable CardView_android_minHeight 0
 int styleable CardView_android_minWidth 1
@@ -1662,13 +1689,14 @@ int styleable DrawerArrowToggle_drawableSize 4
 int styleable DrawerArrowToggle_gapBetweenBars 5
 int styleable DrawerArrowToggle_spinBars 6
 int styleable DrawerArrowToggle_thickness 7
-int[] styleable FontFamily { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
+int[] styleable FontFamily { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable FontFamily_fontProviderAuthority 0
 int styleable FontFamily_fontProviderCerts 1
 int styleable FontFamily_fontProviderFetchStrategy 2
 int styleable FontFamily_fontProviderFetchTimeout 3
 int styleable FontFamily_fontProviderPackage 4
 int styleable FontFamily_fontProviderQuery 5
+int styleable FontFamily_fontProviderSystemFontFamily 6
 int[] styleable FontFamilyFont { 0x1010532, 0x101053f, 0x1010570, 0x1010533, 0x101056f, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable FontFamilyFont_android_font 0
 int styleable FontFamilyFont_android_fontStyle 1
@@ -1680,6 +1708,13 @@ int styleable FontFamilyFont_fontStyle 6
 int styleable FontFamilyFont_fontVariationSettings 7
 int styleable FontFamilyFont_fontWeight 8
 int styleable FontFamilyFont_ttcIndex 9
+int[] styleable Fragment { 0x10100d0, 0x1010003, 0x10100d1 }
+int styleable Fragment_android_id 0
+int styleable Fragment_android_name 1
+int styleable Fragment_android_tag 2
+int[] styleable FragmentContainerView { 0x1010003, 0x10100d1 }
+int styleable FragmentContainerView_android_name 0
+int styleable FragmentContainerView_android_tag 1
 int[] styleable GradientColor { 0x101020b, 0x10101a2, 0x10101a3, 0x101019e, 0x1010512, 0x1010513, 0x10101a4, 0x101019d, 0x1010510, 0x1010511, 0x1010201, 0x10101a1 }
 int styleable GradientColor_android_centerColor 0
 int styleable GradientColor_android_centerX 1
@@ -1881,11 +1916,13 @@ int styleable com_facebook_like_view_com_facebook_horizontal_alignment 2
 int styleable com_facebook_like_view_com_facebook_object_id 3
 int styleable com_facebook_like_view_com_facebook_object_type 4
 int styleable com_facebook_like_view_com_facebook_style 5
-int[] styleable com_facebook_login_view { 0x0, 0x0, 0x0, 0x0 }
+int[] styleable com_facebook_login_view { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable com_facebook_login_view_com_facebook_confirm_logout 0
-int styleable com_facebook_login_view_com_facebook_login_text 1
-int styleable com_facebook_login_view_com_facebook_logout_text 2
-int styleable com_facebook_login_view_com_facebook_tooltip_mode 3
+int styleable com_facebook_login_view_com_facebook_login_button_radius 1
+int styleable com_facebook_login_view_com_facebook_login_button_transparency 2
+int styleable com_facebook_login_view_com_facebook_login_text 3
+int styleable com_facebook_login_view_com_facebook_logout_text 4
+int styleable com_facebook_login_view_com_facebook_tooltip_mode 5
 int[] styleable com_facebook_profile_picture_view { 0x0, 0x0 }
 int styleable com_facebook_profile_picture_view_com_facebook_is_cropped 0
 int styleable com_facebook_profile_picture_view_com_facebook_preset_size 1

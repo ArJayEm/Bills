@@ -27,11 +27,11 @@ class _DropdDownTestState extends State<DropdDownTest> {
               ///Menu Mode with no searchBox
               DropdownSearch<String>(
                 validator: (v) => v == null ? "required field" : null,
-                hint: "Select a country",
+                //hint: "Select a country",
                 mode: Mode.MENU,
-                showSelectedItem: true,
+                showSelectedItems: true,
                 items: ["Brazil", "Italia (Disabled)", "Tunisia", 'Canada'],
-                label: "Menu mode *",
+                //label: "Menu mode *",
                 showClearButton: true,
                 onChanged: print,
                 popupItemDisabled: (String s) => s.startsWith('I'),
@@ -77,7 +77,6 @@ class _DropdDownTestState extends State<DropdDownTest> {
                     flex: 2,
                     child: DropdownSearch<String>(
                       validator: (v) => v == null ? "required field" : null,
-                      hint: "Select a country",
                       mode: Mode.MENU,
                       dropdownSearchDecoration: InputDecoration(
                         filled: true,
@@ -102,14 +101,13 @@ class _DropdDownTestState extends State<DropdDownTest> {
                           color: Colors.black,
                         ),
                       ),
-                      showSelectedItem: true,
+                      showSelectedItems: true,
                       items: [
                         "Brazil",
                         "Italia (Disabled)",
                         "Tunisia",
                         'Canada'
                       ],
-                      label: "Menu mode *",
                       showClearButton: true,
                       onChanged: print,
                       popupItemDisabled: (String s) => s.startsWith('I'),
@@ -138,20 +136,19 @@ class _DropdDownTestState extends State<DropdDownTest> {
                 isFilteredOnline: true,
                 showClearButton: true,
                 showSearchBox: true,
-                label: 'User *',
                 dropdownSearchDecoration: InputDecoration(
                   filled: true,
                   fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                 ),
                 autoValidateMode: AutovalidateMode.onUserInteraction,
                 validator: (u) => u == null ? "user field is required " : null,
-                onFind: (String filter) => getData(filter),
+                onFind: (String? filter) => getData(filter),
                 onChanged: (data) {
                   print(data);
                 },
                 dropdownBuilder: _customDropDownExample,
                 popupItemBuilder: _customPopupItemBuilderExample,
-                popupSafeArea: PopupSafeArea(top: true, bottom: true),
+                popupSafeArea: PopupSafeAreaProps(top: true, bottom: true),
                 scrollbarProps: ScrollbarProps(
                   isAlwaysShown: true,
                   thickness: 7,
@@ -161,10 +158,9 @@ class _DropdDownTestState extends State<DropdDownTest> {
 
               ///custom itemBuilder and dropDownBuilder
               DropdownSearch<UserModel>(
-                showSelectedItem: true,
-                compareFn: (i, s) => i.isEqual(s),
-                label: "Person",
-                onFind: (String filter) => getData(filter),
+                showSelectedItems: true,
+                compareFn: (i, s) => i!.isEqual(s),
+                onFind: (String? filter) => getData(filter),
                 onChanged: (data) {
                   print(data);
                 },
@@ -185,7 +181,6 @@ class _DropdDownTestState extends State<DropdDownTest> {
                   'France',
                   'Belgique'
                 ],
-                label: "Custom BottomShet mode",
                 onChanged: print,
                 selectedItem: "Brazil",
                 showSearchBox: true,
@@ -227,10 +222,9 @@ class _DropdDownTestState extends State<DropdDownTest> {
 
               ///show favorites on top list
               DropdownSearch<UserModel>(
-                showSelectedItem: true,
+                showSelectedItems: true,
                 showSearchBox: true,
-                compareFn: (i, s) => i.isEqual(s),
-                label: "Person with favorite option",
+                compareFn: (i, s) => i!.isEqual(s),
                 onFind: (filter) => getData(filter),
                 onChanged: (data) {
                   print(data);
@@ -242,7 +236,8 @@ class _DropdDownTestState extends State<DropdDownTest> {
                 favoriteItems: (items) {
                   return items.where((e) => e.name.contains("Mrs")).toList();
                 },
-                favoriteItemBuilder: (context, item) {
+                favoriteItemBuilder:
+                    (BuildContext context, UserModel item, bool isSomething) {
                   return Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
@@ -266,8 +261,7 @@ class _DropdDownTestState extends State<DropdDownTest> {
                   UserModel(name: "Offline name2", id: "0101")
                 ],
                 maxHeight: 300,
-                onFind: (String filter) => getData(filter),
-                label: "choose a user",
+                onFind: (String? filter) => getData(filter),
                 onChanged: print,
                 showSearchBox: true,
               ),
@@ -276,7 +270,6 @@ class _DropdDownTestState extends State<DropdDownTest> {
               ///open dropdown programmatically
               DropdownSearch<String>(
                 items: ["no action", "confirm in the next dropdown"],
-                label: "open another dropdown programmatically",
                 onChanged: (v) {
                   if (v == "confirm in the next dropdown") {
                     _openDropDownProgKey.currentState?.openDropDownSearch();
@@ -287,8 +280,7 @@ class _DropdDownTestState extends State<DropdDownTest> {
               DropdownSearch<String>(
                 key: _openDropDownProgKey,
                 items: ["Yes", "No"],
-                label: "confirm",
-                showSelectedItem: true,
+                showSelectedItems: true,
                 dropdownButtonSplashRadius: 20,
               ),
               Column(
@@ -329,8 +321,7 @@ class _DropdDownTestState extends State<DropdDownTest> {
     );
   }
 
-  Widget _customDropDownExample(
-      BuildContext context, UserModel? item, String itemDesignation) {
+  Widget _customDropDownExample(BuildContext context, UserModel? item) {
     if (item == null) {
       return Container();
     }

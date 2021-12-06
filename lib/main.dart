@@ -115,7 +115,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
 
       _document.get().then((snapshot) {
         //if (snapshot.exists) {
-        up.displayName = snapshot.get('display_name') as String?;
+        up.name = snapshot.get('name') as String?;
         up.userCode = snapshot.get('user_code') as String?;
         //up = UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
         up.id = snapshot.id;
@@ -126,9 +126,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
       }).whenComplete(() {
         var view = up.loggedIn == true
             ? Dashboard(auth: _auth)
-            : PinHome(
-                auth: _auth,
-                displayName: up.displayName ?? up.displayName ?? 'User');
+            : PinHome(auth: _auth, displayName: up.name ?? up.name ?? 'User');
         _navigateTo(view);
       });
     } on FirebaseAuthException catch (e) {

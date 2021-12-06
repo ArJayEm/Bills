@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Deel met"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Deel met <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Vou in"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Besoek &lt;b>facebook.com/device&lt;/b> en voer die kode wat hierbo gewys word, in.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Besoek &lt;b>facebook.com/device&lt;/b> en voer die kode in wat hierbo gewys word.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Onvoorsiene fout terwyl die prent afgelaai is.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">WebView-aanmelding vereis INTERNET-toestemming</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest-fout</string>

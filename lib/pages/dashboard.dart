@@ -10,9 +10,10 @@ import 'package:bills/pages/pin/pin_home.dart';
 import 'package:bills/pages/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:bills/pages/test/dropdown_test.dart';
-import 'package:bills/pages/transactions/billing_history.dart';
+import 'package:bills/pages/transactions/generate_bills.dart';
+import 'package:bills/pages/transactions/history_bills.dart';
 import 'package:bills/pages/transactions/payer_list.dart';
-import 'package:bills/pages/transactions/payment_history.dart';
+import 'package:bills/pages/transactions/history_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -246,7 +247,7 @@ class _DashboardState extends State<Dashboard> {
       appBar: AppBar(
         iconTheme: Theme.of(context).iconTheme,
         //titleTextStyle: Theme.of(context).textTheme,
-        title: Text('Bills'),
+        title: Text('Welcome $_displayname!'),
         leading: _hasRequiredFields
             ? IconButton(
                 icon: Badge(
@@ -354,19 +355,18 @@ class _DashboardState extends State<Dashboard> {
         }).whenComplete(() {
           setState(() {
             _userProfile = userProfile;
-            _displayname = userProfile.displayName ?? "No Name";
+            _displayname = userProfile.name ?? "No Name";
             _isNewUser = (userProfile.userType.isNullOrEmpty()) &&
                 userProfile.members == 0;
             _hasRequiredFields = (userProfile.userType.isNullOrEmpty()) ||
-                (_userProfile.displayName.isNullOrEmpty()) ||
+                (_userProfile.name.isNullOrEmpty()) ||
                 userProfile.members == 0;
             _isPayer = !_userProfile.userType.isNullOrEmpty() &&
                 _userProfile.userType != _collectorId;
           });
           if (_auth.currentUser?.email == userProfile.email) {
-            _document.update({
-              'display_name': _displayname ?? _auth.currentUser!.displayName
-            });
+            _document.update(
+                {'name': _displayname ?? _auth.currentUser!.displayName});
           }
           _showProgressUi(false, "");
           Fluttertoast.showToast(msg: _isPayer.toString());
@@ -423,7 +423,8 @@ class _DashboardState extends State<Dashboard> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PayerList(auth: _auth)));
+                                builder: (context) =>
+                                    GenerateBills(auth: _auth)));
                       },
                     ),
                   ],
@@ -636,12 +637,12 @@ class _DashboardState extends State<Dashboard> {
           userProfile =
               UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
           userProfile.id = snapshot.id;
-          //userProfile.displayName = snapshot.get('display_name');
+          //userProfile.displayName = snapshot.get('name');
           _document.update({'logged_in': false});
         }
       }).whenComplete(() {
         setState(() {
-          _displayname = userProfile.displayName;
+          _displayname = userProfile.name;
         });
         Navigator.push(
             context,

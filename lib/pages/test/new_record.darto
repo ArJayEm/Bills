@@ -368,7 +368,7 @@ class _ManagementState extends State<Management> {
         //   for (var i = 0; i < _selectedList!.length; i++) {
         //     _bill.payerIds?.addAll({
         //       'id': _selectList[i][0],
-        //       'display_name': _selectList[i][1]
+        //       'name': _selectList[i][1]
         //     });
         //   }
       });
@@ -505,7 +505,7 @@ class _ManagementState extends State<Management> {
           FirebaseFirestore.instance.collection("users");
       _collection.get().then((querySnapshot) {
         querySnapshot.docs.forEach((document) {
-          users.add([document.id, document.get('display_name')]);
+          users.add([document.id, document.get('name')]);
         });
       }).whenComplete(() {
         setState(() {

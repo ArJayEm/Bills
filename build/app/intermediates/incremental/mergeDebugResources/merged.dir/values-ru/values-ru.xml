@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Поделиться с помощью"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Поделиться с помощью <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Свернуть"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Откройте &lt;b>facebook.com/device&lt;/b> и введите код, показанный выше.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Перейдите на &lt;b>facebook.com/device&lt;/b> и введите код, указанный выше.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Неожиданная ошибка при скачивании изображения.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">Для входа через WebView необходимо разрешение INTERNET</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">Ошибка AndroidManifest</string>

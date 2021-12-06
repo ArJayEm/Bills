@@ -457,7 +457,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
         _document.get().then((snapshot) {
           if (!snapshot.exists) {
-            userProfile.displayName = _firebaseAuthUser.phoneNumber;
+            userProfile.name = _firebaseAuthUser.phoneNumber;
             userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
             userProfile.userCode = _generateUserCode();
             userProfile.registeredUsing = 'mobile';
@@ -473,7 +473,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               context,
               MaterialPageRoute(
                   builder: (context) => PinHome(
-                      auth: _auth, displayName: userProfile.displayName!)));
+                      auth: _auth, displayName: userProfile.name!)));
         });
       }
     } on FirebaseAuthException catch (e) {

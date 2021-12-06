@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Megosztás a következővel:"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Megosztás a következő alkalmazással: <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Összecsukás"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Keresd fel a &lt;b>facebook.com/device&lt;/b> címet, és írd be a fent megjelenített kódot.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Nyisd meg a &lt;b>facebook.com/device&lt;/b> oldalt, és add meg a fent látható kódot.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Váratlan hiba történt a kép letöltésekor.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">A WebView-bejelentkezéshez „INTERNET” jogosultság szükséges.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">AndroidManifest hiba</string>

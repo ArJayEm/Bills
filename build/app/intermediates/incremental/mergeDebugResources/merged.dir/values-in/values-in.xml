@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Bagikan dengan"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Bagikan dengan <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Ciutkan"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Kunjungi &lt;b>facebook.com/device&lt;/b> dan masukkan kode yang ditampilkan di bawah ini.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Buka &lt;b>facebook.com/device&lt;/b> dan masukkan kode yang ditunjukkan di atas.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Kesalahan tak terduga ketika mengunduh gambar.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">Masuk Tampilan Web memerlukan izin INTERNET</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">Terjadi Kesalahan AndroidManifest</string>

@@ -354,7 +354,7 @@ class _PinHomeState extends State<PinHome> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          userProfile.displayName = snapshot.get('display_name') as String?;
+          userProfile.name = snapshot.get('name') as String?;
           userProfile.loggedIn = snapshot.get('logged_in') as bool?;
           userProfile.pin = snapshot.get("pin") as String?;
           _document.update({'pin': userProfile.pin});
@@ -378,9 +378,8 @@ class _PinHomeState extends State<PinHome> {
           } else {}
         }
         setState(() {
-          _displayName = userProfile.displayName ??
-              _auth.currentUser!.displayName ??
-              '???';
+          _displayName =
+              userProfile.name ?? _auth.currentUser!.displayName ?? '???';
         });
         _showProgressUi(false, "");
       });

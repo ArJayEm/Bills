@@ -6,7 +6,7 @@ extension NumberFormatHelper on num {
   }
 
   String formatForDisplay() {
-    return NumberFormat.currency(locale: "en_US", symbol: "₱").format(this);
+    return NumberFormat.currency(locale: "en_US", symbol: "₱ ").format(this);
   }
 }
 
@@ -27,8 +27,8 @@ extension MsEpochToDateTimeFormat on int {
 }
 
 extension DateTimeFormatHelper on DateTime {
-  String formatDate({bool dateOnly = false}) {
-    return DateFormat(dateOnly ? "MMM dd, yyyy" : "MMM dd, yyyy hh:mm aaa")
+  String formatDate({bool dateOnly = false, bool fullMonth = false}) {
+    return DateFormat("${fullMonth ? "MMMM" : "MMM"} dd, yyyy ${dateOnly ? "" : " hh:mm aaa"}")
         .format(this);
   }
 }

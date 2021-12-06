@@ -27,7 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Udostępnij przez:"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Udostępnij przez: <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Zwiń"</string>
-    <string gender="unknown" name="com_facebook_device_auth_instructions">Odwiedź stronę &lt;b>facebook.com/device&lt;/b> i wprowadź powyższy kod.</string>
+    <string gender="unknown" name="com_facebook_device_auth_instructions">Odwiedź stronę &lt;b>facebook.com/device&lt;/b> i wprowadź kod wyświetlony powyżej.</string>
     <string gender="unknown" name="com_facebook_image_download_unknown_error">Nieoczekiwany błąd podczas pobierania obrazu.</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_message">Logowanie WebView wymaga uprawnienia INTERNET</string>
     <string gender="unknown" name="com_facebook_internet_permission_error_title">Błąd AndroidManifest</string>

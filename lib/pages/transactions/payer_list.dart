@@ -16,10 +16,8 @@ class PayerList extends StatefulWidget {
 class _PayerListState extends State<PayerList> {
   late FirebaseAuth _auth;
   String? _id;
-  //Stream<QuerySnapshot>? _listStream;
   List<dynamic> _userIds = [];
   List<dynamic> _payers = [];
-  //List<UserProfile> _payerList = [];
 
   String _title = "Monthly Bills";
 
@@ -187,7 +185,7 @@ class _PayerListState extends State<PayerList> {
       // collection.get().then((querySnapshot) {
       //   querySnapshot.docs.forEach((document) {
       //     stream
-      //     users.add([document.id, document.get('display_name')]);
+      //     users.add([document.id, document.get('name')]);
       //   });
       // }).whenComplete(() {
       //   setState(() {
@@ -227,7 +225,7 @@ class _PayerListState extends State<PayerList> {
       //     .snapshots()
       //     .forEach((element) {
       //   element.docs.forEach((document) {
-      //     users.add([document.id, document.get('display_name')]);
+      //     users.add([document.id, document.get('name')]);
       //   });
       // }).whenComplete(() {
       //   setState(() {

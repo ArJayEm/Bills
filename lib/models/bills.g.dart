@@ -6,23 +6,22 @@ part of 'bills.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Bills _$BillsFromJson(Map<String, dynamic> json) {
-  return Bills(
-    id: json['id'],
-    billdate: json['bill_date'] == null
-        ? null
-        : DateTime.parse(json['bill_date'] as String),
-    desciption: json['description'] as String?,
-    amount: json['amount'] as num?,
-    quantification: json['quantification'] as int?,
-    payerIds:
-        (json['payer_ids'] as List<dynamic>?)?.map((e) => e as String).toList(),
-  )
-    ..createdOn = DateTime.parse(json['created_on'] as String)
-    ..modifiedOn = json['modified_on'] == null
-        ? null
-        : DateTime.parse(json['modified_on'] as String);
-}
+Bills _$BillsFromJson(Map<String, dynamic> json) => Bills(
+      id: json['id'],
+      billdate: json['bill_date'] == null
+          ? null
+          : DateTime.parse(json['bill_date'] as String),
+      desciption: json['description'] as String?,
+      amount: json['amount'] as num? ?? 0,
+      quantification: json['quantification'] as int? ?? 0,
+      payerIds: (json['payer_ids'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+    )
+      ..createdOn = DateTime.parse(json['created_on'] as String)
+      ..modifiedOn = json['modified_on'] == null
+          ? null
+          : DateTime.parse(json['modified_on'] as String);
 
 Map<String, dynamic> _$BillsToJson(Bills instance) {
   final val = <String, dynamic>{};

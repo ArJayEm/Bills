@@ -169,12 +169,12 @@ class _ProfileHomeState extends State<ProfileHome> {
                 subtitle: Text("Name"),
                 trailing: _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.displayName.isNullOrEmpty())
+                        (_userProfile.name.isNullOrEmpty())
                     ? Icon(Icons.edit)
                     : Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
-                        (_userProfile.displayName.isNullOrEmpty())
+                        (_userProfile.name.isNullOrEmpty())
                     ? showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -221,7 +221,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                                 onPressed: () {
                                   if (_displayNameController.text.isNotEmpty) {
                                     setState(() {
-                                      _userProfile.displayName =
+                                      _userProfile.name =
                                           _displayNameController.text;
                                     });
                                     Navigator.pop(context);
@@ -609,7 +609,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           //userProfile.id = snapshot.id;
           _id = snapshot.id;
 
-          // userProfile.displayName = snapshot.get('display_name') as String?;
+          // userProfile.displayName = snapshot.get('name') as String?;
           // userProfile.userType = snapshot.get('user_type') as String?;
           // userProfile.members = snapshot.get('members') as int?;
           // userProfile.billingDate =
@@ -625,7 +625,7 @@ class _ProfileHomeState extends State<ProfileHome> {
       }).whenComplete(() {
         setState(() {
           _userProfile = userProfile;
-          _displayNameController.text = _userProfile.displayName ?? "No Name";
+          _displayNameController.text = _userProfile.name ?? "No Name";
           _userCodeController.text = _userProfile.userCode ?? "No User Code";
           _userTypeController.text =
               _getUserTypeDescription(_userProfile.userType ?? "No User Type");
@@ -643,7 +643,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           //         _userProfile.phoneNumber?.trim() ==
           //             _userProfile.displayName?.trim();
           _hasRequiredFields = //_mobileUser ||
-              (_userProfile.displayName.isNullOrEmpty()) ||
+              (_userProfile.name.isNullOrEmpty()) ||
                   (_userProfile.userType.isNullOrEmpty()) ||
                   _userProfile.members == 0;
 
