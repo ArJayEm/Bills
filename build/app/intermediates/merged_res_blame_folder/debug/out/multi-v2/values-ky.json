@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ky\\values-ky.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ky\\values-ky.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\2509d8ec40e841c66d6a3aa9e848e740\\browser-1.3.0\\res\\values-ky\\values-ky.xml",

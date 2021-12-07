@@ -8,15 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:global_configuration/global_configuration.dart';
 
 import 'components/modal_base.dart';
 
-Future<bool?> showAddRecord(context, data, quantification, title, color) async {
+Future<bool?> showAddRecord(
+    context, data, quantification, title, color, userid) async {
   return await showModalBottomSheet<bool?>(
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return Management(data, quantification, title, color);
+      return Management(data, quantification, title, color, userid);
     },
   );
 }
@@ -26,8 +28,10 @@ class Management extends StatefulWidget {
   final Bills data;
   final String quantification;
   final Color color;
+  final String selectedUserId;
 
-  const Management(this.data, this.quantification, this.title, this.color);
+  const Management(this.data, this.quantification, this.title, this.color,
+      this.selectedUserId);
 
   @override
   State<StatefulWidget> createState() {
@@ -36,6 +40,12 @@ class Management extends StatefulWidget {
 }
 
 class _ManagementState extends State<Management> {
+  bool _isDebug = false;
+  _ManagementState() {
+    GlobalConfiguration cfg = new GlobalConfiguration();
+    _isDebug = cfg.get("isDebug");
+  }
+
   final DateTime _firstdate = DateTime(DateTime.now().year - 2);
   final DateTime _lastdate = DateTime.now();
   final _formKey = GlobalKey<FormState>();
@@ -48,6 +58,7 @@ class _ManagementState extends State<Management> {
 
   Bills _bill = Bills();
 
+  late String _selectedUser;
   //List<Map<String, dynamic>> _selectedList = [];
   List<String> _selectedList = [];
   List<dynamic> _selectList = [];
@@ -55,6 +66,8 @@ class _ManagementState extends State<Management> {
   bool _isExpanded = false;
 
   String _quantification = '';
+  String _collectionName = '';
+  int _billType = 0;
 
   //bool _fetchingPayers = false;
 
@@ -68,6 +81,9 @@ class _ManagementState extends State<Management> {
       _bill = widget.data;
       _selectedList = _bill.payerIds ?? [];
       //_selectedList2 =
+      _collectionName = widget.title.toLowerCase();
+      _billType = _getBillType(_collectionName);
+      _selectedUser = widget.selectedUserId;
       _quantification = widget
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
       _bill.billdate = _bill.billdate ?? DateTime.now();
@@ -376,10 +392,18 @@ class _ManagementState extends State<Management> {
         //_bill.payerNames = _ctrlSelectedPayers.text;
       });
 
+      List<String?> newPayers = [];
+      _bill.payerIds?.forEach((element) {
+        String? pbt = "${element}_$_billType";
+        newPayers.add(pbt);
+      });
+      setState(() {
+        _bill.payersbilltype = newPayers.cast<String>();
+      });
+
       try {
-        String collection = widget.title.toLowerCase();
         CollectionReference list =
-            FirebaseFirestore.instance.collection(collection);
+            FirebaseFirestore.instance.collection("bills");
         if (_bill.id.isNullOrEmpty()) {
           var data = _bill.toJson();
           list.add(data).then((value) {
@@ -508,8 +532,9 @@ class _ManagementState extends State<Management> {
       List<dynamic> users = [];
       CollectionReference _collection =
           FirebaseFirestore.instance.collection("users");
-      _collection.get().then((querySnapshot) {
-        querySnapshot.docs.forEach((document) {
+      _collection.get().then((snapshots) {
+        snapshots.docs.forEach((document) {
+          //String pbt = "${document.id}_$_billType";
           users.add([document.id, document.get('name')]);
         });
       }).whenComplete(() {
@@ -568,8 +593,7 @@ class _ManagementState extends State<Management> {
     setState(() {
       if (_selectedList.isNotEmpty) {
         int left = _selectedList.length - 1;
-        String? payer = _getPayerName(_selectedList[
-            0]); //_selectedList[0].values.last; // _selectedList.first[0];
+        String? payer = _getPayerName(_selectedUser);
         String? others =
             left > 0 ? " and $left other${left > 1 ? 's' : ''}" : "";
         _ctrlSelectedPayers.text = "$payer$others";
@@ -586,9 +610,40 @@ class _ManagementState extends State<Management> {
         .toString();
   }
 
+  int _getBillType(String desc) {
+    int id = 0;
+
+    switch (_collectionName) {
+      case "electricity":
+        id = 6;
+        break;
+      case "loans":
+        id = 4;
+        break;
+      case "payments":
+        id = 1;
+        break;
+      case "salary":
+        id = 2;
+        break;
+      case "subscriptions":
+        id = 3;
+        break;
+      default:
+        id = 5;
+        break;
+    }
+
+    return id;
+  }
+
   _showProgressUi(bool isLoading, String msg) {
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
+
+      if (_isDebug) {
+        print("msg: $msg");
+      }
     }
     setState(() => _isLoading = isLoading);
   }

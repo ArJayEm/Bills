@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\res\\merged\\debug\\values-nl\\values-nl.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-nl\\values-nl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\6603e35af3f27079134673fb7b06ef07\\jetified-play-services-base-16.0.1\\res\\values-nl\\values.xml",
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-nl\\values-nl.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\res\\merged\\debug\\values-nl\\values-nl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\6603e35af3f27079134673fb7b06ef07\\jetified-play-services-base-16.0.1\\res\\values-nl\\values.xml",

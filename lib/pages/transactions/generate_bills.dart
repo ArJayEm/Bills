@@ -52,6 +52,7 @@ class _GenerateBillsState extends State<GenerateBills> {
       _id = _auth.currentUser!.uid;
     });
     setState(() {});
+    print(_id);
   }
 
   @override

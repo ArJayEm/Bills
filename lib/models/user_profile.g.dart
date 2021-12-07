@@ -12,6 +12,7 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
   ..modifiedOn = json['modified_on'] == null
       ? null
       : DateTime.parse(json['modified_on'] as String)
+  ..deleted = json['deleted'] as bool?
   ..name = json['name'] as String?
   ..nameseparated = (json['name_separated'] as List<dynamic>?)
       ?.map((e) => e as String)
@@ -43,6 +44,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   writeNotNull('id', instance.id);
   val['created_on'] = instance.createdOn.toIso8601String();
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
+  val['deleted'] = instance.deleted;
   val['name'] = instance.name;
   val['name_separated'] = instance.nameseparated;
   val['user_code'] = instance.userCode;

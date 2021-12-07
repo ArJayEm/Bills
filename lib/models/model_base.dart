@@ -7,4 +7,6 @@ class ModelBase {
   DateTime createdOn = DateTime.now();
   @JsonKey(name: "modified_on")
   DateTime? modifiedOn;
+  @JsonKey(name: "deleted")
+  bool? deleted;
 }

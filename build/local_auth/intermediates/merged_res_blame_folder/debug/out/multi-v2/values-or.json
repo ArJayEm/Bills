@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-or\\values-or.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-or\\values-or.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\77a485abcc99744525e41a0ec462a125\\biometric-1.1.0\\res\\values-or\\values-or.xml",
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values-or\\values-or.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values-or\\values-or.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\77a485abcc99744525e41a0ec462a125\\biometric-1.1.0\\res\\values-or\\values-or.xml",

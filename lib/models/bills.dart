@@ -16,6 +16,11 @@ class Bills extends ModelBase {
   int? quantification = 0;
   @JsonKey(name: "payer_ids")
   List<String>? payerIds = [];
+  @JsonKey(name: "payers_billtype")
+  List<String>? payersbilltype = [];
+  @JsonKey(name: "bill_type")
+  int? billtype = 0;
+
   @JsonKey(ignore: true)
   String? payerNames = "";
 

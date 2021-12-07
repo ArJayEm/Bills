@@ -1,23 +1,25 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
             "map": [
                 {
-                    "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\values\\strings.xml",
+                    "source": "E:\\Development\\source\\apps\\bills\\android\\app\\src\\main\\res\\values\\styles.xml",
                     "from": {
-                        "startLines": "3,2,4",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "118,57,162",
-                        "endColumns": "42,59,70",
-                        "endOffsets": "156,112,228"
+                        "startLines": "3,14",
+                        "startColumns": "4,4",
+                        "startOffsets": "176,830",
+                        "endLines": "7,16",
+                        "endColumns": "12,12",
+                        "endOffsets": "472,996"
                     },
                     "to": {
-                        "startLines": "391,437,441",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "25207,30068,30343",
-                        "endColumns": "42,59,70",
-                        "endOffsets": "25245,30123,30409"
+                        "startLines": "1552,1557",
+                        "startColumns": "4,4",
+                        "startOffsets": "102339,102636",
+                        "endLines": "1556,1559",
+                        "endColumns": "12,12",
+                        "endOffsets": "102631,102800"
                     }
                 },
                 {
@@ -37,42 +39,6 @@
                         "endLines": "231,241,242,243,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,2031,2039,3689,3698",
                         "endColumns": "69,81,82,80,136,114,117,94,64,67,57,71,71,96,90,73,73,112,100,62,64,164,76,81,124,85,123,85,12,24,24",
                         "endOffsets": "15212,15931,16014,16095,25382,25497,25615,25710,25775,25843,25901,25973,26045,26142,26233,26307,26381,26494,26595,26658,26723,26888,26965,27047,27172,27258,27382,139007,139385,228686,229107"
-                    }
-                },
-                {
-                    "source": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\packaged_res\\debug\\values\\values.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,100,144,189,237,285,331,377,425",
-                        "endLines": "2,3,4,5,6,7,8,9,15",
-                        "endColumns": "44,43,44,47,47,45,45,47,10",
-                        "endOffsets": "95,139,184,232,280,326,372,420,720"
-                    },
-                    "to": {
-                        "startLines": "58,103,106,136,143,222,261,262,462",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "3371,6645,6824,8761,9216,14576,17425,17471,32235",
-                        "endLines": "58,103,106,136,143,222,261,262,467",
-                        "endColumns": "44,43,44,47,47,45,45,47,10",
-                        "endOffsets": "3411,6684,6864,8804,9259,14617,17466,17514,32530"
-                    }
-                },
-                {
-                    "source": "C:\\source\\apps\\bills\\build\\app\\generated\\res\\google-services\\debug\\values\\values.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "55,199,281,385,494,614,709",
-                        "endColumns": "143,81,103,108,119,94,71",
-                        "endOffsets": "194,276,380,489,609,704,776"
-                    },
-                    "to": {
-                        "startLines": "436,449,453,454,455,456,457",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "29924,31065,31443,31547,31656,31776,31871",
-                        "endColumns": "143,81,103,108,119,94,71",
-                        "endOffsets": "30063,31142,31542,31651,31771,31866,31938"
                     }
                 },
                 {
@@ -109,6 +75,23 @@
                         "endLines": "75,76,77,78,79,80,81,82,83,84,85,86,228,229,230,232,233,234,235,236,237,238,239,240,1999,2005,2016,2027,2030,3676",
                         "endColumns": "51,87,79,78,63,76,74,66,81,80,72,54,68,78,63,73,72,72,71,72,72,64,68,64,12,12,12,12,12,24",
                         "endOffsets": "4602,4690,4770,4849,4913,4990,5065,5132,5214,5295,5368,5423,14999,15078,15142,15286,15359,15432,15504,15577,15650,15715,15784,15849,137140,137490,138111,138742,138921,227983"
+                    }
+                },
+                {
+                    "source": "E:\\Development\\source\\apps\\bills\\android\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "3,2,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "118,57,162",
+                        "endColumns": "42,59,70",
+                        "endOffsets": "156,112,228"
+                    },
+                    "to": {
+                        "startLines": "391,437,441",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "25207,30068,30343",
+                        "endColumns": "42,59,70",
+                        "endOffsets": "25245,30123,30409"
                     }
                 },
                 {
@@ -296,6 +279,25 @@
                     }
                 },
                 {
+                    "source": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\packaged_res\\debug\\values\\values.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,100,144,189,237,285,331,377,425",
+                        "endLines": "2,3,4,5,6,7,8,9,15",
+                        "endColumns": "44,43,44,47,47,45,45,47,10",
+                        "endOffsets": "95,139,184,232,280,326,372,420,720"
+                    },
+                    "to": {
+                        "startLines": "58,103,106,136,143,222,261,262,462",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "3371,6645,6824,8761,9216,14576,17425,17471,32235",
+                        "endLines": "58,103,106,136,143,222,261,262,467",
+                        "endColumns": "44,43,44,47,47,45,45,47,10",
+                        "endOffsets": "3411,6684,6864,8804,9259,14617,17466,17514,32530"
+                    }
+                },
+                {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\930d6ce74e97b4174c03085b6af1c211\\jetified-play-services-basement-17.5.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "4,7",
@@ -332,22 +334,20 @@
                     }
                 },
                 {
-                    "source": "C:\\source\\apps\\bills\\android\\app\\src\\main\\res\\values\\styles.xml",
+                    "source": "E:\\Development\\source\\apps\\bills\\build\\app\\generated\\res\\google-services\\debug\\values\\values.xml",
                     "from": {
-                        "startLines": "3,14",
-                        "startColumns": "4,4",
-                        "startOffsets": "176,830",
-                        "endLines": "7,16",
-                        "endColumns": "12,12",
-                        "endOffsets": "472,996"
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,199,281,385,494,614,709",
+                        "endColumns": "143,81,103,108,119,94,71",
+                        "endOffsets": "194,276,380,489,609,704,776"
                     },
                     "to": {
-                        "startLines": "1552,1557",
-                        "startColumns": "4,4",
-                        "startOffsets": "102339,102636",
-                        "endLines": "1556,1559",
-                        "endColumns": "12,12",
-                        "endOffsets": "102631,102800"
+                        "startLines": "436,449,453,454,455,456,457",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "29924,31065,31443,31547,31656,31776,31871",
+                        "endColumns": "143,81,103,108,119,94,71",
+                        "endOffsets": "30063,31142,31542,31651,31771,31866,31938"
                     }
                 },
                 {

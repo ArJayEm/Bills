@@ -1,26 +1,26 @@
 [
     {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_fade_exit.xml",
-        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_fade_exit.xml"
-    },
-    {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_close_exit.xml",
-        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_close_exit.xml"
-    },
-    {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_fade_enter.xml",
-        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_fade_enter.xml"
-    },
-    {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_open_exit.xml",
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_open_exit.xml",
         "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_open_exit.xml"
     },
     {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_open_enter.xml",
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_close_exit.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_close_exit.xml"
+    },
+    {
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_fade_enter.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_fade_enter.xml"
+    },
+    {
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_fade_exit.xml",
+        "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_fade_exit.xml"
+    },
+    {
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_open_enter.xml",
         "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_open_enter.xml"
     },
     {
-        "merged": "C:\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_close_enter.xml",
+        "merged": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\animator\\fragment_close_enter.xml",
         "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\b077d2097609f63d1f4d661453ec8c4b\\fragment-1.3.2\\res\\animator\\fragment_close_enter.xml"
     }
 ]

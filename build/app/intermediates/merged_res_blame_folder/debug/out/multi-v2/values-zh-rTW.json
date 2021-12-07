@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-zh-rTW\\values-zh-rTW.xml",
+            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-zh-rTW\\values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\2ae243291218cc76b845d491ca867845\\jetified-facebook-login-12.1.0\\res\\values-zh-rTW\\values-zh-rTW.xml",

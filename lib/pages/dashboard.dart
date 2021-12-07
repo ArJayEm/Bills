@@ -247,7 +247,7 @@ class _DashboardState extends State<Dashboard> {
       appBar: AppBar(
         iconTheme: Theme.of(context).iconTheme,
         //titleTextStyle: Theme.of(context).textTheme,
-        title: Text('Welcome $_displayname!'),
+        title: Text('Hi, $_displayname!'),
         leading: _hasRequiredFields
             ? IconButton(
                 icon: Badge(
