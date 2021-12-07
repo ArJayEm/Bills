@@ -370,23 +370,23 @@ class _ListViewPage extends State<ListViewPage> {
     int id = 0;
 
     switch (_collectionName) {
-      case "electricity":
-        id = 6;
-        break;
-      case "loans":
-        id = 4;
-        break;
       case "payments":
         id = 1;
         break;
-      case "salary":
+      case "salarys":
         id = 2;
         break;
       case "subscriptions":
         id = 3;
         break;
+      case "loans":
+        id = 4;
+        break;
       case "water":
         id = 5;
+        break;
+      case "electricity":
+        id = 6;
         break;
     }
 
@@ -418,109 +418,111 @@ class _ListViewPage extends State<ListViewPage> {
   //   }
   // }
 
-  // Future<void> _combineField() async {
-  //   bool done = false;
-  //   try {
-  //     CollectionReference bills = _ffInstance.collection("bills");
-  //     bills.get().then((snapshots) {
-  //       snapshots.docs.forEach((document) {
-  //         Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
-  //         List<String?> newPayers = [];
-  //         bill.payerIds?.forEach((element) {
-  //           String? pbt = "${element}_${bill.billtype}";
-  //           newPayers.add(pbt);
-  //         });
-  //         DocumentReference doc =
-  //             _ffInstance.collection("bills").doc(document.id);
-  //         doc.update({"payers_billtype": newPayers});
-  //         // bills.doc(document.id).update(_bill.toJson()).then((value) {
-  //         //   _showProgressUi(false, "Bill updated.");
-  //         // }).catchError((error) {
-  //         //   _showProgressUi(
-  //         //       false, "Failed to update bill id: ${document.id}\n$error.");
-  //         // });
-  //       });
-  //     });
-  //   } on FirebaseAuthException catch (e) {
-  //     _showProgressUi(false, "${e.message}.");
-  //   } catch (e) {
-  //     _showProgressUi(false, "$e.");
-  //   }
-  // }
+  Future<void> _combineField() async {
+    bool done = false;
+    try {
+      CollectionReference bills = _ffInstance.collection("bills");
+      bills.get().then((snapshots) {
+        snapshots.docs.forEach((document) {
+          Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
+          List<String?> newPayers = [];
+          bill.payerIds?.forEach((element) {
+            String? pbt = "${element}_${bill.billtype}";
+            newPayers.add(pbt);
+          });
+          DocumentReference doc =
+              _ffInstance.collection("bills").doc(document.id);
+          doc.update({"payers_billtype": newPayers});
+          // bills.doc(document.id).update(_bill.toJson()).then((value) {
+          //   _showProgressUi(false, "Bill updated.");
+          // }).catchError((error) {
+          //   _showProgressUi(
+          //       false, "Failed to update bill id: ${document.id}\n$error.");
+          // });
+        });
+      });
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
+    }
+  }
 
-  // Future<void> _migrate() async {
-  //   bool done = false;
+  Future<void> _migrate() async {
+    bool done = false;
 
-  //   try {
-  //     //temp code for migration
-  //     CollectionReference copyFrom = _ffInstance.collection(_collectionName);
-  //     CollectionReference copyTo = _ffInstance.collection("bills");
-  //     copyFrom.get().then((snapshots) {
-  //       snapshots.docs.forEach((document) {
-  //         Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
-  //         // List<String?> newPayers = [];
-  //         // bill.payerIds?.forEach((element) {
-  //         //   String? pbt = "${element}_${bill.billtype}";
-  //         //   newPayers.add(pbt);
-  //         // });
-  //         // bill.payersbilltype = newPayers.cast<String>();
-  //         // var dd = _billTypes
-  //         //     .where((element) =>
-  //         //         element?.desciption?.toLowerCase().trim() == _collectionName)
-  //         //     .first as int?;
-  //         // bill.billtype = dd;
-  //         switch (_collectionName) {
-  //           case "electricity":
-  //             bill.billtype = 6;
-  //             break;
-  //           case "loans":
-  //             bill.billtype = 4;
-  //             break;
-  //           case "payments":
-  //             bill.billtype = 1;
-  //             break;
-  //           case "salary":
-  //             bill.billtype = 2;
-  //             break;
-  //           case "subscriptions":
-  //             bill.billtype = 3;
-  //             break;
-  //           default:
-  //             bill.billtype = 5;
-  //             break;
-  //         }
+    try {
+      //temp code for migration
+      CollectionReference copyFrom = _ffInstance.collection(_collectionName);
+      CollectionReference copyTo = _ffInstance.collection("bills");
+      copyFrom.get().then((snapshots) {
+        snapshots.docs.forEach((document) {
+          Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
+          // List<String?> newPayers = [];
+          // bill.payerIds?.forEach((element) {
+          //   String? pbt = "${element}_${bill.billtype}";
+          //   newPayers.add(pbt);
+          // });
+          // bill.payersbilltype = newPayers.cast<String>();
+          // var dd = _billTypes
+          //     .where((element) =>
+          //         element?.desciption?.toLowerCase().trim() == _collectionName)
+          //     .first as int?;
+          // bill.billtype = dd;
+          // switch (_collectionName) {
+          //   case "electricity":
+          //     bill.billtype = 6;
+          //     break;
+          //   case "loans":
+          //     bill.billtype = 4;
+          //     break;
+          //   case "payments":
+          //     bill.billtype = 1;
+          //     break;
+          //   case "salary":
+          //     bill.billtype = 2;
+          //     break;
+          //   case "subscriptions":
+          //     bill.billtype = 3;
+          //     break;
+          //   default:
+          //     bill.billtype = 5;
+          //     break;
+          // }
 
-  //         var data = bill.toJson();
-  //         if (bill.billtype! > 0) {
-  //           copyTo.add(data).then((value) {
-  //             if (value.id.isNotEmpty) {
-  //               print("${document.id} transferred to ${value.id}. Success.");
-  //               setState(() {
-  //                 done = true;
-  //               });
-  //             } else {
-  //               print("asdasd");
-  //             }
-  //           }).catchError((error) {
-  //             _showProgressUi(false, "error migrating record: $error.");
-  //           });
-  //         } else {
-  //           _showProgressUi(false, "Invalid bill type.");
-  //         }
-  //       });
-  //     }).whenComplete(() {
-  //       if (done) {
-  //         _showProgressUi(
-  //             false, "All $_collectionName transferred to 'bills' table.");
-  //       }
-  //     });
-  //     //temp code for migration
-  //   } on FirebaseAuthException catch (e) {
-  //     _showProgressUi(false, "${e.message}.");
-  //   } catch (e) {
-  //     _showProgressUi(false, "$e.");
-  //   }
-  // }
+          bill.billtype = _getBillType(_collectionName);
+
+          var data = bill.toJson();
+          if (bill.billtype! > 0) {
+            copyTo.add(data).then((value) {
+              if (value.id.isNotEmpty) {
+                print("${document.id} transferred to ${value.id}. Success.");
+                setState(() {
+                  done = true;
+                });
+              } else {
+                print("asdasd");
+              }
+            }).catchError((error) {
+              _showProgressUi(false, "error migrating record: $error.");
+            });
+          } else {
+            _showProgressUi(false, "Invalid bill type.");
+          }
+        });
+      }).whenComplete(() {
+        if (done) {
+          _showProgressUi(
+              false, "All $_collectionName transferred to 'bills' table.");
+        }
+      });
+      //temp code for migration
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
+    }
+  }
 
   Future<void> _getUsers() async {
     _showProgressUi(true, "");
