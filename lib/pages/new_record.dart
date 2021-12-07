@@ -28,7 +28,7 @@ class Management extends StatefulWidget {
   final Bills data;
   final String quantification;
   final Color color;
-  final String selectedUserId;
+  final String? selectedUserId;
 
   const Management(this.data, this.quantification, this.title, this.color,
       this.selectedUserId);
@@ -83,7 +83,8 @@ class _ManagementState extends State<Management> {
       //_selectedList2 =
       _collectionName = widget.title.toLowerCase();
       _billType = _getBillType(_collectionName);
-      _selectedUser = widget.selectedUserId;
+      _bill.billtype = _billType;
+      _selectedUser = widget.selectedUserId ?? "";
       _quantification = widget
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
       _bill.billdate = _bill.billdate ?? DateTime.now();
@@ -392,13 +393,13 @@ class _ManagementState extends State<Management> {
         //_bill.payerNames = _ctrlSelectedPayers.text;
       });
 
-      List<String?> newPayers = [];
+      List<String> newPayers = [];
       _bill.payerIds?.forEach((element) {
         String? pbt = "${element}_$_billType";
         newPayers.add(pbt);
       });
       setState(() {
-        _bill.payersbilltype = newPayers.cast<String>();
+        _bill.payersbilltype = newPayers;
       });
 
       try {
@@ -605,32 +606,33 @@ class _ManagementState extends State<Management> {
   }
 
   String? _getPayerName(String? id) {
-    return (_selectList.where((element) => element.first == id).last)
+    String ret = (_selectList.where((element) => element.first == id).last)
         .last
         .toString();
+    return ret;
   }
 
   int _getBillType(String desc) {
     int id = 0;
 
     switch (_collectionName) {
-      case "electricity":
-        id = 6;
-        break;
-      case "loans":
-        id = 4;
-        break;
       case "payments":
         id = 1;
         break;
-      case "salary":
+      case "salarys":
         id = 2;
         break;
       case "subscriptions":
         id = 3;
         break;
-      default:
+      case "loans":
+        id = 4;
+        break;
+      case "water":
         id = 5;
+        break;
+      case "electricity":
+        id = 6;
         break;
     }
 
@@ -641,9 +643,8 @@ class _ManagementState extends State<Management> {
     if (msg.length > 0) {
       Fluttertoast.showToast(msg: msg);
 
-      if (_isDebug) {
-        print("msg: $msg");
-      }
+      if (_isDebug) {}
+      print("msg: $msg");
     }
     setState(() => _isLoading = isLoading);
   }

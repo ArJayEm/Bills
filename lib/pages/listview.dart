@@ -203,7 +203,9 @@ class _ListViewPage extends State<ListViewPage> {
   _showDataManager(data) async {
     if ((await showAddRecord(context, data, _quantification, widget.title,
             widget.color, _selectedUser)) ??
-        false) {}
+        false) {
+      //return added record userid (only first one if multiple selected users), then update _selectedUser
+    }
   }
 
   String _setSelectedPayersDisplay(dynamic _selectedUsers) {
