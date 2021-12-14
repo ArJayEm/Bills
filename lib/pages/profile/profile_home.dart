@@ -24,6 +24,7 @@ class ProfileHome extends StatefulWidget {
 
 class _ProfileHomeState extends State<ProfileHome> {
   late FirebaseAuth _auth;
+  final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
   //late String _name;
 
   UserProfile _userProfile = UserProfile();
@@ -594,27 +595,18 @@ class _ProfileHomeState extends State<ProfileHome> {
         imagePath: _auth.currentUser!.photoURL);
   }
 
-  _getPayer() {
+  Future<void> _getPayer() async {
     _showProgressUi(true, "");
 
     try {
-      DocumentReference _document =
-          FirebaseFirestore.instance.collection("users").doc(_id);
+      DocumentReference _document = _ffInstance.collection("users").doc(_id);
       UserProfile userProfile = UserProfile();
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
           userProfile =
               UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          //userProfile.id = snapshot.id;
-          _id = snapshot.id;
-
-          // userProfile.displayName = snapshot.get('name') as String?;
-          // userProfile.userType = snapshot.get('user_type') as String?;
-          // userProfile.members = snapshot.get('members') as int?;
-          // userProfile.billingDate =
-          //     DateTime.parse(snapshot.get('billing_date') as String);
-          //userProfile.userCode = snapshot.get('user_code') as String?;
+          //_id = snapshot.id;
           if (userProfile.userCode.isNullOrEmpty()) {
             String usercode = _generateUserCode();
             _document.update({"user_code": usercode}).whenComplete(() {
@@ -632,7 +624,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           _emailController.text = _userProfile.email ?? "No Email";
           _phoneNumberController.text =
               _userProfile.phoneNumber ?? "No Mobile Number";
-          _membersController.text = (_userProfile.members ?? 1).toString();
+          _membersController.text = _userProfile.members.toString();
           _billGenDateController.text = _userProfile.billingDate != null
               ? DateFormat('MMM dd, yyyy')
                   .format(_userProfile.billingDate!)
@@ -671,8 +663,7 @@ class _ProfileHomeState extends State<ProfileHome> {
 
     try {
       if (_id != null) {
-        DocumentReference _document =
-            FirebaseFirestore.instance.collection("users").doc(_id);
+        DocumentReference _document = _ffInstance.collection("users").doc(_id);
         _userProfile.modifiedOn = DateTime.now();
         _userProfile.billingDate = _userProfile.billingDate ?? null;
 
@@ -700,14 +691,14 @@ class _ProfileHomeState extends State<ProfileHome> {
 
     try {
       List<dynamic> users = [];
-      CollectionReference _collection =
-          FirebaseFirestore.instance.collection("user_types");
+      CollectionReference _collection = _ffInstance.collection("user_types");
       _collection.get().then((querySnapshot) {
         querySnapshot.docs.forEach((document) {
           users.add([document.id, document.get('description')]);
         });
       }).whenComplete(() {
         setState(() {
+          _selectList.clear();
           _selectList.addAll(users);
         });
 

@@ -4,14 +4,18 @@
 
 BillType _$BillTypeFromJson(Map<String, dynamic> json) => BillType(
       id: json['id'],
-      desciption: json['description'] as String?,
+      description: json['description'] as String?,
+      quantification: json['quantification'] as String?,
       isdebit: json['is_debit'] as bool? ?? false,
     )
       ..createdOn = DateTime.parse(json['created_on'] as String)
       ..modifiedOn = json['modified_on'] == null
           ? null
           : DateTime.parse(json['modified_on'] as String)
-      ..deleted = json['deleted'] as bool?;
+      ..deleted = json['deleted'] as bool?
+      ..iconData = json['icon_data'] == null
+          ? null
+          : CustomIconData.fromJson(json['icon_data'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$BillTypeToJson(BillType instance) {
   final val = <String, dynamic>{};
@@ -26,7 +30,9 @@ Map<String, dynamic> _$BillTypeToJson(BillType instance) {
   val['created_on'] = instance.createdOn.toIso8601String();
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
-  val['description'] = instance.desciption;
+  val['description'] = instance.description;
+  val['icon_data'] = instance.iconData;
   val['is_debit'] = instance.isdebit;
+  val['quantification'] = instance.quantification;
   return val;
 }

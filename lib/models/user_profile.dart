@@ -21,7 +21,7 @@ class UserProfile extends ModelBase {
   @JsonKey(name: "logged_in")
   bool? loggedIn = false;
   @JsonKey(name: "members")
-  int? members = 0;
+  int members = 1;
   @JsonKey(name: "registered_using")
   String? registeredUsing = "";
   @JsonKey(name: "billing_date")

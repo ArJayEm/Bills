@@ -6,16 +6,22 @@ part 'billing.g.dart';
 
 @JsonSerializable()
 class Billing extends ModelBase {
-  @JsonKey(name: "bill_date")
-  DateTime? billdate = DateTime.now();
-  @JsonKey(name: "deleted")
-  bool? deleted = false;
-  @JsonKey(name: "payer_id")
-  String? payerId = "";
-  @JsonKey(name: "credit_amount")
-  num? creditamount = 0;
+  @JsonKey(name: "bill_ids")
+  List<String?>? billIds = [];
+  @JsonKey(name: "billing_date")
+  DateTime? billingDate = DateTime.now();
+  @JsonKey(name: "coins")
+  num? coins = 0;
+  @JsonKey(name: "previous_unpaid")
+  num? previousUnpaid = 0;
+  @JsonKey(name: "total_payment")
+  num? totalPayment = 0;
+  @JsonKey(name: "user_id")
+  List<String?>? userId = [];
 
-  //List<Payer?> payers;
+  @JsonKey(ignore: true)
+  @JsonKey(name: "subtotal")
+  num? subtotal = 0;
 
   Billing();
 

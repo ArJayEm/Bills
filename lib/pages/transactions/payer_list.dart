@@ -176,6 +176,7 @@ class _PayerListState extends State<PayerList> {
         });
       }).whenComplete(() {
         setState(() {
+          _payers.clear();
           _payers.addAll(payers);
           //_listStream = stream;
         });
@@ -214,7 +215,8 @@ class _PayerListState extends State<PayerList> {
     _showProgressUi(true, "");
 
     try {
-      var collection = FirebaseFirestore.instance.collection("users");
+      var collection = FirebaseFirestore.instance
+          .collection("users"); //.where("deleted", isEqualTo: false).get();
       var document = collection.doc(_id);
       List<dynamic> userids = [];
       // Fluttertoast.showToast(

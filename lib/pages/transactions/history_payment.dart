@@ -87,6 +87,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
         });
       }).whenComplete(() {
         setState(() {
+          _payers.clear();
           _payers.addAll(payers);
           //_listStream = stream;
         });

@@ -69,11 +69,7 @@
     <string msgid="3441753203274453993" name="common_signin_button_text">"Anmelden"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Über Google anmelden"</string>
     <string msgid="5912733858573823945" name="confirm_device_credential_password">"Passwort nutzen"</string>
-    <string msgid="3260749812566568062" name="copy_toast_msg">"Link in Zwischenablage kopiert"</string>
     <string msgid="4776854077120974966" name="default_error_msg">"Unbekannter Fehler"</string>
-    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Link kopieren"</string>
-    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Im Browser öffnen"</string>
-    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Link teilen"</string>
     <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Fingerabdrucksensor berühren"</string>
     <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Fingerabdruckhardware nicht verfügbar."</string>
     <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Dieses Gerät hat keinen Fingerabdrucksensor"</string>

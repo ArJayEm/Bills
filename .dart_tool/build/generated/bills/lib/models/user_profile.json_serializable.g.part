@@ -18,7 +18,7 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
   ..photoUrl = json['photo_url'] as String?
   ..phoneNumber = json['phone_number'] as String?
   ..loggedIn = json['logged_in'] as bool?
-  ..members = json['members'] as int?
+  ..members = json['members'] as int
   ..registeredUsing = json['registered_using'] as String?
   ..billingDate = json['billing_date'] == null
       ? null

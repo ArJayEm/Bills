@@ -4,7 +4,7 @@
             "outputFile": "E:\\Development\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v23\\values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\e39254e046f6878597afe7a793462a27\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\6bb69121fbfc7f55675d79a165028fc2\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\c18d70f0df9cce9226b10ec7f136b7b3\\appcompat-1.2.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\062c584e7105f32bea72d749c12db8a1\\appcompat-1.2.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",

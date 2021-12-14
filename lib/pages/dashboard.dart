@@ -1,6 +1,8 @@
 // import 'dart:js';
 
 import 'package:badges/badges.dart';
+import 'package:bills/models/bill_type.dart';
+import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
@@ -36,18 +38,16 @@ class _DashboardState extends State<Dashboard> {
   bool _isDebug = false;
   String _collectorId = "";
   _DashboardState() {
-    // Access configuration at constructor
     GlobalConfiguration cfg = new GlobalConfiguration();
     _isDebug = cfg.get("isDebug");
     _collectorId = cfg.get("collectorId");
-    //Fluttertoast.showToast(msg: "isDebug: $isDebug");
   }
 
   late FirebaseAuth _auth;
   UserProfile _userProfile = UserProfile();
 
-  CollectionReference _collection =
-      FirebaseFirestore.instance.collection('users');
+  final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
+  late CollectionReference _collection;
 
   String? _displayname;
   num _curentAmount = 0;
@@ -61,54 +61,56 @@ class _DashboardState extends State<Dashboard> {
   bool _isNewUser = false;
   bool _hasRequiredFields = false;
 
-  List<Menu> menu = [
+  List<BillType?> _billTypes = [];
+
+  List<Menu> _menu = [
+    // // Menu(
+    // //     location: 'Billing',
+    // //     view: ListViewPage(
+    // //         title: 'Billing',
+    // //         quantification: 'Quantity',
+    // //         color: Colors.green.shade800),
+    // //     icon: Icon(Icons.receipt, color: Colors.green.shade800)),
     // Menu(
-    //     location: 'Billing',
+    //     location: 'Payments',
     //     view: ListViewPage(
-    //         title: 'Billing',
+    //         title: 'Payments',
     //         quantification: 'Quantity',
     //         color: Colors.green.shade800),
-    //     icon: Icon(Icons.receipt, color: Colors.green.shade800)),
-    Menu(
-        location: 'Payments',
-        view: ListViewPage(
-            title: 'Payments',
-            quantification: 'Quantity',
-            color: Colors.green.shade800),
-        icon: Icon(Icons.payment, color: Colors.green.shade800)),
-    Menu(
-        location: 'Electricity',
-        view: ListViewPage(
-            title: 'Electricity',
-            quantification: 'kwh',
-            color: Colors.deepOrange.shade400),
-        icon: Icon(Icons.bolt, color: Colors.deepOrange.shade400)),
-    Menu(
-        location: 'Water',
-        view: ListViewPage(
-            title: 'Water', quantification: 'cu.m', color: Colors.lightBlue),
-        icon: Icon(Icons.water_damage, color: Colors.lightBlue)),
-    Menu(
-        location: 'Loans',
-        view: ListViewPage(
-            title: 'Loans',
-            quantification: 'Quantity',
-            color: Colors.yellow.shade200),
-        icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
-    Menu(
-        location: 'Salarys',
-        view: ListViewPage(
-            title: 'Salarys',
-            quantification: 'Quantity',
-            color: Colors.lightGreen),
-        icon: Icon(Icons.attach_money_outlined, color: Colors.lightGreen)),
-    Menu(
-        location: 'Subscriptions',
-        view: ListViewPage(
-            title: 'Subscriptions',
-            quantification: 'Quantity',
-            color: Colors.red.shade600),
-        icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
+    //     icon: Icon(Icons.payment, color: Colors.green.shade800)),
+    // Menu(
+    //     location: 'Electricity',
+    //     view: ListViewPage(
+    //         title: 'Electricity',
+    //         quantification: 'kwh',
+    //         color: Colors.deepOrange.shade400),
+    //     icon: Icon(Icons.bolt, color: Colors.deepOrange.shade400)),
+    // Menu(
+    //     location: 'Water',
+    //     view: ListViewPage(
+    //         title: 'Water', quantification: 'cu.m', color: Colors.lightBlue),
+    //     icon: Icon(Icons.water_damage, color: Colors.lightBlue)),
+    // Menu(
+    //     location: 'Loans',
+    //     view: ListViewPage(
+    //         title: 'Loans',
+    //         quantification: 'Quantity',
+    //         color: Colors.yellow.shade200),
+    //     icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
+    // Menu(
+    //     location: 'Salarys',
+    //     view: ListViewPage(
+    //         title: 'Salarys',
+    //         quantification: 'Quantity',
+    //         color: Colors.lightGreen),
+    //     icon: Icon(Icons.attach_money_outlined, color: Colors.lightGreen)),
+    // Menu(
+    //     location: 'Subscriptions',
+    //     view: ListViewPage(
+    //         title: 'Subscriptions',
+    //         quantification: 'Quantity',
+    //         color: Colors.red.shade600),
+    //     icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
   ];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -120,12 +122,9 @@ class _DashboardState extends State<Dashboard> {
     //_getSdkVersion();
     setState(() {
       _auth = widget.auth;
+      _collection = _ffInstance.collection('users');
     });
-    _getCurrentUser();
-    _loadLandingPage();
-    // _widgetOptions.add(_buildDashboard());
-    // _widgetOptions.add(SettingsHome(auth: _auth));
-    // _widgetOptions.add(ProfileHome(auth: _auth));
+    _onLoad();
   }
 
   @override
@@ -524,31 +523,32 @@ class _DashboardState extends State<Dashboard> {
                 padding: EdgeInsets.fromLTRB(0, 5, 0, 10),
                 shrinkWrap: true,
                 physics: BouncingScrollPhysics(),
-                itemCount: menu.length,
+                itemCount: _menu.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     childAspectRatio: 1,
                     crossAxisCount: 3,
                     crossAxisSpacing: 4.0,
                     mainAxisSpacing: 4.0),
                 itemBuilder: (BuildContext context, int index) {
+                  //_updateBillType(menu[index]);
                   return Card(
                     child: InkWell(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          menu[index].icon!,
+                          _menu[index].icon!,
                           SizedBox(height: 20),
                           Text(
-                            menu[index].location!,
+                            _menu[index].location!,
                             textAlign: TextAlign.center,
                           )
                         ],
                       ),
                       onTap: () {
                         _setAllFalse();
-                        menu[index].isSelected = true;
-                        _openBills(context, menu[index].view!);
+                        _menu[index].isSelected = true;
+                        _openBills(context, _menu[index].view!);
                       },
                     ),
                   );
@@ -568,10 +568,52 @@ class _DashboardState extends State<Dashboard> {
 
   _setAllFalse() {
     setState(() {
-      for (int i = 0; i < menu.length; i++) {
-        menu[i].isSelected = false;
+      for (int i = 0; i < _menu.length; i++) {
+        _menu[i].isSelected = false;
       }
     });
+  }
+
+  Future<void> _getBillTypes() async {
+    List<BillType?> billTypes = [];
+    List<Menu> menu = [];
+    try {
+      _ffInstance
+          .collection("bill_types")
+          .orderBy('description')
+          .get()
+          .then((snapshots) {
+        snapshots.docs.forEach((document) {
+          BillType? b = BillType.fromJson(document.data());
+          b.id = document.id;
+          billTypes.add(b);
+          CustomIconData cid =
+              CustomIconData.fromJson(b.iconData as Map<String, dynamic>);
+          Menu m = Menu(
+              location: b.description,
+              view: ListViewPage(billType: b),
+              icon: Icon(IconData(cid.codepoint ?? 0, fontFamily: cid.fontfamily),
+                  color: Color(cid.color ?? 0)));
+          menu.add(m);
+        });
+      }).whenComplete(() {
+        setState(() {
+          _billTypes.clear();
+          _billTypes.addAll(billTypes);
+          // _billType = _billTypes
+          //     .where((bill) => bill?.description == "electricity")
+          //     .last
+          //     ?.id as int; // _getBillType(_collectionName);
+          _menu.clear();
+          _menu.addAll(menu);
+        });
+        print("_billTypes: $_billTypes");
+      });
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
+    }
   }
 
   Future<String?> _logoutDialog() {
@@ -655,6 +697,49 @@ class _DashboardState extends State<Dashboard> {
     } catch (e) {
       _showProgressUi(false, "$e.");
     }
+  }
+
+  // Future<void> _updateBillType(Menu menu) async {
+  //   List<String?> list = [];
+  //   try {
+  //     CollectionReference collection =
+  //         FirebaseFirestore.instance.collection("bill_types");
+  //     collection.get().then((snapshots) {
+  //       snapshots.docs.forEach((document) {
+  //         BillType billType =
+  //             BillType.fromJson(document.data() as Map<String, dynamic>);
+  //         if (billType.description == menu.location) {
+  //           Map<String, dynamic> icondata = {
+  //             "code_point": menu.icon?.icon?.codePoint,
+  //             "font_family": menu.icon?.icon?.fontFamily,
+  //             "color": menu.icon?.color?.value
+  //           };
+  //           collection.doc(document.id).update({
+  //             "icon_data": icondata
+  //             //'billing_date': billType.billdate?.toIso8601String();
+  //           }).whenComplete(() {
+  //             list.add(document.id);
+  //           });
+  //         }
+  //       });
+  //     }).whenComplete(() {
+  //       setState(() {
+  //         //_payers.clear();
+  //         //_payers.addAll(payers);
+  //         //_listStream = stream;
+  //       });
+  //       print("list: $list");
+  //       _showProgressUi(false, "");
+  //     });
+  //   } on FirebaseAuthException catch (e) {
+  //     _showProgressUi(false, "${e.message}.");
+  //   } catch (e) {}
+  // }
+
+  Future<void> _onLoad() async {
+    await _getCurrentUser();
+    await _getBillTypes();
+    await _loadLandingPage();
   }
 
   _showProgressUi(bool isLoading, String msg) {

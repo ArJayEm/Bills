@@ -1,4 +1,4 @@
-import 'package:bills/models/bills.dart';
+import 'package:bills/models/bill.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,7 +25,7 @@ Future<bool?> showAddRecord(
 
 class Management extends StatefulWidget {
   final String title;
-  final Bills data;
+  final Bill data;
   final String quantification;
   final Color color;
   final String? selectedUserId;
@@ -46,6 +46,7 @@ class _ManagementState extends State<Management> {
     _isDebug = cfg.get("isDebug");
   }
 
+  final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
   final DateTime _firstdate = DateTime(DateTime.now().year - 2);
   final DateTime _lastdate = DateTime.now();
   final _formKey = GlobalKey<FormState>();
@@ -56,7 +57,7 @@ class _ManagementState extends State<Management> {
   final _ctrlQuantif = TextEditingController();
   final _ctrlSelectedPayers = TextEditingController();
 
-  Bills _bill = Bills();
+  Bill _bill = Bill();
 
   late String _selectedUser;
   //List<Map<String, dynamic>> _selectedList = [];
@@ -83,13 +84,13 @@ class _ManagementState extends State<Management> {
       //_selectedList2 =
       _collectionName = widget.title.toLowerCase();
       _billType = _getBillType(_collectionName);
-      _bill.billtype = _billType;
+      _bill.billTypeId = _billType;
       _selectedUser = widget.selectedUserId ?? "";
       _quantification = widget
           .quantification; //widget.title.toLowerCase() == 'electricity' ? 'kwh' : 'cu.m';
-      _bill.billdate = _bill.billdate ?? DateTime.now();
-      _ctrlBillDate.text = _bill.billdate!.format();
-      _ctrlDesciption.text = _bill.desciption ?? "";
+      _bill.billDate = _bill.billDate ?? DateTime.now();
+      _ctrlBillDate.text = _bill.billDate!.format();
+      _ctrlDesciption.text = _bill.description ?? "";
       _ctrlAmount.text = _bill.amount.toString();
       _ctrlQuantif.text = _bill.quantification.toString();
       //_ctrlSelectedPayers.text = 'Selected Payers (${_selectedList.length})';
@@ -155,13 +156,13 @@ class _ManagementState extends State<Management> {
                       controller: _ctrlDesciption,
                       onChanged: (value) {
                         setState(() {
-                          _bill.desciption = value;
+                          _bill.description = value;
                         });
                       },
                       onTap: () {
-                        if ((_bill.desciption.isNullOrEmpty()) ||
-                            _bill.desciption!.isEmpty ||
-                            _bill.desciption == widget.title) {
+                        if ((_bill.description.isNullOrEmpty()) ||
+                            _bill.description!.isEmpty ||
+                            _bill.description == widget.title) {
                           _ctrlDesciption.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset: _ctrlDesciption.text.length);
@@ -254,7 +255,7 @@ class _ManagementState extends State<Management> {
                               suffixIcon: _isExpanded
                                   ? CustomAppBarButton(
                                       onTap: () => setState(() {
-                                        _selectedList = [];
+                                        _selectedList.clear();
                                         //_selectedList2.clear();
                                         if (!_selectedAll) {
                                           for (int b = 0;
@@ -365,14 +366,14 @@ class _ManagementState extends State<Management> {
   _getDate() async {
     var date = await showDatePicker(
       context: context,
-      initialDate: _bill.billdate!,
+      initialDate: _bill.billDate!,
       firstDate: _firstdate,
       lastDate: _lastdate,
     );
     if (date != null) {
       setState(() {
-        _bill.billdate = DateTime(date.year, date.month, date.day);
-        _ctrlBillDate.text = _bill.billdate.toString();
+        _bill.billDate = DateTime(date.year, date.month, date.day);
+        _ctrlBillDate.text = _bill.billDate.toString();
       });
     }
   }
@@ -399,12 +400,11 @@ class _ManagementState extends State<Management> {
         newPayers.add(pbt);
       });
       setState(() {
-        _bill.payersbilltype = newPayers;
+        _bill.payersBillType = newPayers;
       });
 
       try {
-        CollectionReference list =
-            FirebaseFirestore.instance.collection("bills");
+        CollectionReference list = _ffInstance.collection("bills");
         if (_bill.id.isNullOrEmpty()) {
           var data = _bill.toJson();
           list.add(data).then((value) {
@@ -461,7 +461,7 @@ class _ManagementState extends State<Management> {
               try {
                 String collection = widget.title.toLowerCase();
 
-                FirebaseFirestore.instance
+                _ffInstance
                     .collection(collection)
                     .doc(_bill.id)
                     .delete()
@@ -486,8 +486,7 @@ class _ManagementState extends State<Management> {
   _updateBillingDates() {
     if (widget.title.toLowerCase() != 'payment') {
       try {
-        CollectionReference collection =
-            FirebaseFirestore.instance.collection("users");
+        CollectionReference collection = _ffInstance.collection("users");
         UserProfile userProfile = UserProfile();
         collection.get().then((snapshots) {
           snapshots.docs.forEach((document) {
@@ -497,7 +496,7 @@ class _ManagementState extends State<Management> {
               userProfile.id = document.id;
               if (userProfile.billingDate == null) {
                 collection.doc(userProfile.id).update({
-                  'billing_date': _bill.billdate?.toIso8601String()
+                  'billing_date': _bill.billDate?.toIso8601String()
                 }).whenComplete(() {});
               }
             }
@@ -531,8 +530,7 @@ class _ManagementState extends State<Management> {
 
     try {
       List<dynamic> users = [];
-      CollectionReference _collection =
-          FirebaseFirestore.instance.collection("users");
+      CollectionReference _collection = _ffInstance.collection("users");
       _collection.get().then((snapshots) {
         snapshots.docs.forEach((document) {
           //String pbt = "${document.id}_$_billType";
@@ -540,6 +538,7 @@ class _ManagementState extends State<Management> {
         });
       }).whenComplete(() {
         setState(() {
+          _selectList.clear();
           _selectList.addAll(users);
         });
         _showProgressUi(false, "");

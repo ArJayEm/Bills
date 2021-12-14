@@ -1,4 +1,4 @@
-import 'package:bills/models/bills.dart';
+import 'package:bills/models/bill.dart';
 import 'package:flutter/material.dart';
 
 class DynamicForm extends StatefulWidget {
@@ -12,7 +12,7 @@ class _DynamicFormState extends State<DynamicForm> {
   List<Map<String, dynamic>> _values = [];
   //int _count = 0;
   String _result = '';
-  Bills _billClass = Bills();
+  Bill _billClass = Bill();
 
   @override
   Widget build(BuildContext context) {

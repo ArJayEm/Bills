@@ -1,5 +1,7 @@
 //import 'package:bills/models/bill_type.dart';
-import 'package:bills/models/bills.dart';
+import 'package:bills/models/bill_type.dart';
+import 'package:bills/models/bill.dart';
+import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/user_model.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
@@ -16,12 +18,9 @@ import 'package:intl/intl.dart';
 import 'components/custom_widgets.dart';
 
 class ListViewPage extends StatefulWidget {
-  ListViewPage(
-      {required this.title, required this.quantification, required this.color});
+  ListViewPage({required this.billType});
 
-  final String title;
-  final String quantification;
-  final Color color;
+  final BillType billType;
 
   @override
   _ListViewPage createState() => _ListViewPage();
@@ -39,14 +38,15 @@ class _ListViewPage extends State<ListViewPage> {
   late FToast fToast = FToast();
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
 
-  Bills _bill = Bills();
+  Bill _bill = Bill();
+  BillType _billType = BillType();
+  late CustomIconData _customIconData;
 
-  String? _selectedUser;
+  late String _selectedUserId;
   List<dynamic> _users = [];
-  //List<BillType?> _billTypes = [];
+  List<BillType?> _billTypeIds = [];
+  int _billTypeId = 0;
   String _quantification = '';
-  String _collectionName = '';
-  int _billType = 0;
 
   // ignore: unused_field
   bool _isExpanded = false;
@@ -57,14 +57,17 @@ class _ListViewPage extends State<ListViewPage> {
     super.initState();
     fToast.init(context);
     setState(() {
-      _collectionName = widget.title.toLowerCase();
-      _quantification = widget.quantification;
+      _billType = widget.billType;
+      _quantification = _billType.quantification!;
+      _customIconData =
+          CustomIconData.fromJson(_billType.iconData as Map<String, dynamic>);
+      _billTypeId = int.parse(_billType.id!);
+      _selectedUserId = "";
     });
+    _getBillTypes();
+    // await _migrate();
+    // await _combineField();
     _getUsers();
-    _billType = _getBillType(_collectionName);
-    //_getbillTypes();
-    // _migrate();
-    // _combineField();
     print(_collectorId);
   }
 
@@ -74,9 +77,9 @@ class _ListViewPage extends State<ListViewPage> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: widget.color,
+        backgroundColor: Color(_customIconData.color ?? 0),
         title: Text(
-          widget.title,
+          _billType.description!,
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -98,9 +101,9 @@ class _ListViewPage extends State<ListViewPage> {
       ),
       bottomNavigationBar: CustomBottomNavigationBar(),
       floatingActionButton: CustomFloatingActionButton(
-          title: 'Add ${widget.title}',
+          title: 'Add ${_billType.description}',
           icon: Icons.add,
-          color: widget.color,
+          color: Color(_customIconData.color ?? 0),
           onTap: () {
             _showDataManager(_bill);
           }),
@@ -113,8 +116,8 @@ class _ListViewPage extends State<ListViewPage> {
       stream: _ffInstance
           .collection("bills")
           .where('payers_billtype',
-              arrayContains: "${_selectedUser}_$_billType")
-          //.where("bill_type", isEqualTo: _billType)
+              arrayContains: "${_selectedUserId}_$_billTypeId")
+          //.where("bill_type", isEqualTo: _billTypeId)
           .orderBy('bill_date', descending: true)
           //.limit(10)
           .snapshots(),
@@ -129,19 +132,19 @@ class _ListViewPage extends State<ListViewPage> {
           return Center(child: CircularProgressIndicator());
         }
         return snapshot.data!.docs.length == 0
-            ? Center(child: Text('No ${widget.title} Yet.'))
+            ? Center(child: Text('No ${_billType.description} Yet.'))
             : Card(
                 child: ListView(
                   physics: const BouncingScrollPhysics(),
                   shrinkWrap: true,
                   children: snapshot.data!.docs.map(
                     (DocumentSnapshot document) {
-                      Bills _bill = Bills.fromJson(
+                      Bill _bill = Bill.fromJson(
                           document.data() as Map<String, dynamic>);
                       _bill.id = document.id;
-                      _bill.desciption = _bill.desciption; // ?? widget.title;
+                      _bill.description = _bill.description; // ?? widget.title;
                       String _formattedBillDate =
-                          DateFormat('MMM dd, yyyy').format(_bill.billdate!);
+                          DateFormat('MMM dd, yyyy').format(_bill.billDate!);
                       String _lastModified =
                           DateFormat('MMM dd, yyyy hh:mm aaa')
                               .format(_bill.modifiedOn ?? _bill.createdOn);
@@ -153,7 +156,7 @@ class _ListViewPage extends State<ListViewPage> {
                           ListTile(
                             //isThreeLine: true,
                             title: Text(
-                                "${_setSelectedPayersDisplay(_bill.payerIds ?? {})}${!(_bill.desciption?.isEmpty ?? true) ? " | ${_bill.desciption}" : ""}"),
+                                "${_setSelectedPayersDisplay(_bill.payerIds ?? {})}${!(_bill.description?.isEmpty ?? true) ? " | ${_bill.description}" : ""}"),
                             //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
                             subtitle: Text("$_lastModified"),
                             trailing: Column(
@@ -171,7 +174,8 @@ class _ListViewPage extends State<ListViewPage> {
                                   '${_bill.amount?.formatForDisplay()}',
                                   textAlign: TextAlign.right,
                                   style: TextStyle(
-                                      fontSize: 25, color: widget.color),
+                                      fontSize: 25,
+                                      color: Color(_customIconData.color ?? 0)),
                                 ),
                                 Text(
                                   '${_bill.quantification} $_quantification',
@@ -201,18 +205,23 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   _showDataManager(data) async {
-    if ((await showAddRecord(context, data, _quantification, widget.title,
-            widget.color, _selectedUser)) ??
+    if ((await showAddRecord(
+            context,
+            data,
+            _quantification,
+            _billType.description,
+            Color(_customIconData.color ?? 0),
+            _selectedUserId)) ??
         false) {
-      //return added record userid (only first one if multiple selected users), then update _selectedUser
+      //return added record userid (only first one if multiple selected users), then update _selectedUserId
     }
   }
 
-  String _setSelectedPayersDisplay(dynamic _selectedUsers) {
-    if (_selectedUsers.length >= 1) {
-      int left = _selectedUsers.length - 1;
-      String? payer = _getPayerName(_selectedUser);
-      String others = _selectedUsers.length > 1
+  String _setSelectedPayersDisplay(dynamic _selectedUserIds) {
+    if (_selectedUserIds.length >= 1) {
+      int left = _selectedUserIds.length - 1;
+      String? payer = _getPayerName(_selectedUserId);
+      String others = _selectedUserIds.length > 1
           ? ' and $left other${left > 1 ? 's' : ''}'
           : '';
       return '$payer$others';
@@ -246,7 +255,7 @@ class _ListViewPage extends State<ListViewPage> {
     List<UserModel> userModels = [];
     try {
       var col = _ffInstance
-          .collection(_collectionName)
+          .collection("bills")
           //.where('payer_ids', arrayContains: _userId)
           .where('name_separated',
               arrayContains: filter.toString().toLowerCase())
@@ -279,13 +288,15 @@ class _ListViewPage extends State<ListViewPage> {
               prefixIcon: Icon(Icons.person, color: Colors.white),
               contentPadding: EdgeInsets.all(5),
               errorStyle: TextStyle(color: Colors.redAccent, fontSize: 16.0),
-              hintText: 'Please select expense',
+              hintText: 'Client',
+              labelText: 'Client',
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(5.0))),
-          isEmpty: _selectedUser == '',
+          isEmpty: false, //_selectedUserId == '',
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
+            stream: _ffInstance
                 .collection('users')
+                .where("deleted", isEqualTo: false)
                 .orderBy("name")
                 .snapshots(),
             builder: (context, snapshot) {
@@ -293,26 +304,29 @@ class _ListViewPage extends State<ListViewPage> {
                 return Center(child: CircularProgressIndicator());
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
+              if (_selectedUserId.isEmpty && snapshot.data?.docs.length != 0) {
+                _selectedUserId =
+                    snapshot.data?.docs.first.id ?? _selectedUserId;
+              }
               return DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _selectedUser,
+                  value:
+                      _selectedUserId, //!.isNotEmpty ? _selectedUserId : snapshot.data?.docs.first.id,
                   isDense: true,
                   hint: Text("Choose user..."),
                   onChanged: (String? newValue) {
                     setState(() {
-                      _selectedUser = newValue;
+                      _selectedUserId = newValue!;
                       state.didChange(newValue);
                     });
                     if (_isDebug) {
-                      print("_selectedUser:$_selectedUser");
+                      print("_selectedUserId:$_selectedUserId");
                     }
                   },
-                  items: snapshot.data?.docs.map((DocumentSnapshot document) {
-                    UserProfile up = UserProfile.fromJson(
-                        document.data() as Map<String, dynamic>);
+                  items: snapshot.data?.docs.map((document) {
                     return DropdownMenuItem<String>(
                       value: document.id,
-                      child: Text(up.name!),
+                      child: new Text(document.get("name")),
                     );
                   }).toList(),
                 ),
@@ -332,13 +346,13 @@ class _ListViewPage extends State<ListViewPage> {
     //     return Container(
     //       padding: EdgeInsets.all(10),
     //       child: DropdownButton(
-    //         value: _selectedUser,
+    //         value: _selectedUserId,
     //         isDense: true,
     //         onChanged: (valueSelectedByUser) {
     //           setState(() {
-    //             _selectedUser = valueSelectedByUser.toString();
+    //             _selectedUserId = valueSelectedByUser.toString();
     //           });
-    //           print(_selectedUser);
+    //           print(_selectedUserId);
     //         },
     //         hint: Text('Client Name...'),
     //         items: snapshot.data?.docs.map(
@@ -368,32 +382,65 @@ class _ListViewPage extends State<ListViewPage> {
     }
   }
 
-  int _getBillType(String desc) {
-    int id = 0;
-
-    switch (_collectionName) {
-      case "payments":
-        id = 1;
-        break;
-      case "salarys":
-        id = 2;
-        break;
-      case "subscriptions":
-        id = 3;
-        break;
-      case "loans":
-        id = 4;
-        break;
-      case "water":
-        id = 5;
-        break;
-      case "electricity":
-        id = 6;
-        break;
+  Future<void> _getBillTypes() async {
+    List<BillType?> billTypes = [];
+    try {
+      _ffInstance
+          .collection("bill_types")
+          .orderBy('description')
+          .get()
+          .then((snapshots) {
+        snapshots.docs.forEach((document) {
+          billTypes.add(BillType.fromJson(document.data()));
+        });
+      }).whenComplete(() {
+        setState(() {
+          _billTypeIds.clear();
+          _billTypeIds.addAll(billTypes);
+          // _billTypeId = _billTypeIds
+          //     .where((bill) => bill?.description == _billType.description.toLowerCase())
+          //     .last
+          //     ?.id as int; // _getBillType(_collectionName);
+        });
+        print("_billTypeIds: $_billTypeIds");
+      });
+    } on FirebaseAuthException catch (e) {
+      _showProgressUi(false, "${e.message}.");
+    } catch (e) {
+      _showProgressUi(false, "$e.");
     }
-
-    return id;
   }
+
+  // int _getBillType(String collectionName, {int id = 0, String desc = ""}) {
+  //   switch (_collectionName) {
+  //     case "payments":
+  //       id = 1;
+  //       break;
+  //     case "salarys":
+  //       id = 2;
+  //       break;
+  //     case "subscriptions":
+  //       id = 3;
+  //       break;
+  //     case "loans":
+  //       id = 4;
+  //       break;
+  //     case "water":
+  //       id = 5;
+  //       break;
+  //     case "electricity":
+  //       id = 6;
+  //       break;
+  //   }
+  //   return id;
+  //   // if (_billTypeIds.length > 0) {
+  //   //   BillType? bt = _billTypeIds.where((bill) => bill?.desciption == desc).last;
+  //   //   String? id = bt?.id;
+  //   //   return int.parse(id ?? "0");
+  //   // } else {
+  //   //   return 0;
+  //   // }
+  // }
 
   // Future<void> _getbillTypes() async {
   //   List<BillType?> bts = [];
@@ -408,9 +455,10 @@ class _ListViewPage extends State<ListViewPage> {
   //       });
   //     }).whenComplete(() {
   //       setState(() {
-  //         _billTypes.addAll(bts);
+  //         _billTypeIds.clear();
+  //         _billTypeIds.addAll(bts);
   //       });
-  //       print("_billTypes: $_billTypes");
+  //       print("_billTypeIds: $_billTypeIds");
   //     });
   //     _showProgressUi(false, "");
   //   } on FirebaseAuthException catch (e) {
@@ -420,123 +468,128 @@ class _ListViewPage extends State<ListViewPage> {
   //   }
   // }
 
-  Future<void> _combineField() async {
-    bool done = false;
-    try {
-      CollectionReference bills = _ffInstance.collection("bills");
-      bills.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
-          Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
-          List<String?> newPayers = [];
-          bill.payerIds?.forEach((element) {
-            String? pbt = "${element}_${bill.billtype}";
-            newPayers.add(pbt);
-          });
-          DocumentReference doc =
-              _ffInstance.collection("bills").doc(document.id);
-          doc.update({"payers_billtype": newPayers});
-          // bills.doc(document.id).update(_bill.toJson()).then((value) {
-          //   _showProgressUi(false, "Bill updated.");
-          // }).catchError((error) {
-          //   _showProgressUi(
-          //       false, "Failed to update bill id: ${document.id}\n$error.");
-          // });
-        });
-      });
-    } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
-    } catch (e) {
-      _showProgressUi(false, "$e.");
-    }
-  }
+  // Future<void> _combineField() async {
+  //   bool done = false;
+  //   try {
+  //     CollectionReference bills = _ffInstance.collection("bills");
+  //     bills.get().then((snapshots) {
+  //       snapshots.docs.forEach((document) {
+  //         Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
+  //         List<String?> newPayers = [];
+  //         bill.payerIds?.forEach((element) {
+  //           String? pbt = "${element}_${bill.billtype}";
+  //           newPayers.add(pbt);
+  //         });
+  //         DocumentReference doc =
+  //             _ffInstance.collection("bills").doc(document.id);
+  //         doc.update({"payers_billtype": newPayers});
+  //         // bills.doc(document.id).update(_bill.toJson()).then((value) {
+  //         //   _showProgressUi(false, "Bill updated.");
+  //         // }).catchError((error) {
+  //         //   _showProgressUi(
+  //         //       false, "Failed to update bill id: ${document.id}\n$error.");
+  //         // });
+  //       });
+  //     });
+  //   } on FirebaseAuthException catch (e) {
+  //     _showProgressUi(false, "${e.message}.");
+  //   } catch (e) {
+  //     _showProgressUi(false, "$e.");
+  //   }
+  // }
 
-  Future<void> _migrate() async {
-    bool done = false;
+  // Future<void> _migrate() async {
+  //   bool done = false;
 
-    try {
-      //temp code for migration
-      CollectionReference copyFrom = _ffInstance.collection(_collectionName);
-      CollectionReference copyTo = _ffInstance.collection("bills");
-      copyFrom.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
-          Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
-          // List<String?> newPayers = [];
-          // bill.payerIds?.forEach((element) {
-          //   String? pbt = "${element}_${bill.billtype}";
-          //   newPayers.add(pbt);
-          // });
-          // bill.payersbilltype = newPayers.cast<String>();
-          // var dd = _billTypes
-          //     .where((element) =>
-          //         element?.desciption?.toLowerCase().trim() == _collectionName)
-          //     .first as int?;
-          // bill.billtype = dd;
-          // switch (_collectionName) {
-          //   case "electricity":
-          //     bill.billtype = 6;
-          //     break;
-          //   case "loans":
-          //     bill.billtype = 4;
-          //     break;
-          //   case "payments":
-          //     bill.billtype = 1;
-          //     break;
-          //   case "salary":
-          //     bill.billtype = 2;
-          //     break;
-          //   case "subscriptions":
-          //     bill.billtype = 3;
-          //     break;
-          //   default:
-          //     bill.billtype = 5;
-          //     break;
-          // }
+  //   try {
+  //     //temp code for migration
+  //     CollectionReference copyFrom = _ffInstance.collection(_collectionName);
+  //     CollectionReference copyTo = _ffInstance.collection("bills");
+  //     copyFrom.get().then((snapshots) {
+  //       snapshots.docs.forEach((document) {
+  //         Bills bill = Bills.fromJson(document.data() as Map<String, dynamic>);
+  //         // List<String?> newPayers = [];
+  //         // bill.payerIds?.forEach((element) {
+  //         //   String? pbt = "${element}_${bill.billtype}";
+  //         //   newPayers.add(pbt);
+  //         // });
+  //         // bill.payersbilltype = newPayers.cast<String>();
+  //         // var dd = _billTypeIds
+  //         //     .where((element) =>
+  //         //         element?.desciption?.toLowerCase().trim() == _collectionName)
+  //         //     .first as int?;
+  //         // bill.billtype = dd;
+  //         // switch (_collectionName) {
+  //         //   case "electricity":
+  //         //     bill.billtype = 6;
+  //         //     break;
+  //         //   case "loans":
+  //         //     bill.billtype = 4;
+  //         //     break;
+  //         //   case "payments":
+  //         //     bill.billtype = 1;
+  //         //     break;
+  //         //   case "salary":
+  //         //     bill.billtype = 2;
+  //         //     break;
+  //         //   case "subscriptions":
+  //         //     bill.billtype = 3;
+  //         //     break;
+  //         //   default:
+  //         //     bill.billtype = 5;
+  //         //     break;
+  //         // }
 
-          bill.billtype = _getBillType(_collectionName);
+  //         bill.billtype = _getBillType(_collectionName);
 
-          var data = bill.toJson();
-          if (bill.billtype! > 0) {
-            copyTo.add(data).then((value) {
-              if (value.id.isNotEmpty) {
-                print("${document.id} transferred to ${value.id}. Success.");
-                setState(() {
-                  done = true;
-                });
-              } else {
-                print("asdasd");
-              }
-            }).catchError((error) {
-              _showProgressUi(false, "error migrating record: $error.");
-            });
-          } else {
-            _showProgressUi(false, "Invalid bill type.");
-          }
-        });
-      }).whenComplete(() {
-        if (done) {
-          _showProgressUi(
-              false, "All $_collectionName transferred to 'bills' table.");
-        }
-      });
-      //temp code for migration
-    } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
-    } catch (e) {
-      _showProgressUi(false, "$e.");
-    }
-  }
+  //         var data = bill.toJson();
+  //         if (bill.billtype! > 0) {
+  //           copyTo.add(data).then((value) {
+  //             if (value.id.isNotEmpty) {
+  //               print("${document.id} transferred to ${value.id}. Success.");
+  //               setState(() {
+  //                 done = true;
+  //               });
+  //             } else {
+  //               print("asdasd");
+  //             }
+  //           }).catchError((error) {
+  //             _showProgressUi(false, "error migrating record: $error.");
+  //           });
+  //         } else {
+  //           _showProgressUi(false, "Invalid bill type.");
+  //         }
+  //       });
+  //     }).whenComplete(() {
+  //       if (done) {
+  //         _showProgressUi(
+  //             false, "All $_collectionName transferred to 'bills' table.");
+  //       }
+  //     });
+  //     //temp code for migration
+  //   } on FirebaseAuthException catch (e) {
+  //     _showProgressUi(false, "${e.message}.");
+  //   } catch (e) {
+  //     _showProgressUi(false, "$e.");
+  //   }
+  // }
 
   Future<void> _getUsers() async {
     _showProgressUi(true, "");
     List<dynamic> users = [];
 
     try {
-      _ffInstance.collection("users").get().then((snapshot) {
+      _ffInstance
+          .collection("users")
+          .where("deleted", isEqualTo: false)
+          .get()
+          .then((snapshot) {
         users =
             snapshot.docs.map((doc) => ([doc.id, doc.get('name')])).toList();
       }).whenComplete(() {
         setState(() {
-          _users = users;
+          _users.clear();
+          _users.addAll(users);
         });
         print("users: $users");
       });

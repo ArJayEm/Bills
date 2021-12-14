@@ -46,11 +46,7 @@
     <string msgid="3441753203274453993" name="common_signin_button_text">"Fazer login"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Fazer login com o Google"</string>
     <string msgid="5912733858573823945" name="confirm_device_credential_password">"Usar senha"</string>
-    <string msgid="3260749812566568062" name="copy_toast_msg">"Link copiado para a área de transferência"</string>
     <string msgid="4776854077120974966" name="default_error_msg">"Erro desconhecido"</string>
-    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Copiar link"</string>
-    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Abrir no navegador"</string>
-    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Compartilhar link"</string>
     <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Toque no sensor de digital"</string>
     <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Hardware de impressão digital não disponível."</string>
     <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Este dispositivo não tem um sensor de impressão digital"</string>
