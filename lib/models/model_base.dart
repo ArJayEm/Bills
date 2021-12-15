@@ -8,5 +8,5 @@ class ModelBase {
   @JsonKey(name: "modified_on")
   DateTime? modifiedOn;
   @JsonKey(name: "deleted")
-  bool? deleted;
+  bool? deleted = false;
 }

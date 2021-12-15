@@ -17,7 +17,7 @@ class BillType extends ModelBase {
   @JsonKey(name: "quantification")
   String? quantification = "";
 
-  BillType({id, this.description, this.quantification, this.isdebit = false});
+  BillType({id, this.description, this.iconData, this.quantification, this.isdebit = false});
 
   factory BillType.fromJson(Map<String, dynamic> json) =>
       _$BillTypeFromJson(json);

@@ -5,11 +5,11 @@ part 'icon_data.g.dart';
 @JsonSerializable()
 class CustomIconData {
   @JsonKey(name: "code_point")
-  int? codepoint;
+  int? codepoint = 0;
   @JsonKey(name: "color")
-  int? color;
+  int? color = 0;
   @JsonKey(name: "font_family")
-  String? fontfamily;
+  String? fontfamily = "MaterialIcons";
 
   CustomIconData(
       {this.codepoint, this.color, this.fontfamily});

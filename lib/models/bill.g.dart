@@ -11,18 +11,18 @@ Bill _$BillFromJson(Map<String, dynamic> json) => Bill(
       billDate: json['bill_date'] == null
           ? null
           : DateTime.parse(json['bill_date'] as String),
-      description: json['description'] as String?,
-      amount: json['amount'] as num?,
-      quantification: json['quantification'] as int?,
+      description: json['description'] as String? ?? "",
+      amount: json['amount'] as num? ?? 0.00,
+      quantification: json['quantification'] as int? ?? 1,
       payerIds: (json['payer_ids'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => e as String?)
           .toList(),
       payersBillType: (json['payers_billtype'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => e as String?)
           .toList(),
-      billTypeId: json['bill_type'] as int?,
-      clientMembers: json['client_members'] as int?,
-      collectorMembers: json['collector_members'] as int?,
+      billTypeId: json['bill_type'] as int? ?? 0,
+      clientMembers: json['client_members'] as int? ?? 0,
+      collectorMembers: json['collector_members'] as int? ?? 0,
     )
       ..createdOn = DateTime.parse(json['created_on'] as String)
       ..modifiedOn = json['modified_on'] == null

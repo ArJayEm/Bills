@@ -5,23 +5,25 @@ import 'package:json_annotation/json_annotation.dart';
 part 'meter_readings.g.dart';
 
 @JsonSerializable()
-class MeterReadings extends ModelBase {
+class Reading extends ModelBase {
   @JsonKey(name: "reading_date")
-  DateTime readingdate;
+  DateTime? readingDate = DateTime.now();
   @JsonKey(name: "reading")
-  int reading;
+  int? reading = 0;
   @JsonKey(name: "reading_type")
-  int readingtype;
+  int? readingtype = 0;
   @JsonKey(name: "user_id")
-  String userid = "";
+  String? userid = "";
+  @JsonKey(name: "user_ids")
+  List<String?>? userIds = [];
 
   @JsonKey(ignore: true)
   String? payerNames = "";
 
-  MeterReadings(
-      {id, required this.readingdate, required this.reading, required this.readingtype, required this.userid});
+  Reading(
+      {id, this.readingDate, this.reading, this.readingtype, this.userid});
 
-  factory MeterReadings.fromJson(Map<String, dynamic> json) =>
-      _$MeterReadingsFromJson(json);
-  Map<String, dynamic> toJson() => _$MeterReadingsToJson(this);
+  factory Reading.fromJson(Map<String, dynamic> json) =>
+      _$ReadingFromJson(json);
+  Map<String, dynamic> toJson() => _$ReadingToJson(this);
 }

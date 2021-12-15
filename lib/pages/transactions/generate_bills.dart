@@ -49,11 +49,11 @@ class _GenerateBillsState extends State<GenerateBills> {
   final List<Bill?> _bills = [];
   final List<BillType?> _billTypes = [];
   final List<int> _billTypeIds = [0];
-  final List<MeterReadings?> _readings = [];
+  final List<Reading?> _readings = [];
   // List<int> _debitBillTypeIds = [0];
   // List<int> _creditBillTypeIds = [0];
-  // List<MeterReadings?> _currentReadings = [];
-  // List<MeterReadings?> _previousReadings = [];
+  // List<Reading?> _currentReading = [];
+  // List<Reading?> _previousReading = [];
 
   final _ctrlBillDate = TextEditingController();
   final _ctrlCreditAmount = TextEditingController();
@@ -88,9 +88,7 @@ class _GenerateBillsState extends State<GenerateBills> {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(_title),
-      ),
+      appBar: AppBar(title: Text(_title)),
       body: RefreshIndicator(
         onRefresh: _loadForm,
         child: SafeArea(
@@ -116,11 +114,9 @@ class _GenerateBillsState extends State<GenerateBills> {
                               primary: Colors.grey.shade700,
                               backgroundColor: Colors.white),
                           onPressed: () async {
-                            await _getUsers();
-                            await _getBillTypes();
-                            await _getClientMeterReadings();
-                            await _getPreviousUnpaidAmount();
+                            await _getClientReadings();
                             await _getBills();
+                            await _getPreviousUnpaidAmount();
                           },
                         ),
                         const SizedBox(height: 5),
@@ -150,9 +146,9 @@ class _GenerateBillsState extends State<GenerateBills> {
   Future<void> _loadForm() async {
     await _getUsers();
     await _getBillTypes();
-    await _getClientMeterReadings();
-    await _getPreviousUnpaidAmount();
+    await _getClientReadings();
     await _getBills();
+    await _getPreviousUnpaidAmount();
   }
 
   Widget _dateTimePicker() {
@@ -184,9 +180,10 @@ class _GenerateBillsState extends State<GenerateBills> {
             _ctrlBillDate.text =
                 date.formatDate(dateOnly: true, fullMonth: true, hideDay: true);
           });
-          // await _getClientMeterReadings();
-          // await _getPreviousUnpaidAmount();
+
+          // await _getClientReadings();
           // await _getBills();
+          // await _getPreviousUnpaidAmount();
         }
       },
       validator: (value) {
@@ -272,12 +269,12 @@ class _GenerateBillsState extends State<GenerateBills> {
     }
   }
 
-  Future<void> _getClientMeterReadings() async {
-    List<MeterReadings> readings = [];
+  Future<void> _getClientReadings() async {
+    List<Reading> readings = [];
     try {
       _ffInstance
           .collection("meter_readings")
-          .where("userid_deleted", isEqualTo: "${_selectedUserId}_0")
+          //.where("userid_deleted", isEqualTo: "${_selectedUserId}_0")
           .where("reading_date",
               isGreaterThanOrEqualTo:
                   _billsFrom.toIso8601String()) //_previousMonthStart
@@ -287,25 +284,26 @@ class _GenerateBillsState extends State<GenerateBills> {
           .get()
           .then((snapshots) {
         for (var doc in snapshots.docs) {
-          readings.add(MeterReadings.fromJson(doc.data()));
+          readings.add(Reading.fromJson(doc.data()));
         }
       }).whenComplete(() {
         setState(() {
           _readings.clear();
           _readings.addAll(readings);
-          if (_readings.isEmpty) {
-            String msg = "No Readings found.";
-            if (kDebugMode) {
-              print("Meter Readings error: $msg");
-            }
-            Fluttertoast.showToast(msg: msg);
-          } else {
-            if (kDebugMode) {
-              print("${_readings.toList()}");
-            }
-          }
         });
       });
+
+      if (_readings.isEmpty) {
+        String msg = "No Readings found.";
+        if (kDebugMode) {
+          print("Meter Readings error: $msg");
+        }
+        Fluttertoast.showToast(msg: msg);
+      } else {
+        if (kDebugMode) {
+          print("${_readings.toList()}");
+        }
+      }
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
     } catch (e) {
@@ -484,7 +482,7 @@ class _GenerateBillsState extends State<GenerateBills> {
                 : _userProfiles.first?.id,
             isDense: true,
             hint: const Text("Choose user..."),
-            onChanged: (String? newValue) {
+            onChanged: (String? newValue) async {
               setState(() {
                 _selectedUserId = newValue!;
                 _billToPay.userId = [_selectedUserId];
@@ -493,8 +491,9 @@ class _GenerateBillsState extends State<GenerateBills> {
                     UserProfile();
                 state.didChange(newValue);
               });
-              _getClientMeterReadings();
-              _getBills();
+              // _getClientReadings();
+              // _getBills();
+              // _getPreviousUnpaidAmount();
               if (kDebugMode) {
                 print("_selectedUser: $_selectedUserId");
               }
@@ -828,13 +827,13 @@ class _GenerateBillsState extends State<GenerateBills> {
         setState(() {
           _previousBilling = billing;
           _billToPay.totalPayment =
-              (_previousBilling.totalPayment ?? 0) + (_billToPay.subtotal ?? 0);
+              (billing.totalPayment ?? 0) + (_billToPay.subtotal ?? 0);
         });
-
-        if (kDebugMode) {
-          print("_previousBilling: $_previousBilling");
-        }
       });
+
+      if (kDebugMode) {
+        print("_previousBilling: $_previousBilling");
+      }
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
     } catch (e) {

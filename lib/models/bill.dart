@@ -11,23 +11,23 @@ part 'bill.g.dart';
 @JsonSerializable()
 class Bill extends ModelBase {
   @JsonKey(name: "bill_date")
-  DateTime? billDate = DateTime.now();
+  DateTime? billDate;
   @JsonKey(name: "description")
   String? description;
   @JsonKey(name: "amount")
-  num? amount = 0.00;
+  num? amount;
   @JsonKey(name: "quantification")
-  int? quantification = 1;
+  int? quantification;
   @JsonKey(name: "payer_ids")
-  List<String>? payerIds = [];
+  List<String?>? payerIds = [];
   @JsonKey(name: "payers_billtype")
-  List<String>? payersBillType = [];
+  List<String?>? payersBillType = [];
   @JsonKey(name: "bill_type")
-  int? billTypeId = 0;
+  int? billTypeId;
   @JsonKey(name: "client_members")
-  int? clientMembers = 0;
+  int? clientMembers;
   @JsonKey(name: "collector_members")
-  int? collectorMembers = 0;
+  int? collectorMembers;
 
   @JsonKey(ignore: true)
   String? payerNames;
@@ -48,14 +48,14 @@ class Bill extends ModelBase {
   Bill(
       {id,
       this.billDate,
-      this.description,
-      this.amount,
-      this.quantification,
+      this.description = "",
+      this.amount = 0.00,
+      this.quantification = 1,
       this.payerIds,
       this.payersBillType,
-      this.billTypeId,
-      this.clientMembers,
-      this.collectorMembers
+      this.billTypeId = 0,
+      this.clientMembers = 0,
+      this.collectorMembers = 0
       //this.lastModified= (modifiedOn ?? createdOn)
       });
 

@@ -17,12 +17,11 @@ import 'package:bills/pages/transactions/payer_list.dart';
 import 'package:bills/pages/transactions/history_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 
-import 'listview.dart';
+import 'listview_bills.dart';
 
 class Dashboard extends StatefulWidget {
   static const String route = '/';
@@ -61,60 +60,12 @@ class _DashboardState extends State<Dashboard> {
   bool _isNewUser = false;
   bool _hasRequiredFields = false;
 
-  final List<BillType?> _billTypes = [];
-
-  final List<Menu> _menu = [
-    // // Menu(
-    // //     location: 'Billing',
-    // //     view: ListViewPage(
-    // //         title: 'Billing',
-    // //         quantification: 'Quantity',
-    // //         color: Colors.green.shade800),
-    // //     icon: Icon(Icons.receipt, color: Colors.green.shade800)),
-    // Menu(
-    //     location: 'Payments',
-    //     view: ListViewPage(
-    //         title: 'Payments',
-    //         quantification: 'Quantity',
-    //         color: Colors.green.shade800),
-    //     icon: Icon(Icons.payment, color: Colors.green.shade800)),
-    // Menu(
-    //     location: 'Electricity',
-    //     view: ListViewPage(
-    //         title: 'Electricity',
-    //         quantification: 'kwh',
-    //         color: Colors.deepOrange.shade400),
-    //     icon: Icon(Icons.bolt, color: Colors.deepOrange.shade400)),
-    // Menu(
-    //     location: 'Water',
-    //     view: ListViewPage(
-    //         title: 'Water', quantification: 'cu.m', color: Colors.lightBlue),
-    //     icon: Icon(Icons.water_damage, color: Colors.lightBlue)),
-    // Menu(
-    //     location: 'Loans',
-    //     view: ListViewPage(
-    //         title: 'Loans',
-    //         quantification: 'Quantity',
-    //         color: Colors.yellow.shade200),
-    //     icon: Icon(Icons.money_outlined, color: Colors.yellow.shade200)),
-    // Menu(
-    //     location: 'Salarys',
-    //     view: ListViewPage(
-    //         title: 'Salarys',
-    //         quantification: 'Quantity',
-    //         color: Colors.lightGreen),
-    //     icon: Icon(Icons.attach_money_outlined, color: Colors.lightGreen)),
-    // Menu(
-    //     location: 'Subscriptions',
-    //     view: ListViewPage(
-    //         title: 'Subscriptions',
-    //         quantification: 'Quantity',
-    //         color: Colors.red.shade600),
-    //     icon: Icon(Icons.subscriptions_rounded, color: Colors.red.shade600)),
-  ];
+  final List<Menu> _billTypeMenuList = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final GlobalKey _drawerKey = GlobalKey();
+
+  //final Icon _iconData = const Icon(Icons.addchart, color: Colors.blueAccent);
 
   @override
   void initState() {
@@ -124,6 +75,10 @@ class _DashboardState extends State<Dashboard> {
       _auth = widget.auth;
       _collection = _ffInstance.collection('users');
     });
+    // if (kDebugMode) {
+    //   print(
+    //       "icondata: {color: ${_iconData.color?.value}, code_point: ${_iconData.icon?.codePoint}, font_family: ${_iconData.icon?.fontFamily}}");
+    // }
     _onLoad();
   }
 
@@ -520,10 +475,10 @@ class _DashboardState extends State<Dashboard> {
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
-                itemCount: _menu.length,
+                itemCount: _billTypeMenuList.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     childAspectRatio: 1,
-                    crossAxisCount: 3,
+                    crossAxisCount: 4,
                     crossAxisSpacing: 4.0,
                     mainAxisSpacing: 4.0),
                 itemBuilder: (BuildContext context, int index) {
@@ -534,18 +489,17 @@ class _DashboardState extends State<Dashboard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          _menu[index].icon!,
+                          _billTypeMenuList[index].icon!,
                           const SizedBox(height: 20),
-                          Text(
-                            _menu[index].location!,
-                            textAlign: TextAlign.center,
-                          )
+                          Text(_billTypeMenuList[index].location!,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis)
                         ],
                       ),
                       onTap: () {
                         _setAllFalse();
-                        _menu[index].isSelected = true;
-                        _openBills(context, _menu[index].view!);
+                        _billTypeMenuList[index].isSelected = true;
+                        _openBills(context, _billTypeMenuList[index].view!);
                       },
                     ),
                   );
@@ -565,8 +519,8 @@ class _DashboardState extends State<Dashboard> {
 
   _setAllFalse() {
     setState(() {
-      for (int i = 0; i < _menu.length; i++) {
-        _menu[i].isSelected = false;
+      for (var btml in _billTypeMenuList) {
+        btml.isSelected = false;
       }
     });
   }
@@ -584,31 +538,19 @@ class _DashboardState extends State<Dashboard> {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
           billTypes.add(b);
-          // CustomIconData cid =
-          //     CustomIconData.fromJson(b.iconData as Map<String, dynamic>);
-          Menu m = Menu(
+          menu.add(Menu(
               location: b.description,
-              view: ListViewPage(billType: b),
+              view: ListViewBills(billType: b),
               icon: Icon(
                   IconData(b.iconData?.codepoint ?? 0,
                       fontFamily: b.iconData?.fontfamily),
-                  color: Color(b.iconData?.color ?? 0)));
-          menu.add(m);
+                  color: Color(b.iconData?.color ?? 0))));
         }
       }).whenComplete(() {
         setState(() {
-          _billTypes.clear();
-          _billTypes.addAll(billTypes);
-          // _billType = _billTypes
-          //     .where((bill) => bill?.description == "electricity")
-          //     .last
-          //     ?.id as int; // _getBillType(_collectionName);
-          _menu.clear();
-          _menu.addAll(menu);
+          _billTypeMenuList.clear();
+          _billTypeMenuList.addAll(menu);
         });
-        if (kDebugMode) {
-          print("_billTypes: $_billTypes");
-        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -739,6 +681,9 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _onLoad() async {
     await _getCurrentUser();
+    setState(() {
+      _billTypeMenuList.clear();
+    });
     await _getBillTypes();
     await _loadLandingPage();
   }
