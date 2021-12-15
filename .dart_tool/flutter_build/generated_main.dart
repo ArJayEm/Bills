@@ -12,6 +12,7 @@ import 'package:bills/main.dart' as entrypoint;
 import 'dart:io'; // flutter_ignore: dart_io_import.
 import 'package:path_provider_linux/path_provider_linux.dart';
 import 'package:shared_preferences_linux/shared_preferences_linux.dart';
+import 'package:path_provider_macos/path_provider_macos.dart';
 import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:shared_preferences_windows/shared_preferences_windows.dart';
 
@@ -44,6 +45,16 @@ class _PluginRegistrant {
       }
 
     } else if (Platform.isMacOS) {
+      try {
+        PathProviderMacOS.registerWith();
+      } catch (err) {
+        print(
+          '`path_provider_macos` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+        rethrow;
+      }
+
     } else if (Platform.isWindows) {
       try {
         PathProviderWindows.registerWith();

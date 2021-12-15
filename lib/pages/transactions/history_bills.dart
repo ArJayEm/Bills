@@ -20,13 +20,13 @@ class _BillingHistoryState extends State<BillingHistory> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: Text('Billing History'),
+        title: const Text('Billing History'),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
-      body: Center(
+      body: const Center(
         child: Text('Billing History'),
       ),
     );

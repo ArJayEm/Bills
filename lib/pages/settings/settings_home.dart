@@ -40,11 +40,11 @@ class _SettingsHomeState extends State<SettingsHome> {
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)),
             );
           },
-          child: Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: Text('Settings'),
+        title: const Text('Settings'),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
@@ -53,12 +53,12 @@ class _SettingsHomeState extends State<SettingsHome> {
       body: SafeArea(
         child: ListView(
           children: [
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.pin),
+              leading: const Icon(Icons.pin),
               minLeadingWidth: 0,
-              title: Text('Change PIN'),
-              trailing: Icon(Icons.chevron_right, size: 20),
+              title: const Text('Change PIN'),
+              trailing: const Icon(Icons.chevron_right, size: 20),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -67,12 +67,12 @@ class _SettingsHomeState extends State<SettingsHome> {
                         builder: (context) => EnterCurrent(auth: _auth)));
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.fingerprint),
+              leading: const Icon(Icons.fingerprint),
               minLeadingWidth: 0,
-              title: Text('Biometrics'),
-              trailing: Icon(Icons.chevron_right, size: 20),
+              title: const Text('Biometrics'),
+              trailing: const Icon(Icons.chevron_right, size: 20),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -81,7 +81,7 @@ class _SettingsHomeState extends State<SettingsHome> {
                         builder: (context) => Biometrics(auth: _auth)));
               },
             ),
-            Divider(),
+            const Divider(),
             // ListTile(
             //   leading: Icon(Icons.restore),
             //   title: Text('Backup & Restore'),

@@ -9,19 +9,19 @@ class DynamicForm extends StatefulWidget {
 }
 
 class _DynamicFormState extends State<DynamicForm> {
-  List<Map<String, dynamic>> _values = [];
+  final List<Map<String, dynamic>> _values = [];
   //int _count = 0;
   String _result = '';
-  Bill _billClass = Bill();
+  final Bill _billClass = Bill();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dynamic Form'),
+        title: const Text('Dynamic Form'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () async {
               setState(() {
                 // _count++;
@@ -29,7 +29,7 @@ class _DynamicFormState extends State<DynamicForm> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () async {
               setState(() {
                 //_count = 0;
@@ -86,8 +86,8 @@ class _DynamicFormState extends State<DynamicForm> {
   Widget _numberField(String label, VoidCallback? onTap) {
     return TextFormField(
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(5),
-          icon: Icon(Icons.attach_money_outlined),
+          contentPadding: const EdgeInsets.all(5),
+          icon: const Icon(Icons.attach_money_outlined),
           labelText: label,
           hintText: label),
       keyboardType: TextInputType.number,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class OtpAutoFill extends StatefulWidget {
+  const OtpAutoFill({Key? key}) : super(key: key);
+
   @override
   _OtpAutoFillState createState() => _OtpAutoFillState();
 }
@@ -37,11 +39,11 @@ class _OtpAutoFillState extends State<OtpAutoFill> with CodeAutoFill {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = TextStyle(fontSize: 18);
+    const textStyle = TextStyle(fontSize: 18);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Listening for code"),
+        title: const Text("Listening for code"),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +60,7 @@ class _OtpAutoFillState extends State<OtpAutoFill> with CodeAutoFill {
             child: Builder(
               builder: (_) {
                 if (otpCode == null) {
-                  return Text("Listening for code...", style: textStyle);
+                  return const Text("Listening for code...", style: textStyle);
                 }
                 return Text("Code Received: $otpCode", style: textStyle);
               },

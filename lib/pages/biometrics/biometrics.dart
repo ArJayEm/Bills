@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -57,7 +58,7 @@ class _BiometricsState extends State<Biometrics> {
                   builder: (context) => SettingsHome(auth: _auth)),
             );
           },
-          child: Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         title: const Text('Plugin example app'),
@@ -69,31 +70,31 @@ class _BiometricsState extends State<Biometrics> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_supportState == _SupportState.unknown)
-                Center(child: CircularProgressIndicator())
+                const Center(child: CircularProgressIndicator())
               else if (_supportState == _SupportState.supported)
-                Text("This device is supported")
+                const Text("This device is supported")
               else
-                Text("This device is not supported"),
-              Divider(height: 100),
+                const Text("This device is not supported"),
+              const Divider(height: 100),
               Text('Can check biometrics: $_canCheckBiometrics\n'),
               ElevatedButton(
                 child: const Text('Check biometrics'),
                 onPressed: _checkBiometrics,
               ),
-              Divider(height: 100),
+              const Divider(height: 100),
               Text('Available biometrics: $_availableBiometrics\n'),
               ElevatedButton(
                 child: const Text('Get available biometrics'),
                 onPressed: _getAvailableBiometrics,
               ),
-              Divider(height: 100),
+              const Divider(height: 100),
               Text('Current State: $_authorized\n'),
               (_isAuthenticating)
                   ? ElevatedButton(
                       onPressed: _cancelAuthentication,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
+                        children: const [
                           Text("Cancel Authentication"),
                           Icon(Icons.cancel),
                         ],
@@ -104,7 +105,7 @@ class _BiometricsState extends State<Biometrics> {
                         ElevatedButton(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: [
+                            children: const [
                               Text('Authenticate'),
                               Icon(Icons.perm_device_information),
                             ],
@@ -118,7 +119,7 @@ class _BiometricsState extends State<Biometrics> {
                               Text(_isAuthenticating
                                   ? 'Cancel'
                                   : 'Authenticate: biometrics only'),
-                              Icon(Icons.fingerprint),
+                              const Icon(Icons.fingerprint),
                             ],
                           ),
                           onPressed: _authenticateWithBiometrics,
@@ -139,7 +140,9 @@ class _BiometricsState extends State<Biometrics> {
       canCheckBiometrics = await auth.canCheckBiometrics;
     } on PlatformException catch (e) {
       canCheckBiometrics = false;
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
     if (!mounted) return;
 
@@ -164,7 +167,9 @@ class _BiometricsState extends State<Biometrics> {
       availableBiometrics = await auth.getAvailableBiometrics();
     } on PlatformException catch (e) {
       availableBiometrics = <BiometricType>[];
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
     if (!mounted) return;
 
@@ -188,7 +193,9 @@ class _BiometricsState extends State<Biometrics> {
         _isAuthenticating = false;
       });
     } on PlatformException catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() {
         _isAuthenticating = false;
         _authorized = "Error - ${e.message}";
@@ -219,7 +226,9 @@ class _BiometricsState extends State<Biometrics> {
         _authorized = 'Authenticating';
       });
     } on PlatformException catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() {
         _isAuthenticating = false;
         _authorized = "Error - ${e.message}";

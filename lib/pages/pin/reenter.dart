@@ -1,14 +1,17 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 enum PinVerificationState { NOMINATE_PIN, CHANGE_PIN }
 
 class ReenterMpin extends StatefulWidget {
-  ReenterMpin(
+  const ReenterMpin(
       {Key? key,
       required this.auth,
       required this.isChange,
@@ -107,7 +110,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
         elevation: 0,
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _getReenterWidget(),
     );
   }
@@ -116,29 +119,29 @@ class _ReenterMpinState extends State<ReenterMpin> {
     return SafeArea(
       child: Container(
         color: Colors.grey.shade800,
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Center(
                 child: Text(_text,
-                    style: TextStyle(fontSize: 20, color: Colors.white))),
-            SizedBox(height: 10),
+                    style: const TextStyle(fontSize: 20, color: Colors.white))),
+            const SizedBox(height: 10),
             Row(
               children: [
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController1,
                     focusNode: _pinFocusNode1,
-                    autofocus: _pinControllerFull.text.length == 0,
-                    style: TextStyle(fontSize: 25),
+                    autofocus: _pinControllerFull.text.isEmpty,
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController1.text = "";
                         _pinControllerFull.text = "";
                         FocusScope.of(context).requestFocus(_pinFocusNode1);
@@ -178,21 +181,23 @@ class _ReenterMpinState extends State<ReenterMpin> {
                           }
                         }
                       }
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController2,
                     focusNode: _pinFocusNode2,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController2.text = "";
                         _pinControllerFull.text =
                             _pinControllerFull.text.substring(0, 1);
@@ -211,21 +216,23 @@ class _ReenterMpinState extends State<ReenterMpin> {
                             '${_pinControllerFull.text}$overValue';
                         FocusScope.of(context).requestFocus(_pinFocusNode4);
                       }
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController3,
                     focusNode: _pinFocusNode3,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController3.text = "";
                         _pinControllerFull.text =
                             _pinControllerFull.text.substring(0, 2);
@@ -245,21 +252,23 @@ class _ReenterMpinState extends State<ReenterMpin> {
                         FocusScope.of(context).requestFocus(_pinFocusNode5);
                       }
 
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController4,
                     focusNode: _pinFocusNode4,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController4.text = "";
                         _pinControllerFull.text =
                             _pinControllerFull.text.substring(0, 3);
@@ -278,21 +287,23 @@ class _ReenterMpinState extends State<ReenterMpin> {
                             '${_pinControllerFull.text}$overValue';
                         FocusScope.of(context).requestFocus(_pinFocusNode6);
                       }
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController5,
                     focusNode: _pinFocusNode5,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController5.text = "";
                         _pinControllerFull.text =
                             _pinControllerFull.text.substring(0, 4);
@@ -313,21 +324,23 @@ class _ReenterMpinState extends State<ReenterMpin> {
                         _saveMpin();
                       }
 
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Flexible(
                   child: TextFormField(
                     obscureText: true,
                     controller: _pinController6,
                     focusNode: _pinFocusNode6,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      if (value.length == 0) {
+                      if (value.isEmpty) {
                         _pinController6.text = "";
                         _pinControllerFull.text =
                             _pinControllerFull.text.substring(0, 5);
@@ -344,11 +357,13 @@ class _ReenterMpinState extends State<ReenterMpin> {
                         FocusScope.of(context).unfocus();
                         _saveMpin();
                       }
-                      print('nom pin: ${_pinControllerFull.text}');
+                      if (kDebugMode) {
+                        print('nom pin: ${_pinControllerFull.text}');
+                      }
                     },
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
               ],
             ),
           ],
@@ -394,7 +409,7 @@ class _ReenterMpinState extends State<ReenterMpin> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

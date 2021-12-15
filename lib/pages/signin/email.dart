@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
 import 'package:bills/models/user_profile.dart';
@@ -10,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class EmailSignInPage extends StatefulWidget {
-  EmailSignInPage({Key? key, required this.auth, required this.isSignin})
+  const EmailSignInPage({Key? key, required this.auth, required this.isSignin})
       : super(key: key);
 
   final FirebaseAuth auth;
@@ -31,13 +33,13 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   EmailVerificationState _emailState =
       EmailVerificationState.SHOW_SIGN_IN_STATE;
 
-  CollectionReference _collection =
+  final CollectionReference _collection =
       FirebaseFirestore.instance.collection("users");
 
-  EmailAuth emailAuth = new EmailAuth(sessionName: "Bills App");
+  EmailAuth emailAuth = EmailAuth(sessionName: "Bills App");
 
   bool _isLoading = false;
-  RegExp _emailRegex = RegExp(
+  final RegExp _emailRegex = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
   bool _proceed = false;
 
@@ -97,7 +99,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
               );
             }
           },
-          child: Padding(
+          child: const Padding(
             padding: EdgeInsets.all(10),
             child: Icon(Icons.arrow_back),
           ),
@@ -113,11 +115,11 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       body: SafeArea(
         child: Container(
           color: Colors.grey.shade800,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           alignment: Alignment.center,
           child: Center(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : _emailState == EmailVerificationState.SHOW_SIGN_IN_STATE
                       ? getEmailSignInPageWidget()
                       : _emailState == EmailVerificationState.SHOW_SIGN_UP_STATE
@@ -135,7 +137,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         textInputAction: TextInputAction.next,
         autofocus: true,
         focusNode: _emailFocusNode,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: "Email",
           hintText: "Email",
         ),
@@ -148,12 +150,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           });
         },
       ),
-      SizedBox(),
+      const SizedBox(),
       TextFormField(
         obscureText: true,
         textInputAction: TextInputAction.next,
         focusNode: _passwordFocusNode,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: "Password",
           hintText: "Password",
         ),
@@ -166,23 +168,23 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           });
         },
       ),
-      SizedBox(height: 30),
+      const SizedBox(height: 30),
       TextButton(
-        child: Text("Sign In", style: TextStyle(fontSize: 18)),
+        child: const Text("Sign In", style: TextStyle(fontSize: 18)),
         style: TextButton.styleFrom(
             //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 50),
+            minimumSize: const Size(double.infinity, 50),
             primary: Colors.grey.shade800,
             backgroundColor: _proceed ? Colors.grey.shade300 : Colors.white38),
         onPressed: _proceed ? _signIn : null,
       ),
-      _showSignUp ? SizedBox(height: 10) : SizedBox(),
+      _showSignUp ? const SizedBox(height: 10) : const SizedBox(),
       _showSignUp
           ? TextButton(
-              child: Text("Sign Up", style: TextStyle(fontSize: 18)),
+              child: const Text("Sign Up", style: TextStyle(fontSize: 18)),
               style: TextButton.styleFrom(
                   //shape: StadiumBorder(),
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   primary: Colors.grey.shade800,
                   backgroundColor:
                       _proceed ? Colors.grey.shade300 : Colors.white38),
@@ -192,7 +194,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
                 });
               },
             )
-          : SizedBox(),
+          : const SizedBox(),
     ]);
   }
 
@@ -204,7 +206,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
           textInputAction: TextInputAction.next,
           autofocus: true,
           focusNode: _emailFocusNode,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: "Email",
             hintText: "Email",
           ),
@@ -218,12 +220,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             });
           },
         ),
-        SizedBox(),
+        const SizedBox(),
         TextFormField(
           obscureText: true,
           textInputAction: TextInputAction.next,
           focusNode: _passwordFocusNode,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: "Password",
             hintText: "Password",
           ),
@@ -237,12 +239,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             });
           },
         ),
-        SizedBox(),
+        const SizedBox(),
         TextFormField(
           obscureText: true,
           textInputAction: TextInputAction.go,
           focusNode: _confirmPassFocusNode,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: "Confirm Password",
             hintText: "Confirm Password",
           ),
@@ -256,12 +258,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             });
           },
         ),
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         TextButton(
-          child: Text("Sign Up", style: TextStyle(fontSize: 18)),
+          child: const Text("Sign Up", style: TextStyle(fontSize: 18)),
           style: TextButton.styleFrom(
               //shape: StadiumBorder(),
-              minimumSize: Size(double.infinity, 50),
+              minimumSize: const Size(double.infinity, 50),
               primary: Colors.grey.shade800,
               backgroundColor:
                   _proceed ? Colors.grey.shade300 : Colors.white38),
@@ -282,7 +284,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       if (!_emailRegex.hasMatch(_email.toString())) {
         _showProgressUi(false, "Invalid email format.");
       }
-      if (_password.toString().length == 0) {
+      if (_password.toString().isEmpty) {
         _showProgressUi(false, "Password is required.");
       }
 
@@ -330,9 +332,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
     if (!_emailRegex.hasMatch(_email.toString())) {
       _showProgressUi(false, "Invalid email format.");
-    } else if (_password.toString().length == 0) {
+    } else if (_password.toString().isEmpty) {
       _showProgressUi(false, "Password is required.");
-    } else if (_confirmPassword.toString().length == 0) {
+    } else if (_confirmPassword.toString().isEmpty) {
       _showProgressUi(false, "Confirm password is required.");
     } else if (_password.toString() != _confirmPassword.toString()) {
       _showProgressUi(false, "Password and confirm password doesn't match.");
@@ -374,16 +376,16 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         Center(
           child: Text(
               "An OTP has been sent to your email\n${_emailController.text}",
-              style: TextStyle(fontSize: 15, color: Colors.white),
+              style: const TextStyle(fontSize: 15, color: Colors.white),
               textAlign: TextAlign.center),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         TextFormField(
           keyboardType: TextInputType.number,
           //textInputAction: TextInputAction.continueAction,
           autofocus: true,
           controller: _otpController,
-          decoration: InputDecoration(hintText: "Enter OTP"),
+          decoration: const InputDecoration(hintText: "Enter OTP"),
           onChanged: (value) {
             if (value.length > 6) {
               value = value.substring(0, 6);
@@ -397,12 +399,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             });
           },
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         TextButton(
-          child: Text("Verify"),
+          child: const Text("Verify"),
           style: TextButton.styleFrom(
               //shape: StadiumBorder(),
-              minimumSize: Size(double.infinity, 40),
+              minimumSize: const Size(double.infinity, 40),
               primary: Colors.grey.shade800,
               backgroundColor:
                   _verifyOtpEnabled ? Colors.grey.shade300 : Colors.white38),
@@ -493,7 +495,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   }
 
   String _generateUserCode() {
-    var rng = new Random();
+    var rng = Random();
     var code1 = rng.nextInt(9000) + 1000;
     var code2 = rng.nextInt(9000) + 1000;
     var code3 = rng.nextInt(9000) + 1000;
@@ -501,7 +503,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

@@ -3,6 +3,7 @@ import 'package:bills/pages/pin/enter.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -59,27 +60,27 @@ class _EnterCurrentState extends State<EnterCurrent> {
                   builder: (context) => SettingsHome(auth: _auth)),
             );
           },
-          child: Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: Text('Change PIN'),
+        title: const Text('Change PIN'),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20),
-                Center(
+                const SizedBox(height: 20),
+                const Center(
                     child: Text('Enter your current PIN',
                         style: TextStyle(fontSize: 20, color: Colors.white))),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 _getPinWidget(),
               ],
             ),
@@ -89,21 +90,21 @@ class _EnterCurrentState extends State<EnterCurrent> {
   Widget _getPinWidget() {
     return Row(
       children: [
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController1,
             focusNode: _pinFocusNode1,
-            autofocus: _pinControllerFull.text.length == 0,
-            style: TextStyle(fontSize: 25),
+            autofocus: _pinControllerFull.text.isEmpty,
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             // onTap: () {
             //   FocusScope.of(context).requestFocus(_pinFocusNode1);
             // },
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController1.text = "";
                 _pinControllerFull.text = "";
                 FocusScope.of(context).unfocus();
@@ -148,21 +149,23 @@ class _EnterCurrentState extends State<EnterCurrent> {
                   }
                 }
               }
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController2,
             focusNode: _pinFocusNode2,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController2.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 1);
@@ -180,21 +183,23 @@ class _EnterCurrentState extends State<EnterCurrent> {
                     '${_pinControllerFull.text}$overValue';
                 FocusScope.of(context).requestFocus(_pinFocusNode4);
               }
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController3,
             focusNode: _pinFocusNode3,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController3.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 2);
@@ -213,21 +218,23 @@ class _EnterCurrentState extends State<EnterCurrent> {
                 FocusScope.of(context).requestFocus(_pinFocusNode5);
               }
 
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController4,
             focusNode: _pinFocusNode4,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController4.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 3);
@@ -245,21 +252,23 @@ class _EnterCurrentState extends State<EnterCurrent> {
                     '${_pinControllerFull.text}$overValue';
                 FocusScope.of(context).requestFocus(_pinFocusNode6);
               }
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController5,
             focusNode: _pinFocusNode5,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController5.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 4);
@@ -279,21 +288,23 @@ class _EnterCurrentState extends State<EnterCurrent> {
                 _verify();
               }
 
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController6,
             focusNode: _pinFocusNode6,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController6.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 5);
@@ -309,11 +320,13 @@ class _EnterCurrentState extends State<EnterCurrent> {
                 FocusScope.of(context).unfocus();
                 _verify();
               }
-              print('nom pin: ${_pinControllerFull.text}');
+              if (kDebugMode) {
+                print('nom pin: ${_pinControllerFull.text}');
+              }
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
       ],
     );
   }
@@ -429,7 +442,7 @@ class _EnterCurrentState extends State<EnterCurrent> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

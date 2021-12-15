@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'dart:math';
 
 import 'package:bills/helpers/extensions/format_extension.dart';
@@ -7,7 +9,7 @@ import 'package:bills/pages/pin/pin_home.dart';
 //import 'package:bills/pages/signin/email.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
+//import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +19,15 @@ import 'package:global_configuration/global_configuration.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-  ));
   await Firebase.initializeApp();
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  //await EasyLocalization.ensureInitialized();
   await GlobalConfiguration().loadFromAsset("app_settings");
+  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  //   statusBarColor: Colors.transparent,
+  // ));
 
   runApp(
     // MultiProvider(
@@ -36,29 +42,31 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: [
-        Locale('en'),
-        Locale('zh'),
-        Locale('fr'),
-        Locale('es'),
-        Locale('de'),
-        Locale('ru'),
-        Locale('ja'),
-        Locale('ar'),
-        Locale('fa'),
-        Locale("es"),
+        const Locale('en'),
+        const Locale('zh'),
+        const Locale('fr'),
+        const Locale('es'),
+        const Locale('de'),
+        const Locale('ru'),
+        const Locale('ja'),
+        const Locale('ar'),
+        const Locale('fa'),
+        const Locale("es"),
       ],
       title: 'Bills',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         appBarTheme: AppBarTheme(
           centerTitle: true,
           //brightness: Brightness.dark,
@@ -74,12 +82,14 @@ class MyApp extends StatelessWidget {
 }
 
 class InitializerWidget extends StatefulWidget {
+  const InitializerWidget({Key? key}) : super(key: key);
+
   @override
   _InitializerWidgetState createState() => _InitializerWidgetState();
 }
 
 class _InitializerWidgetState extends State<InitializerWidget> {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   late User _currentUser;
 
   bool _isLoading = false;
@@ -100,7 +110,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SignInHome(auth: _auth),
     );
   }
@@ -146,7 +156,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   }
 
   String _generateUserCode() {
-    var rng = new Random();
+    var rng = Random();
     var code1 = rng.nextInt(9000) + 1000;
     var code2 = rng.nextInt(9000) + 1000;
     var code3 = rng.nextInt(9000) + 1000;
@@ -154,7 +164,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

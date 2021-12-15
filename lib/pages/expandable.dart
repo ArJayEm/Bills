@@ -4,6 +4,8 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableSample extends StatefulWidget {
+  const ExpandableSample({Key? key}) : super(key: key);
+
   @override
   State createState() {
     return ExpandableSampleState();
@@ -15,7 +17,7 @@ class ExpandableSampleState extends State<ExpandableSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Expandable Demo"),
+        title: const Text("Expandable Demo"),
       ),
       body: ExpandableTheme(
         data: const ExpandableThemeData(
@@ -49,7 +51,7 @@ Widget _card1(context) {
             SizedBox(
               height: 150,
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.orange,
                   shape: BoxShape.rectangle,
                 ),
@@ -64,12 +66,12 @@ Widget _card1(context) {
                   tapBodyToCollapse: true,
                 ),
                 header: Padding(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     child: Text(
                       "ExpandablePanel",
                       style: Theme.of(context).textTheme.bodyText1,
                     )),
-                collapsed: Text(
+                collapsed: const Text(
                   loremIpsum,
                   softWrap: true,
                   maxLines: 2,
@@ -79,7 +81,7 @@ Widget _card1(context) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     for (var _ in Iterable.generate(5))
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.only(bottom: 10),
                         child: Text(
                           loremIpsum,
@@ -91,7 +93,7 @@ Widget _card1(context) {
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Expandable(
                       collapsed: collapsed,
                       expanded: expanded,
@@ -125,7 +127,7 @@ Widget buildCollapsed1(context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -152,7 +154,7 @@ Widget buildExpanded1(context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -192,10 +194,10 @@ Widget buildExpanded2() {
 
 Widget buildExpanded3() {
   return Padding(
-    padding: EdgeInsets.all(10),
+    padding: const EdgeInsets.all(10),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+      children: const <Widget>[
         Text(
           loremIpsum,
           softWrap: true,
@@ -227,7 +229,7 @@ Widget _card2(context) {
                 collapsed: buildCollapsed3(),
                 expanded: buildExpanded3(),
               ),
-              Divider(
+              const Divider(
                 height: 1,
               ),
               Row(

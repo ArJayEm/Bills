@@ -49,8 +49,8 @@ extension DateFormatHelper on DateTime {
   }
 
   DateTime getLastDay() {
-    DateTime date = DateTime(this.year, this.month + 1, 1);
-    return date.add(Duration(days: -1));
+    DateTime date = DateTime(year, month + 1, 1);
+    return date.add(const Duration(days: -1));
   }
 
   String formatToMonth() {
@@ -88,21 +88,22 @@ extension DateFormatHelper on DateTime {
   String formatLocalize() {
     var diff = DateTime.now().difference(this);
     //print(diff.inDays);
-    if (this.format() == DateTime.now().format())
+    if (format() == DateTime.now().format()) {
       return "Just Now";
-    else if (diff.inMinutes >= 1 && diff.inDays == 0)
-      return "Today at ${this.formatToHour()}";
-    else if (diff.inDays == 1)
+    } else if (diff.inMinutes >= 1 && diff.inDays == 0) {
+      return "Today at ${formatToHour()}";
+    } else if (diff.inDays == 1) {
       return "Yesterday";
-    else if (diff.inDays > 1 &&
-        this.formatToMonth() == DateTime.now().formatToMonth() &&
-        this.formatToYear() == DateTime.now().formatToYear())
-      return this.formatToDayHour();
-    else if (this.formatToMonth() != DateTime.now().formatToMonth() &&
-        this.formatToYear() == DateTime.now().formatToYear())
-      return this.formatToMonthDayHour();
-    else
-      return this.format();
+    } else if (diff.inDays > 1 &&
+        formatToMonth() == DateTime.now().formatToMonth() &&
+        formatToYear() == DateTime.now().formatToYear()) {
+      return formatToDayHour();
+    } else if (formatToMonth() != DateTime.now().formatToMonth() &&
+        formatToYear() == DateTime.now().formatToYear()) {
+      return formatToMonthDayHour();
+    } else {
+      return format();
+    }
   }
 }
 
@@ -116,26 +117,27 @@ extension StringFormatHelper on String? {
 ///
 /// safddsf
 extension ArrayHelper on Iterable<dynamic> {
-  dynamic firstOrDefault() => this.length == 0 ? null : this.first;
+  dynamic firstOrDefault() => length == 0 ? null : first;
 }
 
 class DateRangeFormatter {
   static String format(DateTime start, DateTime end) {
-    if (start == end)
+    if (start == end) {
       return start.formatLocalize();
-    else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
-        start.format(dateOnly: true) == DateTime.now().format(dateOnly: true))
+    } else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
+        start.format(dateOnly: true) == DateTime.now().format(dateOnly: true)) {
       return "Today, ${start.formatToHour()} - ${end.formatToHour()}";
-    else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
-        start.formatToYear() == DateTime.now().formatToYear())
+    } else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
+        start.formatToYear() == DateTime.now().formatToYear()) {
       return "${start.formatToMonthDay()}, ${start.formatToHour()} - ${end.formatToHour()}";
-    else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
-        start.formatToYear() != DateTime.now().formatToYear())
+    } else if (start.format(dateOnly: true) == end.format(dateOnly: true) &&
+        start.formatToYear() != DateTime.now().formatToYear()) {
       return "${start.formatToMonth()} ${start.formatToDayHourYear()} - ${end.formatToDayHourYear()} ";
-    else if (start.format(dateOnly: true) != end.format(dateOnly: true) &&
-        start.formatToYear() == DateTime.now().formatToYear())
+    } else if (start.format(dateOnly: true) != end.format(dateOnly: true) &&
+        start.formatToYear() == DateTime.now().formatToYear()) {
       return "${start.formatToMonthDayHour()} - ${end.formatToMonthDayHour()}";
-    else
+    } else {
       return "${start.format()} - ${end.format()}";
+    }
   }
 }

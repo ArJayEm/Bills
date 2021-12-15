@@ -1,8 +1,11 @@
+// ignore_for_file: use_key_in_widget_constructors, unused_import, prefer_final_fields
+
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
@@ -40,12 +43,6 @@ class Management extends StatefulWidget {
 }
 
 class _ManagementState extends State<Management> {
-  bool _isDebug = false;
-  _ManagementState() {
-    GlobalConfiguration cfg = new GlobalConfiguration();
-    _isDebug = cfg.get("isDebug");
-  }
-
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
   final DateTime _firstdate = DateTime(DateTime.now().year - 2);
   final DateTime _lastdate = DateTime.now();
@@ -115,19 +112,19 @@ class _ManagementState extends State<Management> {
         : widget.title;
 
     return _isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : generateModalBody(
             Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(10),
-                physics: BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(10),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextFormField(
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
+                          contentPadding: const EdgeInsets.all(5),
                           icon: Icon(Icons.calendar_today, color: widget.color),
                           labelText: 'Bill Date',
                           hintText: 'Bill Date'),
@@ -143,10 +140,10 @@ class _ManagementState extends State<Management> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextFormField(
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
+                          contentPadding: const EdgeInsets.all(5),
                           icon: Icon(Icons.label, color: widget.color),
                           labelText: 'Description',
                           hintText: 'Description'),
@@ -175,10 +172,10 @@ class _ManagementState extends State<Management> {
                       //   return null;
                       // },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextFormField(
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
+                          contentPadding: const EdgeInsets.all(5),
                           icon: Icon(Icons.attach_money_outlined,
                               color: widget.color),
                           labelText: 'Amount',
@@ -206,10 +203,10 @@ class _ManagementState extends State<Management> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextFormField(
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
+                          contentPadding: const EdgeInsets.all(5),
                           icon: Icon(Icons.pin, color: widget.color),
                           labelText: _quantification,
                           hintText: _quantification),
@@ -235,10 +232,10 @@ class _ManagementState extends State<Management> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     AnimatedContainer(
                       height: _isExpanded ? 600 : 50,
-                      duration: Duration(milliseconds: 600),
+                      duration: const Duration(milliseconds: 600),
                       curve: Curves.fastOutSlowIn,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -250,7 +247,7 @@ class _ManagementState extends State<Management> {
                             readOnly: true,
                             controller: _ctrlSelectedPayers,
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5),
+                              contentPadding: const EdgeInsets.all(5),
                               icon: Icon(Icons.person, color: widget.color),
                               suffixIcon: _isExpanded
                                   ? CustomAppBarButton(
@@ -276,7 +273,7 @@ class _ManagementState extends State<Management> {
                                       uncheckedColor: Colors.white,
                                       isChecked: _selectedAll,
                                     )
-                                  : SizedBox(),
+                                  : const SizedBox(),
                               labelText: 'Select Payer(s)',
                               hintText: 'Select Payer(s)',
                             ),
@@ -305,7 +302,7 @@ class _ManagementState extends State<Management> {
                           ),
                           ..._isExpanded
                               ? <Widget>[
-                                  Divider(thickness: 1, height: 0),
+                                  const Divider(thickness: 1, height: 0),
                                   _payersSelectionWidget()
                                 ]
                               : <Widget>[]
@@ -340,20 +337,20 @@ class _ManagementState extends State<Management> {
             headWidget: Row(
               children: [
                 TextButton(
-                  child: Icon(Icons.close, size: 30, color: Colors.grey),
+                  child: const Icon(Icons.close, size: 30, color: Colors.grey),
                   onPressed: _cancel,
                 ),
-                Spacer(),
+                const Spacer(),
                 Text('${_bill.id != null ? 'Manage' : "Add"} $_title',
                     style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                Spacer(),
+                        const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                const Spacer(),
                 _bill.id != null
                     ? TextButton(
-                        child: Icon(Icons.delete, size: 30, color: Colors.grey),
+                        child: const Icon(Icons.delete, size: 30, color: Colors.grey),
                         onPressed: !_isLoading ? _deleteRecord : null,
                       )
-                    : SizedBox(),
+                    : const SizedBox(),
                 TextButton(
                   child: Icon(Icons.done, size: 30, color: widget.color),
                   onPressed: !_isLoading ? _saveRecord : null,
@@ -489,8 +486,8 @@ class _ManagementState extends State<Management> {
         CollectionReference collection = _ffInstance.collection("users");
         UserProfile userProfile = UserProfile();
         collection.get().then((snapshots) {
-          snapshots.docs.forEach((document) {
-            if (_bill.payerIds!.contains((key) => key == document.id)) {
+          for (var document in snapshots.docs) {
+            if (_bill.payerIds?.contains(document.id) ?? false) {
               userProfile =
                   UserProfile.fromJson(document.data() as Map<String, dynamic>);
               userProfile.id = document.id;
@@ -500,7 +497,7 @@ class _ManagementState extends State<Management> {
                 }).whenComplete(() {});
               }
             }
-          });
+          }
         }).whenComplete(() {
           setState(() {
             //_payers.addAll(payers);
@@ -532,10 +529,10 @@ class _ManagementState extends State<Management> {
       List<dynamic> users = [];
       CollectionReference _collection = _ffInstance.collection("users");
       _collection.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           //String pbt = "${document.id}_$_billType";
           users.add([document.id, document.get('name')]);
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _selectList.clear();
@@ -575,13 +572,15 @@ class _ManagementState extends State<Management> {
               //_selectedList.removeWhere((key, value) => key == id);
             }
           });
-          print(_selectedList);
+          if (kDebugMode) {
+            print(_selectedList);
+          }
           _setSelectedPayersDisplay();
         },
         value: _selectedList.toString().contains(id),
         //value: _selectedList.contains((value) => value[0] == id),
         //value: _selectedList.contains((value) => value.contains(id)),
-        title: new Text(displayname),
+        title: Text(displayname),
         //subtitle: new Text(id),
         controlAffinity: ListTileControlAffinity.leading,
       ));
@@ -639,11 +638,12 @@ class _ManagementState extends State<Management> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
 
-      if (_isDebug) {}
-      print("msg: $msg");
+      if (kDebugMode) {
+        print("msg: $msg");
+      }
     }
     setState(() => _isLoading = isLoading);
   }

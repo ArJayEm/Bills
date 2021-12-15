@@ -1,9 +1,11 @@
+// ignore_for_file: annotate_overrides, file_names
+
 import 'package:http/http.dart';
 
 class GoogleAuthClient extends BaseClient {
   final Map<String, String> _headers;
 
-  final Client _client = new Client();
+  final Client _client = Client();
 
   GoogleAuthClient(this._headers);
 

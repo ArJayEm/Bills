@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:dropdown_search/dropdown_search.dart';
 // import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -20,7 +21,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
   String? _id;
   //Stream<QuerySnapshot>? _listStream;
   List<dynamic> _userIds = [];
-  List<dynamic> _payers = [];
+  final List<dynamic> _payers = [];
 
   bool _isLoading = false;
 
@@ -44,13 +45,13 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: Text('Payment History'),
+        title: const Text('Payment History'),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
-      body: Center(
+      body: const Center(
           // child: DropdownSearch<UserProfile>(
           //   label: "Name",
           //   onFind: (String filter) async {
@@ -78,13 +79,13 @@ class _PaymentHistoryState extends State<PaymentHistory> {
           FirebaseFirestore.instance.collection("users");
       List<UserProfile>? userProfile;
       collection.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           if (_userIds.contains(document.id)) {
             UserProfile userProfile =
                 UserProfile.fromJson(document.data() as Map<String, dynamic>);
             userProfile.id = document.id;
           }
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _payers.clear();
@@ -160,10 +161,12 @@ class _PaymentHistoryState extends State<PaymentHistory> {
   // }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
-    print(_isLoading);
+    if (kDebugMode) {
+      print(_isLoading);
+    }
   }
 }

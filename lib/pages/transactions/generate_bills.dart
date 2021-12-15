@@ -2,16 +2,16 @@ import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/billing.dart';
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/coins.dart';
-import 'package:bills/models/icon_data.dart';
+//import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/meter_readings.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
-import 'package:intl/intl.dart';
+//import 'package:intl/intl.dart';
 
 class GenerateBills extends StatefulWidget {
   const GenerateBills({Key? key, required this.auth}) : super(key: key);
@@ -23,14 +23,7 @@ class GenerateBills extends StatefulWidget {
 }
 
 class _GenerateBillsState extends State<GenerateBills> {
-  bool _isDebug = false;
-  _GenerateBillsState() {
-    // Access configuration at constructor
-    GlobalConfiguration cfg = new GlobalConfiguration();
-    _isDebug = cfg.get("isDebug");
-  }
-
-  String _title = "Generate Bills";
+  final String _title = "Generate Bills";
 
   //late final FirebaseAuth _auth;
   late final String _loggedInId;
@@ -43,20 +36,20 @@ class _GenerateBillsState extends State<GenerateBills> {
   DateTime _previousMonthEnd = DateTime.now();
   bool _useCoins = false;
   bool _isLoading = false;
-  bool _isToOverwriteExists = false;
+  final bool _isToOverwriteExists = false;
 
   UserProfile _loggedInUserprofile = UserProfile();
   UserProfile _selectedUserProfile = UserProfile();
-  List<UserProfile?> _userProfiles = [];
-  Billing _billToPay = new Billing();
-  Billing _previousUnpaidBilling = new Billing();
-  Billing _previousBilling = new Billing();
-  Billing _billToOverwrite = new Billing();
+  final List<UserProfile?> _userProfiles = [];
+  final Billing _billToPay = Billing();
+  final Billing _previousUnpaidBilling = Billing();
+  Billing _previousBilling = Billing();
+  final Billing _billToOverwrite = Billing();
 
-  List<Bill?> _bills = [];
-  List<BillType?> _billTypes = [];
-  List<int> _billTypeIds = [0];
-  List<MeterReadings?> _readings = [];
+  final List<Bill?> _bills = [];
+  final List<BillType?> _billTypes = [];
+  final List<int> _billTypeIds = [0];
+  final List<MeterReadings?> _readings = [];
   // List<int> _debitBillTypeIds = [0];
   // List<int> _creditBillTypeIds = [0];
   // List<MeterReadings?> _currentReadings = [];
@@ -85,7 +78,9 @@ class _GenerateBillsState extends State<GenerateBills> {
       _billsTo = DateTime(DateTime.now().year, DateTime.now().month + 1, 0);
     });
     _loadForm();
-    print(_loggedInId);
+    if (kDebugMode) {
+      print(_loggedInId);
+    }
   }
 
   @override
@@ -100,23 +95,24 @@ class _GenerateBillsState extends State<GenerateBills> {
         onRefresh: _loadForm,
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(10),
-            physics: BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(10),
+            physics: const BouncingScrollPhysics(),
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Form(
                     key: _formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _getUsersDropdown(),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         _dateTimePicker(),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextButton(
-                          child: Text("Search", style: TextStyle(fontSize: 18)),
+                          child: const Text("Search",
+                              style: TextStyle(fontSize: 18)),
                           style: TextButton.styleFrom(
-                              minimumSize: Size(double.infinity, 50),
+                              minimumSize: const Size(double.infinity, 50),
                               primary: Colors.grey.shade700,
                               backgroundColor: Colors.white),
                           onPressed: () {
@@ -127,17 +123,17 @@ class _GenerateBillsState extends State<GenerateBills> {
                             _getBills();
                           },
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         _getBillsList(),
                         _getTotals(),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         //_getCoinsWidget(),
                         //SizedBox(height: 10),
                         TextButton(
-                          child:
-                              Text("Generate", style: TextStyle(fontSize: 18)),
+                          child: const Text("Generate",
+                              style: TextStyle(fontSize: 18)),
                           style: TextButton.styleFrom(
-                              minimumSize: Size(double.infinity, 50),
+                              minimumSize: const Size(double.infinity, 50),
                               primary: Colors.grey.shade700,
                               backgroundColor: Colors.white),
                           onPressed: () {},
@@ -162,9 +158,9 @@ class _GenerateBillsState extends State<GenerateBills> {
   Widget _dateTimePicker() {
     return TextFormField(
       decoration: InputDecoration(
-          prefixIcon: Icon(Icons.calendar_today, color: Colors.white),
+          prefixIcon: const Icon(Icons.calendar_today, color: Colors.white),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
-          contentPadding: EdgeInsets.all(5),
+          contentPadding: const EdgeInsets.all(5),
           labelText: 'Bill Date',
           hintText: 'Bill Date'),
       controller: _ctrlBillDate,
@@ -211,13 +207,13 @@ class _GenerateBillsState extends State<GenerateBills> {
           .orderBy("is_debit", descending: true)
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
 
           billTypeIds.add(int.parse(document.id));
           billTypes.add(b);
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _billTypes.clear();
@@ -225,7 +221,9 @@ class _GenerateBillsState extends State<GenerateBills> {
           _billTypes.addAll(billTypes);
           _billTypeIds.addAll(billTypeIds);
         });
-        printIfDebugging("_billTypes: $_billTypes");
+        if (kDebugMode) {
+          print("_billTypes: $_billTypes");
+        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -242,11 +240,11 @@ class _GenerateBillsState extends State<GenerateBills> {
           .where("deleted", isEqualTo: false)
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           UserProfile up = UserProfile.fromJson(document.data());
           up.id = document.id;
           ups.add(up);
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _userProfiles.clear();
@@ -263,7 +261,9 @@ class _GenerateBillsState extends State<GenerateBills> {
                   .firstWhere((element) => element?.id == _loggedInId) ??
               UserProfile();
         });
-        printIfDebugging("_userProfiles: ${_userProfiles.toList()}");
+        if (kDebugMode) {
+          print("_userProfiles: ${_userProfiles.toList()}");
+        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -286,19 +286,23 @@ class _GenerateBillsState extends State<GenerateBills> {
           .limit(2)
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((doc) {
+        for (var doc in snapshots.docs) {
           readings.add(MeterReadings.fromJson(doc.data()));
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _readings.clear();
           _readings.addAll(readings);
-          if (_readings.length == 0) {
+          if (_readings.isEmpty) {
             String msg = "No Readings found.";
-            print("Meter Readings error: $msg");
+            if (kDebugMode) {
+              print("Meter Readings error: $msg");
+            }
             Fluttertoast.showToast(msg: msg);
           } else {
-            print("${_readings.toList()}");
+            if (kDebugMode) {
+              print("${_readings.toList()}");
+            }
           }
         });
       });
@@ -398,15 +402,17 @@ class _GenerateBillsState extends State<GenerateBills> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           String msg = snapshot.error.toString();
-          print("coins error: $msg");
+          if (kDebugMode) {
+            print("coins error: $msg");
+          }
           Fluttertoast.showToast(msg: "Unable to get coins.");
         }
         num clientCoins = 0.00;
         //if (_selectedUserId.isNotEmpty) {
-        snapshot.data!.docs.forEach((doc) {
+        for (var doc in snapshot.data!.docs) {
           Coins c = Coins.fromJson(doc.data() as Map<String, dynamic>);
           clientCoins += c.amount ?? 0;
-        });
+        }
         //}
         return CheckboxListTile(
           contentPadding: EdgeInsets.zero,
@@ -430,17 +436,22 @@ class _GenerateBillsState extends State<GenerateBills> {
                 });
                 _creditsFocusNode.requestFocus();
               }
-              print("_billToPay.coins: ${_billToPay.coins}");
+              if (kDebugMode) {
+                print("_billToPay.coins: ${_billToPay.coins}");
+              }
             } else {
               return;
             }
           },
           title: Row(
             children: [
-              Spacer(),
-              new Text("Coins: "),
-              new Text(
-                '${(snapshot.connectionState == ConnectionState.waiting ? 0.00 : clientCoins).formatForDisplay(withCurrency: false)}',
+              const Spacer(),
+              const Text("Coins: "),
+              Text(
+                (snapshot.connectionState == ConnectionState.waiting
+                        ? 0.00
+                        : clientCoins)
+                    .formatForDisplay(withCurrency: false),
                 //style: TextStyle(fontSize: 14.0),
                 textAlign: TextAlign.right,
               )
@@ -457,9 +468,10 @@ class _GenerateBillsState extends State<GenerateBills> {
     return FormField<String>(builder: (FormFieldState<String> state) {
       return InputDecorator(
         decoration: InputDecoration(
-            prefixIcon: Icon(Icons.person, color: Colors.white),
-            contentPadding: EdgeInsets.all(5),
-            errorStyle: TextStyle(color: Colors.redAccent, fontSize: 16.0),
+            prefixIcon: const Icon(Icons.person, color: Colors.white),
+            contentPadding: const EdgeInsets.all(5),
+            errorStyle:
+                const TextStyle(color: Colors.redAccent, fontSize: 16.0),
             hintText: 'Client',
             labelText: 'Client',
             border:
@@ -471,7 +483,7 @@ class _GenerateBillsState extends State<GenerateBills> {
                 ? _selectedUserId
                 : _userProfiles.first?.id,
             isDense: true,
-            hint: Text("Choose user..."),
+            hint: const Text("Choose user..."),
             onChanged: (String? newValue) {
               setState(() {
                 _selectedUserId = newValue!;
@@ -483,13 +495,15 @@ class _GenerateBillsState extends State<GenerateBills> {
               });
               _getClientMeterReadings();
               _getBills();
-              printIfDebugging("_selectedUser: $_selectedUserId");
+              if (kDebugMode) {
+                print("_selectedUser: $_selectedUserId");
+              }
             },
             items: _userProfiles
                 .map(
                   (up) => DropdownMenuItem<String>(
                     value: up?.id,
-                    child: new Text("${up?.name!}"),
+                    child: Text("${up?.name!}"),
                   ),
                 )
                 .toList(),
@@ -539,12 +553,12 @@ class _GenerateBillsState extends State<GenerateBills> {
   }
 
   Future<void> _getBills() async {
-    num amount = 0.00;
-    num rate = 0.00;
+    // num amount = 0.00;
+    // num rate = 0.00;
     num subtotal = 0.00;
-    int currentRead = 0;
-    String computation = "";
-    num total = 0.00;
+    // int currentRead = 0;
+    // String computation = "";
+    // num total = 0.00;
     List<Bill?> bills = [];
     List<String?>? billIds = [];
 
@@ -556,11 +570,11 @@ class _GenerateBillsState extends State<GenerateBills> {
           .where("bill_date",
               isGreaterThanOrEqualTo: _billsFrom.toIso8601String())
           .where("bill_date", isLessThanOrEqualTo: _billsTo.toIso8601String())
-          .where("deleted", isEqualTo: true)
+          //.where("deleted", isEqualTo: true)
           //.orderBy("bill_type", descending: true)
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           Bill bill = Bill.fromJson(document.data());
           bill.id = document.id;
           bill.billType =
@@ -568,16 +582,16 @@ class _GenerateBillsState extends State<GenerateBills> {
           bill.billTypeId = int.parse(bill.billType?.id ?? "");
           billIds.add(document.id);
           bills.add(bill);
-        });
+        }
       }).whenComplete(() {
-        bills.forEach((bill) {
+        for (var bill in bills) {
           if (bill?.billType?.isdebit ?? false) {
             //"electricity"
             if (bill?.billTypeId == 6) {
               bill?.rate = num.parse(
                   ((bill.amount ?? 0) / (bill.quantification as num))
                       .toString());
-              if (_readings.length != 0) {
+              if (_readings.isNotEmpty) {
                 bill?.currentReading = _readings
                         .firstWhere((element) =>
                             element?.readingtype ==
@@ -602,7 +616,7 @@ class _GenerateBillsState extends State<GenerateBills> {
           } else {
             subtotal -= bill?.amount ?? 0;
           }
-        });
+        }
 
         setState(() {
           _billToPay.billIds?.clear();
@@ -612,7 +626,9 @@ class _GenerateBillsState extends State<GenerateBills> {
           _bills.addAll(bills);
         });
 
-        printIfDebugging("bills: ${bills.toList()}");
+        if (kDebugMode) {
+          print("bills: ${bills.toList()}");
+        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -727,8 +743,8 @@ class _GenerateBillsState extends State<GenerateBills> {
   }
 
   Widget _getBillsList() {
-    return _bills.length == 0
-        ? Card(
+    return _bills.isEmpty
+        ? const Card(
             child: ListTile(
               dense: true,
               title: Text("No bills found."),
@@ -766,7 +782,7 @@ class _GenerateBillsState extends State<GenerateBills> {
                             Text(
                               '${bill?.billDate!.formatDate(dateOnly: true)}',
                               textAlign: TextAlign.right,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 13, fontWeight: FontWeight.w300),
                             ),
                             Text(
@@ -779,7 +795,7 @@ class _GenerateBillsState extends State<GenerateBills> {
                             Text(
                               '${bill?.computation}',
                               textAlign: TextAlign.right,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 11, fontWeight: FontWeight.w300),
                             ),
                           ],
@@ -804,10 +820,10 @@ class _GenerateBillsState extends State<GenerateBills> {
           .limit(1)
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           billing = Billing.fromJson(document.data());
           billing.id = document.id;
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _previousBilling = billing;
@@ -815,7 +831,9 @@ class _GenerateBillsState extends State<GenerateBills> {
               (_previousBilling.totalPayment ?? 0) + (_billToPay.subtotal ?? 0);
         });
 
-        printIfDebugging("_previousBilling: $_previousBilling");
+        if (kDebugMode) {
+          print("_previousBilling: $_previousBilling");
+        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -825,50 +843,50 @@ class _GenerateBillsState extends State<GenerateBills> {
   }
 
   Widget _getTotals() {
-    List<String>? billIds = [];
-    Billing prevBilling = Billing();
+    // List<String>? billIds = [];
+    // Billing prevBilling = Billing();
 
-    bool isDebit = false;
-    num amount = 0.00;
-    num rate = 0.00;
-    num subtotal = 0.00;
+    // bool isDebit = false;
+    // num amount = 0.00;
+    // num rate = 0.00;
+    // num subtotal = 0.00;
 
     return Card(
       child: Container(
-        padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         child: Column(
           children: [
             //Divider(height: 0),
             Row(
               children: [
-                Text("Subtotal:"),
-                Spacer(),
+                const Text("Subtotal:"),
+                const Spacer(),
                 Text("${_billToPay.subtotal?.formatForDisplay()}",
                     style: TextStyle(color: Colors.red.shade400))
               ],
             ),
-            SizedBox(height: 3),
+            const SizedBox(height: 3),
             Row(
               children: [
-                Text("Previous Unpaid:"),
-                Spacer(),
+                const Text("Previous Unpaid:"),
+                const Spacer(),
                 Text("${_previousBilling.totalPayment?.formatForDisplay()}",
                     style: TextStyle(color: Colors.red.shade400))
               ],
             ),
-            SizedBox(height: 3),
+            const SizedBox(height: 3),
             Row(
               children: [
-                Text(
+                const Text(
                   "Total:",
                   style: TextStyle(
                     fontSize: 20,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(
                   "${_billToPay.totalPayment?.formatForDisplay()}",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                   ),
                 )
@@ -881,15 +899,9 @@ class _GenerateBillsState extends State<GenerateBills> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
-  }
-
-  printIfDebugging(String msg) {
-    if (_isDebug) {
-      print(msg);
-    }
   }
 }

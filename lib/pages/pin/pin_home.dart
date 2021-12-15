@@ -21,7 +21,7 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 );
 
 class PinHome extends StatefulWidget {
-  PinHome({Key? key, required this.auth, required this.displayName})
+  const PinHome({Key? key, required this.auth, required this.displayName})
       : super(key: key);
 
   final FirebaseAuth auth;
@@ -35,7 +35,7 @@ class _PinHomeState extends State<PinHome> {
   late FirebaseAuth _auth;
   late String _displayName;
 
-  List _mpinButtons = [
+  final List _mpinButtons = [
     '1',
     '2',
     '3',
@@ -60,7 +60,7 @@ class _PinHomeState extends State<PinHome> {
   bool _showBackSpace = false;
 
   bool _isLoading = false;
-  bool _isButtonPressed = false;
+  final bool _isButtonPressed = false;
 
   @override
   void initState() {
@@ -86,7 +86,7 @@ class _PinHomeState extends State<PinHome> {
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           color: Colors.grey.shade300, // Color.fromARGB(255, 0, 125, 253),
           child: getEnterMpinWidget(),
         ),
@@ -101,7 +101,7 @@ class _PinHomeState extends State<PinHome> {
       children: [
         Row(
           children: [
-            Spacer(),
+            const Spacer(),
             Row(
               children: [
                 _auth.currentUser!.photoURL != null
@@ -118,14 +118,14 @@ class _PinHomeState extends State<PinHome> {
                           ),
                         ),
                       )
-                    : SizedBox(),
+                    : const SizedBox(),
                 Text(
                   '  $_displayName',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             TextButton(
               onPressed: () => showDialog<String>(
                 barrierDismissible: false,
@@ -154,15 +154,15 @@ class _PinHomeState extends State<PinHome> {
                 style: TextStyle(color: Colors.grey.shade800, fontSize: 15),
               ),
             ),
-            Spacer(),
+            const Spacer(),
           ],
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _pinControllerLen1 || _pinController.text.length >= 1
+            _pinControllerLen1 || _pinController.text.isNotEmpty
                 ? Icon(Icons.circle, color: Colors.grey.shade800, size: 15)
                 : Icon(Icons.circle_outlined,
                     color: Colors.grey.shade800, size: 15),
@@ -188,20 +188,20 @@ class _PinHomeState extends State<PinHome> {
                     color: Colors.grey.shade800, size: 15),
           ],
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Center(
           child: Text(
             'Enter your PIN',
             style: TextStyle(color: Colors.grey.shade800),
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         GridView.builder(
-          padding: EdgeInsets.fromLTRB(50, 10, 50, 10),
+          padding: const EdgeInsets.fromLTRB(50, 10, 50, 10),
           shrinkWrap: true,
           //physics: BouncingScrollPhysics(),
           itemCount: _mpinButtons.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               childAspectRatio: 1.5,
               crossAxisCount: 3,
               mainAxisExtent: 80,
@@ -272,20 +272,18 @@ class _PinHomeState extends State<PinHome> {
                                 _setBoolean();
                               }
                             },
-                            child: Container(
-                              child: Center(
-                                child: Icon(
-                                  Icons.backspace,
-                                  color: _isLoading
-                                      ? Colors.grey.shade700
-                                      : Colors.grey.shade800,
-                                  size: 35,
-                                ),
+                            child: Center(
+                              child: Icon(
+                                Icons.backspace,
+                                color: _isLoading
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade800,
+                                size: 35,
                               ),
                             ),
                           )
-                        : SizedBox()
-                    : SizedBox();
+                        : const SizedBox()
+                    : const SizedBox();
           },
         )
       ],
@@ -312,7 +310,7 @@ class _PinHomeState extends State<PinHome> {
       _pinControllerLen5 = _pinController.text.length == 5;
       _pinControllerLen6 = _pinController.text.length == 6;
 
-      _showBackSpace = _pinController.text.length > 0;
+      _showBackSpace = _pinController.text.isNotEmpty;
     });
   }
 
@@ -410,7 +408,7 @@ class _PinHomeState extends State<PinHome> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

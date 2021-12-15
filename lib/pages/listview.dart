@@ -1,4 +1,6 @@
 //import 'package:bills/models/bill_type.dart';
+// ignore_for_file: unnecessary_string_interpolations, void_checks
+
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/icon_data.dart';
@@ -9,6 +11,7 @@ import 'package:bills/pages/new_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -18,7 +21,7 @@ import 'package:intl/intl.dart';
 import 'components/custom_widgets.dart';
 
 class ListViewPage extends StatefulWidget {
-  ListViewPage({required this.billType});
+  const ListViewPage({Key? key, required this.billType}) : super(key: key);
 
   final BillType billType;
 
@@ -27,29 +30,27 @@ class ListViewPage extends StatefulWidget {
 }
 
 class _ListViewPage extends State<ListViewPage> {
-  bool _isDebug = false;
   String _collectorId = "";
   _ListViewPage() {
-    GlobalConfiguration cfg = new GlobalConfiguration();
+    GlobalConfiguration cfg = GlobalConfiguration();
     _collectorId = cfg.get("collectorId");
-    _isDebug = cfg.get("isDebug");
   }
 
   late FToast fToast = FToast();
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
 
-  Bill _bill = Bill();
+  final Bill _bill = Bill();
   BillType _billType = BillType();
   late CustomIconData _customIconData;
 
   late String _selectedUserId;
-  List<dynamic> _users = [];
-  List<BillType?> _billTypeIds = [];
+  final List<dynamic> _users = [];
+  final List<BillType?> _billTypeIds = [];
   int _billTypeId = 0;
   String _quantification = '';
 
   // ignore: unused_field
-  bool _isExpanded = false;
+  final bool _isExpanded = false;
   bool _isLoading = false;
 
   @override
@@ -68,7 +69,9 @@ class _ListViewPage extends State<ListViewPage> {
     // await _migrate();
     // await _combineField();
     _getUsers();
-    print(_collectorId);
+    if (kDebugMode) {
+      print(_collectorId);
+    }
   }
 
   @override
@@ -76,30 +79,30 @@ class _ListViewPage extends State<ListViewPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Color(_customIconData.color ?? 0),
         title: Text(
           _billType.description!,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10),
-          physics: BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(10),
+          physics: const BouncingScrollPhysics(),
           child: _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
                     //_buildDropdownSearch(),
                     _buildDropDown(),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     _buildBody()
                   ],
                 ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: const CustomBottomNavigationBar(),
       floatingActionButton: CustomFloatingActionButton(
           title: 'Add ${_billType.description}',
           icon: Icons.add,
@@ -124,14 +127,16 @@ class _ListViewPage extends State<ListViewPage> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           String msg = snapshot.error.toString();
-          print("list error: $msg");
+          if (kDebugMode) {
+            print("list error: $msg");
+          }
           Fluttertoast.showToast(msg: msg);
-          return Center(child: Text('Something went wrong'));
+          return const Center(child: Text('Something went wrong'));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
-        return snapshot.data!.docs.length == 0
+        return snapshot.data!.docs.isEmpty
             ? Center(child: Text('No ${_billType.description} Yet.'))
             : Card(
                 child: ListView(
@@ -158,7 +163,7 @@ class _ListViewPage extends State<ListViewPage> {
                             title: Text(
                                 "${_setSelectedPayersDisplay(_bill.payerIds ?? {})}${!(_bill.description?.isEmpty ?? true) ? " | ${_bill.description}" : ""}"),
                             //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
-                            subtitle: Text("$_lastModified"),
+                            subtitle: Text(_lastModified),
                             trailing: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +171,7 @@ class _ListViewPage extends State<ListViewPage> {
                                 Text(
                                   '$_formattedBillDate',
                                   textAlign: TextAlign.right,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -180,7 +185,7 @@ class _ListViewPage extends State<ListViewPage> {
                                 Text(
                                   '${_bill.quantification} $_quantification',
                                   textAlign: TextAlign.right,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w200),
                                 ),
@@ -193,7 +198,7 @@ class _ListViewPage extends State<ListViewPage> {
                               _showDataManager(_bill);
                             },
                           ),
-                          Divider()
+                          const Divider()
                         ],
                       );
                     },
@@ -231,7 +236,7 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
@@ -262,13 +267,15 @@ class _ListViewPage extends State<ListViewPage> {
           .orderBy('name');
 
       col.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           UserProfile up = UserProfile.fromJson(document.data());
           UserModel um = UserModel(id: document.id, name: up.name!);
           userModels.add(um);
-        });
+        }
       }).whenComplete(() {
-        print("name: ${userModels[0].name}");
+        if (kDebugMode) {
+          print("name: ${userModels[0].name}");
+        }
         return userModels;
       });
       _showProgressUi(false, "");
@@ -285,9 +292,9 @@ class _ListViewPage extends State<ListViewPage> {
       builder: (FormFieldState<String> state) {
         return InputDecorator(
           decoration: InputDecoration(
-              prefixIcon: Icon(Icons.person, color: Colors.white),
-              contentPadding: EdgeInsets.all(5),
-              errorStyle: TextStyle(color: Colors.redAccent, fontSize: 16.0),
+              prefixIcon: const Icon(Icons.person, color: Colors.white),
+              contentPadding: const EdgeInsets.all(5),
+              errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 16.0),
               hintText: 'Client',
               labelText: 'Client',
               border:
@@ -300,11 +307,13 @@ class _ListViewPage extends State<ListViewPage> {
                 .orderBy("name")
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-              if (snapshot.connectionState == ConnectionState.waiting)
-                return Center(child: CircularProgressIndicator());
-              if (_selectedUserId.isEmpty && snapshot.data?.docs.length != 0) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (_selectedUserId.isEmpty && snapshot.data!.docs.isNotEmpty) {
                 _selectedUserId =
                     snapshot.data?.docs.first.id ?? _selectedUserId;
               }
@@ -313,20 +322,20 @@ class _ListViewPage extends State<ListViewPage> {
                   value:
                       _selectedUserId, //!.isNotEmpty ? _selectedUserId : snapshot.data?.docs.first.id,
                   isDense: true,
-                  hint: Text("Choose user..."),
+                  hint: const Text("Choose user..."),
                   onChanged: (String? newValue) {
                     setState(() {
                       _selectedUserId = newValue!;
                       state.didChange(newValue);
                     });
-                    if (_isDebug) {
+                    if (kDebugMode) {
                       print("_selectedUserId:$_selectedUserId");
                     }
                   },
                   items: snapshot.data?.docs.map((document) {
                     return DropdownMenuItem<String>(
                       value: document.id,
-                      child: new Text(document.get("name")),
+                      child: Text(document.get("name")),
                     );
                   }).toList(),
                 ),
@@ -373,7 +382,7 @@ class _ListViewPage extends State<ListViewPage> {
   }
 
   String? _getPayerName(String? id) {
-    if (_users.length > 0) {
+    if (_users.isNotEmpty) {
       return (_users.where((element) => element.first == id).last)
           .last
           .toString();
@@ -390,9 +399,9 @@ class _ListViewPage extends State<ListViewPage> {
           .orderBy('description')
           .get()
           .then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           billTypes.add(BillType.fromJson(document.data()));
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _billTypeIds.clear();
@@ -402,7 +411,9 @@ class _ListViewPage extends State<ListViewPage> {
           //     .last
           //     ?.id as int; // _getBillType(_collectionName);
         });
-        print("_billTypeIds: $_billTypeIds");
+        if (kDebugMode) {
+          print("_billTypeIds: $_billTypeIds");
+        }
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");
@@ -591,7 +602,9 @@ class _ListViewPage extends State<ListViewPage> {
           _users.clear();
           _users.addAll(users);
         });
-        print("users: $users");
+        if (kDebugMode) {
+          print("users: $users");
+        }
       });
 
       _showProgressUi(false, "");

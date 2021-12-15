@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
 import 'package:bills/models/user_profile.dart';
@@ -11,7 +13,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 enum MobileVerificationState { SHOW_MOBILE_FORM_STATE, SHOW_OTP_FORM_STATE }
 
 class MobileSignInPage extends StatefulWidget {
-  MobileSignInPage({Key? key, required this.auth}) : super(key: key);
+  const MobileSignInPage({Key? key, required this.auth}) : super(key: key);
 
   final FirebaseAuth auth;
 
@@ -82,7 +84,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               );
             }
           },
-          child: Padding(
+          child: const Padding(
             padding: EdgeInsets.all(10),
             child: Icon(Icons.arrow_back),
           ),
@@ -94,10 +96,10 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       body: SafeArea(
         child: Container(
           color: Colors.grey.shade800,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           alignment: Alignment.center,
           child: _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,11 +117,11 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
 
   List<Widget> getMobileFormWidget(context) {
     return <Widget>[
-      Text('Enter your mobile number'),
+      const Text('Enter your mobile number'),
       TextFormField(
         keyboardType: TextInputType.number,
         autofocus: true,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
             //labelText: '••••••••••',
             //hintText: '••••••••••',
             prefixText: '+63 '),
@@ -141,12 +143,12 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           });
         },
       ),
-      SizedBox(height: 40),
+      const SizedBox(height: 40),
       TextButton(
-        child: Text('Next'),
+        child: const Text('Next'),
         style: TextButton.styleFrom(
             //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 40),
+            minimumSize: const Size(double.infinity, 40),
             primary: Colors.grey.shade800,
             backgroundColor:
                 _sendOtpEnabled ? Colors.grey.shade300 : Colors.white38),
@@ -165,7 +167,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
         keyboardType: TextInputType.number,
         autofocus: true,
         controller: _otpController,
-        decoration: InputDecoration(hintText: "Enter OTP"),
+        decoration: const InputDecoration(hintText: "Enter OTP"),
         onChanged: (value) {
           if (value.length > 6) {
             value = value.substring(0, 6);
@@ -179,14 +181,14 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           });
         },
       ),
-      SizedBox(
+      const SizedBox(
         height: 16,
       ),
       TextButton(
-        child: Text('Verify'),
+        child: const Text('Verify'),
         style: TextButton.styleFrom(
             //shape: StadiumBorder(),
-            minimumSize: Size(double.infinity, 40),
+            minimumSize: const Size(double.infinity, 40),
             primary: Colors.grey.shade800,
             backgroundColor:
                 _sendOtpEnabled ? Colors.grey.shade300 : Colors.white38),
@@ -204,24 +206,24 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
       Center(
         child: Text(
             "An OTP has been sent to your mobile\n+63${_phoneController.text}",
-            style: TextStyle(fontSize: 15, color: Colors.white),
+            style: const TextStyle(fontSize: 15, color: Colors.white),
             textAlign: TextAlign.center),
       ),
-      SizedBox(height: 20),
+      const SizedBox(height: 20),
       Row(
         children: [
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController1,
               focusNode: _pinFocusNode1,
               autofocus: true,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController1.text = "";
                   _pinControllerFull.text = "";
                   FocusScope.of(context).unfocus();
@@ -237,17 +239,17 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController2,
               focusNode: _pinFocusNode2,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController2.text = "";
                   _pinControllerFull.text =
                       _pinControllerFull.text.substring(0, 1);
@@ -267,17 +269,17 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController3,
               focusNode: _pinFocusNode3,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController3.text = "";
                   _pinControllerFull.text =
                       _pinControllerFull.text.substring(0, 2);
@@ -297,17 +299,17 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController4,
               focusNode: _pinFocusNode4,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController4.text = "";
                   _pinControllerFull.text =
                       _pinControllerFull.text.substring(0, 3);
@@ -327,17 +329,17 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController5,
               focusNode: _pinFocusNode5,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController5.text = "";
                   _pinControllerFull.text =
                       _pinControllerFull.text.substring(0, 4);
@@ -358,17 +360,17 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Flexible(
             child: TextFormField(
               obscureText: true,
               controller: _pinController6,
               focusNode: _pinFocusNode6,
-              style: TextStyle(fontSize: 25),
+              style: const TextStyle(fontSize: 25),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                if (value.length == 0) {
+                if (value.isEmpty) {
                   _pinController6.text = "";
                   _pinControllerFull.text =
                       _pinControllerFull.text.substring(0, 5);
@@ -387,7 +389,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
               },
             ),
           ),
-          Spacer(),
+          const Spacer(),
         ],
       )
     ];
@@ -411,7 +413,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
             _mobileVerificationState =
                 MobileVerificationState.SHOW_OTP_FORM_STATE;
             _otpController.clear();
-            this._verificationId = verificationId;
+            _verificationId = verificationId;
             _isLoading = false;
           });
         },
@@ -484,7 +486,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   }
 
   String _generateUserCode() {
-    var rng = new Random();
+    var rng = Random();
     var code1 = rng.nextInt(9000) + 1000;
     var code2 = rng.nextInt(9000) + 1000;
     var code3 = rng.nextInt(9000) + 1000;
@@ -526,7 +528,7 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

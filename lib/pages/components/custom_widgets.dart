@@ -1,20 +1,24 @@
+// ignore_for_file: use_key_in_widget_constructors, duplicate_ignore, unnecessary_new
+
 import 'package:bills/pages/styles/style.dart';
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
+  const CustomBottomNavigationBar({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
       clipBehavior: Clip.hardEdge,
       elevation: 9.0,
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
       notchMargin: 8.0,
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
+        children: const <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(0, 22, 0, 19),
+            padding: EdgeInsets.fromLTRB(0, 22, 0, 19),
           ),
         ],
       ),
@@ -29,6 +33,7 @@ class CustomFloatingActionButton extends StatelessWidget {
   //final bool isLoading;
   final Function()? onTap;
 
+  // ignore: use_key_in_widget_constructors
   const CustomFloatingActionButton(
       {required this.title, required this.color, this.icon, this.onTap});
 
@@ -50,7 +55,7 @@ class CustomIconButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  CustomIconButton(
+  const CustomIconButton(
       {required this.color,
       required this.textColor,
       required this.image,
@@ -104,7 +109,7 @@ class CustomAppBarButton extends StatelessWidget {
   final Color uncheckedColor;
   final bool isChecked;
 
-  CustomAppBarButton(
+  const CustomAppBarButton(
       {required this.icon,
       required this.onTap,
       required this.uncheckedColor,
@@ -114,7 +119,7 @@ class CustomAppBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(right: 20.0),
+      padding: const EdgeInsets.only(right: 20.0),
       child: GestureDetector(
         onTap: onTap,
         child: Icon(icon,
@@ -134,7 +139,7 @@ class CustomPinWidget extends StatelessWidget {
   //final VoidCallback onTap;
   final VoidCallback onChanged;
 
-  CustomPinWidget(
+  const CustomPinWidget(
       {required this.controllerSingle,
       required this.controllerAll,
       required this.focusNode,
@@ -151,12 +156,12 @@ class CustomPinWidget extends StatelessWidget {
         obscureText: true,
         controller: controllerSingle,
         focusNode: focusNode,
-        autofocus: controllerAll.text.length == 0,
-        style: TextStyle(fontSize: 25),
+        autofocus: controllerAll.text.isEmpty,
+        style: const TextStyle(fontSize: 25),
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         onChanged: (value) {
-          if (value.length == 0) {
+          if (value.isEmpty) {
             controllerSingle.text = "";
             controllerAll.text = "";
             if (isFirst) {
@@ -220,9 +225,9 @@ class _CustomExpandableWidgetState extends State<CustomExpandableWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           color: Theme.of(context).cardColor),
       child: ConstrainedBox(
         constraints: new BoxConstraints(
@@ -236,7 +241,7 @@ class _CustomExpandableWidgetState extends State<CustomExpandableWidget> {
             InkWell(
               child: Container(
                 margin:
-                    EdgeInsets.only(top: 12, left: 15, right: 15, bottom: 12),
+                    const EdgeInsets.only(top: 12, left: 15, right: 15, bottom: 12),
                 child: Text(
                   widget.title,
                   style: cardTitleStyle3,
@@ -247,7 +252,7 @@ class _CustomExpandableWidgetState extends State<CustomExpandableWidget> {
               }),
             ),
             ..._isExpanded
-                ? <Widget>[Divider(thickness: 1, height: 0), widget.body]
+                ? <Widget>[const Divider(thickness: 1, height: 0), widget.body]
                 : <Widget>[]
           ],
         ),
@@ -262,15 +267,15 @@ class MultiSelectDialog extends StatelessWidget {
 
   final List<String> selectedItems = [];
   final List<String> selectedIds = [];
-  static Map<String, bool> mappedItem = Map<String, bool>();
+  static Map<String, bool> mappedItem = <String, bool>{};
 
   MultiSelectDialog({required this.payers, required this.question});
 
   /// Function that converts the list answer to a map.
   initMap() {
-    payers.forEach((element) {
+    for (var element in payers) {
       mappedItem.addEntries(element.id);
-    });
+    }
     // return mappedItem = Map.fromIterable(payers,
     //     key: (k) => k.id.toString(),
     //     value: (v) {
@@ -305,13 +310,13 @@ class MultiSelectDialog extends StatelessWidget {
             );
           },
         ).toList(),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Container(
-          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
           child: ElevatedButton(
-            child: Text('Submit'),
+            child: const Text('Submit'),
             style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 40)),
+                minimumSize: const Size(double.infinity, 40)),
             onPressed: () {
               selectedItems.clear();
               mappedItem.forEach((key, value) {
@@ -359,7 +364,7 @@ class GetUserImage extends StatelessWidget {
             image: imagePath != null
                 ? NetworkImage(imagePath.toString())
                 //: CircleAvatar(child: Icon(Icons.person)) as ImageProvider,
-                : AssetImage("assets/icons/user.png") as ImageProvider),
+                : const AssetImage("assets/icons/user.png") as ImageProvider),
       ),
     );
   }
@@ -377,14 +382,14 @@ class CustomDropDownItem extends StatelessWidget {
         ? Container()
         : Container(
             child: (item.avatar == null)
-                ? ListTile(
+                ? const ListTile(
                     contentPadding: EdgeInsets.all(0),
                     leading: CircleAvatar(),
                     title: Text("No item selected"),
                   )
                 : ListTile(
-                    contentPadding: EdgeInsets.all(0),
-                    leading: CircleAvatar(
+                    contentPadding: const EdgeInsets.all(0),
+                    leading: const CircleAvatar(
                         // this does not work - throws 404 error
                         // backgroundImage: NetworkImage(item.avatar ?? ''),
                         ),

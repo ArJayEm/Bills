@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_new
+
 import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/model_base.dart';
 import 'package:json_annotation/json_annotation.dart';

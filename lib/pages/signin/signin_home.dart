@@ -1,7 +1,10 @@
+// ignore_for_file: constant_identifier_names, prefer_typing_uninitialized_variables
+
 import 'dart:convert';
 import 'dart:math';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bills/pages/pin/pin_home.dart';
@@ -29,7 +32,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 enum LoginType { MOBILE_NUMBER, GOOGLE, PIN }
 
 class SignInHome extends StatefulWidget {
-  SignInHome({Key? key, required this.auth}) : super(key: key);
+  const SignInHome({Key? key, required this.auth}) : super(key: key);
 
   final FirebaseAuth auth;
 
@@ -68,10 +71,10 @@ class _SignInHomeState extends State<SignInHome> {
       body: SafeArea(
         child: Container(
           color: Colors.grey.shade800,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           alignment: Alignment.center,
           child: _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : getWelcomeWidget(),
         ),
       ),
@@ -81,14 +84,14 @@ class _SignInHomeState extends State<SignInHome> {
   Widget getWelcomeWidget() {
     return ListView(
       children: [
-        ListTile(
+        const ListTile(
           title: Text('Welcome back!\nLogin to your account',
               style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.white)),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         CustomIconButton(
           color: Colors.deepOrange.shade400,
           textColor: Colors.grey.shade300,
@@ -128,7 +131,7 @@ class _SignInHomeState extends State<SignInHome> {
                     builder: (context) => MobileSignInPage(auth: _auth)));
           },
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         // Row(
         //   children: [
         //     Spacer(),
@@ -154,7 +157,7 @@ class _SignInHomeState extends State<SignInHome> {
         // ),
         Row(
           children: [
-            Spacer(),
+            const Spacer(),
             Text(
               'Already registered?',
               style: TextStyle(color: Colors.grey.shade300, fontSize: 15),
@@ -172,7 +175,7 @@ class _SignInHomeState extends State<SignInHome> {
                 style: TextStyle(color: Colors.grey.shade300, fontSize: 15),
               ),
             ),
-            Spacer(),
+            const Spacer(),
           ],
         ),
         // GestureDetector(
@@ -258,7 +261,9 @@ class _SignInHomeState extends State<SignInHome> {
               _firebaseAuthUser = userCredential.user!;
             });
             await _createLoginAccount('facebook');
-            print(profile.toString());
+            if (kDebugMode) {
+              print(profile.toString());
+            }
           }
           break;
       }
@@ -314,7 +319,7 @@ class _SignInHomeState extends State<SignInHome> {
   }
 
   String _generateUserCode() {
-    var rng = new Random();
+    var rng = Random();
     var code1 = rng.nextInt(9000) + 1000;
     var code2 = rng.nextInt(9000) + 1000;
     var code3 = rng.nextInt(9000) + 1000;
@@ -322,7 +327,7 @@ class _SignInHomeState extends State<SignInHome> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

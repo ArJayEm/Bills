@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 class About extends StatefulWidget {
+  const About({Key? key}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -11,9 +13,9 @@ class _MyHomePageState extends State<About> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('About'),
+          title: const Text('About'),
         ),
-        body: Center(
+        body: const Center(
             child:
                 Text('Coming soon.', style: TextStyle(color: Colors.white))));
   }

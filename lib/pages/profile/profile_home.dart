@@ -8,6 +8,7 @@ import 'package:bills/pages/dashboard.dart';
 //import 'package:bills/pages/pin/pin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -31,8 +32,8 @@ class _ProfileHomeState extends State<ProfileHome> {
   String? _id;
   //var _widgetList = <Widget>[];
   //var p = _payer.
-  List<dynamic> _selectedList = [];
-  List<dynamic> _selectList = [];
+  final List<dynamic> _selectedList = [];
+  final List<dynamic> _selectList = [];
 
   final _displayNameController = TextEditingController();
   final _userCodeController = TextEditingController();
@@ -47,7 +48,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   bool _hasRequiredFields = false;
   //bool _mobileUser = false;
 
-  TextStyle _hint = TextStyle(fontSize: 15, color: Colors.white30);
+  final TextStyle _hint = const TextStyle(fontSize: 15, color: Colors.white30);
 
   @override
   void initState() {
@@ -120,11 +121,11 @@ class _ProfileHomeState extends State<ProfileHome> {
               Navigator.pop(context);
             }
           },
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
         ),
         iconTheme: IconThemeData(color: Colors.grey.shade300),
         //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-        title: Text('Profile'),
+        title: const Text('Profile'),
         titleSpacing: 0,
         centerTitle: false,
         backgroundColor: Colors.grey.shade800,
@@ -132,8 +133,8 @@ class _ProfileHomeState extends State<ProfileHome> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10),
-          physics: BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(10),
+          physics: const BouncingScrollPhysics(),
           child: _getPayerDisplay(),
         ),
       ),
@@ -149,17 +150,17 @@ class _ProfileHomeState extends State<ProfileHome> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              ListTile(
+              const ListTile(
                 title: Text("Payer Info"),
               ),
-              CustomDivider(),
+              const CustomDivider(),
               ListTile(
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _hasRequiredFields
                         ? Badge(
-                            badgeContent: Text(''),
+                            badgeContent: const Text(''),
                             child: _getUserImage(),
                           )
                         : _getUserImage()
@@ -167,12 +168,12 @@ class _ProfileHomeState extends State<ProfileHome> {
                 ),
                 minLeadingWidth: 0,
                 title: Text(_displayNameController.text),
-                subtitle: Text("Name"),
+                subtitle: const Text("Name"),
                 trailing: _hasRequiredFields &&
                         _isUpdate &&
                         (_userProfile.name.isNullOrEmpty())
-                    ? Icon(Icons.edit)
-                    : Icon(Icons.info_outline),
+                    ? const Icon(Icons.edit)
+                    : const Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
                         (_userProfile.name.isNullOrEmpty())
@@ -180,16 +181,16 @@ class _ProfileHomeState extends State<ProfileHome> {
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text('Enter Name'),
+                          title: const Text('Enter Name'),
                           content: SafeArea(
                             child: SingleChildScrollView(
-                              physics: BouncingScrollPhysics(),
+                              physics: const BouncingScrollPhysics(),
                               child: Column(
                                 children: [
                                   Text(
                                       "Hint: This means you registered by mobile number, and that you must update this to you name for easier reference.",
                                       style: _hint),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                     keyboardType: TextInputType.name,
                                     textCapitalization:
@@ -200,7 +201,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                                     controller: _displayNameController,
                                     //autofocus: true,
                                     decoration:
-                                        InputDecoration(hintText: "Name"),
+                                        const InputDecoration(hintText: "Name"),
                                     validator: (value) {
                                       if (value == null ||
                                           value.isEmpty ||
@@ -217,7 +218,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Cancel')),
+                                child: const Text('Cancel')),
                             TextButton(
                                 onPressed: () {
                                   if (_displayNameController.text.isNotEmpty) {
@@ -231,53 +232,53 @@ class _ProfileHomeState extends State<ProfileHome> {
                                         msg: "Name required.");
                                   }
                                 },
-                                child: Text("OK")),
+                                child: const Text("OK")),
                           ],
                         ),
                       )
                     : showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text('Name'),
+                          title: const Text('Name'),
                           content: Text(
                               "How your name will appear on your bills.",
                               style: _hint),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text("OK")),
+                                child: const Text("OK")),
                           ],
                         ),
                       ),
               ),
-              Divider(indent: 15, endIndent: 15),
+              const Divider(indent: 15, endIndent: 15),
               ListTile(
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [Icon(Icons.qr_code)],
+                  children: const [Icon(Icons.qr_code)],
                 ),
                 minLeadingWidth: 0,
                 title: Text(_userCodeController.text),
-                subtitle: Text("User Code"),
-                trailing: Icon(Icons.chevron_right),
+                subtitle: const Text("User Code"),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () => showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (BuildContext context) => AlertDialog(
-                    title: Text("User Code"),
+                    title: const Text("User Code"),
                     content: SafeArea(
                       child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         child: Column(
                           children: [
                             Text(
                                 "Hint: Let your Collector/Payee scan this QR Code or share your code through the following features:",
                                 style: _hint),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Text(
                               _userCodeController.text,
                               style:
-                                  TextStyle(fontSize: 25, color: Colors.white),
+                                  const TextStyle(fontSize: 25, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),
                             // TextButton(
@@ -304,11 +305,11 @@ class _ProfileHomeState extends State<ProfileHome> {
                             //         Icon(Icons.copy, color: Colors.white)
                             //       ],
                             //     )),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             Container(
                               height: 200,
                               width: 200,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 //border: Border.all(color: Colors.white, width: 1.5),
                                 shape: BoxShape.rectangle,
                                 image: DecorationImage(
@@ -324,7 +325,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                     actions: [
                       IconButton(
                         onPressed: () {
-                          Clipboard.setData(new ClipboardData(
+                          Clipboard.setData(ClipboardData(
                                   text: _userCodeController.text))
                               .then((_) {
                             Fluttertoast.showToast(
@@ -332,25 +333,25 @@ class _ProfileHomeState extends State<ProfileHome> {
                                     "${_userCodeController.text} Code copied to clipboard");
                           });
                         },
-                        icon: Icon(Icons.copy),
+                        icon: const Icon(Icons.copy),
                       ),
                       IconButton(
                         onPressed: () {
                           Fluttertoast.showToast(msg: "Feature not available.");
                         },
-                        icon: Icon(Icons.share),
+                        icon: const Icon(Icons.share),
                       ),
                       IconButton(
                         onPressed: () {
                           Fluttertoast.showToast(msg: "Feature not available.");
                         },
-                        icon: Icon(Icons.download),
+                        icon: const Icon(Icons.download),
                       ),
                       IconButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        icon: Icon(Icons.done),
+                        icon: const Icon(Icons.done),
                       ),
                     ],
                   ),
@@ -363,30 +364,30 @@ class _ProfileHomeState extends State<ProfileHome> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              ListTile(
+              const ListTile(
                 title: Text("Payer Details"),
               ),
-              CustomDivider(),
+              const CustomDivider(),
               ListTile(
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _userProfile.userType.isNullOrEmpty()
                         ? Badge(
-                            badgeContent: Text(''),
-                            child: Icon(Icons.person),
+                            badgeContent: const Text(''),
+                            child: const Icon(Icons.person),
                           )
-                        : Icon(Icons.person),
+                        : const Icon(Icons.person),
                   ],
                 ),
                 minLeadingWidth: 0,
                 title: Text(_userTypeController.text),
-                subtitle: Text("User Type"),
+                subtitle: const Text("User Type"),
                 trailing: _hasRequiredFields &&
                         _isUpdate &&
                         (_userProfile.userType.isNullOrEmpty())
-                    ? Icon(Icons.edit)
-                    : Icon(Icons.info_outline),
+                    ? const Icon(Icons.edit)
+                    : const Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
                         (_userProfile.userType.isNullOrEmpty())
@@ -394,11 +395,11 @@ class _ProfileHomeState extends State<ProfileHome> {
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text("Select User Type"),
+                          title: const Text("Select User Type"),
                           content: SafeArea(
                               child: SingleChildScrollView(
                                   //padding: EdgeInsets.all(10),
-                                  physics: BouncingScrollPhysics(),
+                                  physics: const BouncingScrollPhysics(),
                                   child: _userTypesSelectionWidget())),
                           // actions: [
                           //   TextButton(
@@ -423,38 +424,38 @@ class _ProfileHomeState extends State<ProfileHome> {
                     : showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text('User Type'),
+                          title: const Text('User Type'),
                           content:
                               Text("Hint: How you use this app.", style: _hint),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text("OK")),
+                                child: const Text("OK")),
                           ],
                         ),
                       ),
               ),
-              Divider(indent: 15, endIndent: 15),
+              const Divider(indent: 15, endIndent: 15),
               ListTile(
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _userProfile.members == 0
                         ? Badge(
-                            badgeContent: Text(''),
+                            badgeContent: const Text(''),
                             animationType: BadgeAnimationType.scale,
-                            child: Icon(Icons.people_alt_outlined),
+                            child: const Icon(Icons.people_alt_outlined),
                           )
-                        : Icon(Icons.people_alt_outlined),
+                        : const Icon(Icons.people_alt_outlined),
                   ],
                 ),
                 minLeadingWidth: 0,
                 title: Text(_membersController.text),
-                subtitle: Text("Members"),
+                subtitle: const Text("Members"),
                 trailing:
                     _hasRequiredFields && _isUpdate && _userProfile.members == 0
-                        ? Icon(Icons.edit)
-                        : Icon(Icons.info_outline),
+                        ? const Icon(Icons.edit)
+                        : const Icon(Icons.info_outline),
                 onTap: () => _hasRequiredFields &&
                         _isUpdate &&
                         _userProfile.members == 0
@@ -462,16 +463,16 @@ class _ProfileHomeState extends State<ProfileHome> {
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text('Enter Member(s)'),
+                          title: const Text('Enter Member(s)'),
                           content: SafeArea(
                             child: SingleChildScrollView(
-                              physics: BouncingScrollPhysics(),
+                              physics: const BouncingScrollPhysics(),
                               child: Column(
                                 children: [
                                   Text(
                                       "Hint: 1 if you're solo or number of family members if you're in a household. (To be used for 'per head' computations).",
                                       style: _hint),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                     keyboardType: TextInputType.number,
                                     onChanged: (value) {
@@ -483,7 +484,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                                     controller: _membersController,
                                     autofocus: true,
                                     decoration:
-                                        InputDecoration(hintText: "Member(s)"),
+                                        const InputDecoration(hintText: "Member(s)"),
                                     validator: (value) {
                                       if (value == null ||
                                           value.isEmpty ||
@@ -500,7 +501,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Cancel')),
+                                child: const Text('Cancel')),
                             TextButton(
                                 onPressed: () {
                                   if (_membersController.text
@@ -519,48 +520,48 @@ class _ProfileHomeState extends State<ProfileHome> {
                                             "Member(s) must be greater than 0.");
                                   }
                                 },
-                                child: Text("OK")),
+                                child: const Text("OK")),
                           ],
                         ),
                       )
                     : showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
-                          title: Text('Members'),
+                          title: const Text('Members'),
                           content: Text(
                               "You or your number of family members if you're in a household. (To be used for 'per head' computations).",
                               style: _hint),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text("OK")),
+                                child: const Text("OK")),
                           ],
                         ),
                       ),
               ),
-              Divider(indent: 15, endIndent: 15),
+              const Divider(indent: 15, endIndent: 15),
               ListTile(
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
+                  children: const [
                     Icon(Icons.calendar_today),
                   ],
                 ),
                 minLeadingWidth: 0,
                 title: Text(_billGenDateController.text),
-                subtitle: Text("Billing Date"),
-                trailing: Icon(Icons.info_outline),
+                subtitle: const Text("Billing Date"),
+                trailing: const Icon(Icons.info_outline),
                 onTap: () => showDialog(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
-                    title: Text('Billing Date'),
+                    title: const Text('Billing Date'),
                     content: Text(
                         "Your very first recorded bill's billing date.",
                         style: _hint),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text("OK")),
+                          child: const Text("OK")),
                     ],
                   ),
                 ),
@@ -568,19 +569,19 @@ class _ProfileHomeState extends State<ProfileHome> {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _hasRequiredFields
             ? ElevatedButton(
                 onPressed: _confirmSubmit,
                 child: _isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : Text('Submit Changes'),
+                    ? const Center(child: CircularProgressIndicator())
+                    : const Text('Submit Changes'),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   primary: _isUpdate ? Colors.white38 : Colors.grey.shade800,
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
@@ -651,7 +652,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   }
 
   String _generateUserCode() {
-    var rng = new Random();
+    var rng = Random();
     var code1 = rng.nextInt(9000) + 1000;
     var code2 = rng.nextInt(9000) + 1000;
     var code3 = rng.nextInt(9000) + 1000;
@@ -665,7 +666,7 @@ class _ProfileHomeState extends State<ProfileHome> {
       if (_id != null) {
         DocumentReference _document = _ffInstance.collection("users").doc(_id);
         _userProfile.modifiedOn = DateTime.now();
-        _userProfile.billingDate = _userProfile.billingDate ?? null;
+        _userProfile.billingDate = _userProfile.billingDate;
 
         _document.set(_userProfile.toJson()).then((value) {
           setState(() {
@@ -693,9 +694,9 @@ class _ProfileHomeState extends State<ProfileHome> {
       List<dynamic> users = [];
       CollectionReference _collection = _ffInstance.collection("user_types");
       _collection.get().then((querySnapshot) {
-        querySnapshot.docs.forEach((document) {
+        for (var document in querySnapshot.docs) {
           users.add([document.id, document.get('description')]);
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _selectList.clear();
@@ -732,17 +733,19 @@ class _ProfileHomeState extends State<ProfileHome> {
               _userTypeController.text = "";
             }
           });
-          print(_selectedList);
+          if (kDebugMode) {
+            print(_selectedList);
+          }
           Navigator.pop(context);
         },
         value: _selectedList.contains(id),
-        title: new Text(description),
-        subtitle: new Text(id),
+        title: Text(description),
+        subtitle: Text(id),
         controlAffinity: ListTileControlAffinity.leading,
       ));
-      mList.add(Divider());
+      mList.add(const Divider());
     }
-    return Container(
+    return SizedBox(
         height: 150.0, // Change as per your requirement
         width: 300.0, // Change as per your requirement
         child: ListView(shrinkWrap: true, children: mList));
@@ -758,7 +761,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

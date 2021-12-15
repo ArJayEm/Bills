@@ -1,14 +1,16 @@
 //import 'package:bills/pages/components/custom_pin_widget.dart';
+// ignore_for_file: constant_identifier_names
+
 import 'package:bills/pages/pin/reenter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-enum PinVerificationState { ENTER_OTP, NOMINATE_PIN, CHANGE_PIN }
+enum PinVerificationState { enter_otp, nominate_pin, change_pin }
 
 class EnterMpin extends StatefulWidget {
-  EnterMpin(
+  const EnterMpin(
       {Key? key,
       required this.auth,
       required this.isChange,
@@ -27,7 +29,7 @@ class _EnterMpinState extends State<EnterMpin> {
   late FirebaseAuth _auth;
   late bool _isChange;
   PinVerificationState _pinVerificationState =
-      PinVerificationState.NOMINATE_PIN;
+      PinVerificationState.nominate_pin;
 
   String _title = '';
   String _text = '';
@@ -58,9 +60,9 @@ class _EnterMpinState extends State<EnterMpin> {
       _auth = widget.auth;
       _isChange = widget.isChange;
       _pinVerificationState =
-          _isChange ? PinVerificationState.CHANGE_PIN : _pinVerificationState;
+          _isChange ? PinVerificationState.change_pin : _pinVerificationState;
 
-      if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
+      if (_pinVerificationState == PinVerificationState.change_pin) {
         _title = 'Change PIN';
         _text = 'Nominate new PIN';
       } else {
@@ -68,7 +70,7 @@ class _EnterMpinState extends State<EnterMpin> {
         _text = 'Nominate your PIN';
       }
 
-      if (widget.nominatedPin.length > 0) {
+      if (widget.nominatedPin.isNotEmpty) {
         //FocusScope.of(context).requestFocus(_pinFocusNode1);
         //_pinController1.value = widget.nominatedPin;
       }
@@ -84,7 +86,7 @@ class _EnterMpinState extends State<EnterMpin> {
           // leading: GestureDetector(
           //   onTap: () {
           //     Navigator.pop(context);
-          //     if (_pinVerificationState == PinVerificationState.CHANGE_PIN) {
+          //     if (_pinVerificationState == PinVerificationState.change_pin) {
           //       Navigator.push(
           //         context,
           //         MaterialPageRoute(
@@ -107,31 +109,31 @@ class _EnterMpinState extends State<EnterMpin> {
         body: SafeArea(
           child: Container(
             color: Colors.grey.shade800,
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Center(
                           child: Text(_text,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20, color: Colors.white))),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       _getPinWidget(),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: () {
                           if (_pinControllerFull.text.length >= 6) {
                             _reEnter();
                           }
                         },
-                        child: Text('Next'),
+                        child: const Text('Next'),
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(double.infinity, 40),
-                          textStyle: TextStyle(color: Colors.white),
+                          minimumSize: const Size(double.infinity, 40),
+                          textStyle: const TextStyle(color: Colors.white),
                         ),
                       )
                     ],
@@ -214,18 +216,18 @@ class _EnterMpinState extends State<EnterMpin> {
   Widget _getPinWidget() {
     return Row(
       children: [
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController1,
             focusNode: _pinFocusNode1,
-            autofocus: _pinControllerFull.text.length == 0,
-            style: TextStyle(fontSize: 25),
+            autofocus: _pinControllerFull.text.isEmpty,
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController1.text = "";
                 _pinControllerFull.text = "";
                 FocusScope.of(context).unfocus();
@@ -244,17 +246,17 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController2,
             focusNode: _pinFocusNode2,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController2.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 1);
@@ -278,17 +280,17 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController3,
             focusNode: _pinFocusNode3,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController3.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 2);
@@ -312,17 +314,17 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController4,
             focusNode: _pinFocusNode4,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController4.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 3);
@@ -346,17 +348,17 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController5,
             focusNode: _pinFocusNode5,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController5.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 4);
@@ -381,17 +383,17 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Flexible(
           child: TextFormField(
             obscureText: true,
             controller: _pinController6,
             focusNode: _pinFocusNode6,
-            style: TextStyle(fontSize: 25),
+            style: const TextStyle(fontSize: 25),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) {
-              if (value.length == 0) {
+              if (value.isEmpty) {
                 _pinController6.text = "";
                 _pinControllerFull.text =
                     _pinControllerFull.text.substring(0, 5);
@@ -414,7 +416,7 @@ class _EnterMpinState extends State<EnterMpin> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
       ],
     );
   }
@@ -484,7 +486,7 @@ class _EnterMpinState extends State<EnterMpin> {
   }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);

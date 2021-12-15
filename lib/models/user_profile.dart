@@ -45,6 +45,6 @@ class UserProfile extends ModelBase {
 
   ///custom comparing function to check if two users are equal
   bool isEqual(UserProfile? model) {
-    return this.id == model?.id;
+    return id == model?.id;
   }
 }

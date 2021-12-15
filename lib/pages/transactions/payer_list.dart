@@ -1,6 +1,7 @@
 import 'package:bills/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -17,9 +18,9 @@ class _PayerListState extends State<PayerList> {
   late FirebaseAuth _auth;
   String? _id;
   List<dynamic> _userIds = [];
-  List<dynamic> _payers = [];
+  final List<dynamic> _payers = [];
 
-  String _title = "Monthly Bills";
+  final String _title = "Monthly Bills";
 
   bool _isLoading = false;
 
@@ -50,7 +51,7 @@ class _PayerListState extends State<PayerList> {
           centerTitle: false,
           backgroundColor: Colors.grey.shade800,
           elevation: 0,
-          bottom: TabBar(
+          bottom: const TabBar(
             tabs: [
               Tab(text: "Bills"),
               Tab(text: "Generate"),
@@ -61,7 +62,7 @@ class _PayerListState extends State<PayerList> {
           children: [
             //_buildPayers(),
             _buildPayerList(),
-            Icon(Icons.directions_bike),
+            const Icon(Icons.directions_bike),
           ],
         ),
       ),
@@ -140,14 +141,14 @@ class _PayerListState extends State<PayerList> {
       mList.add(ListTile(
         title: Text(_payers[b][1]),
         subtitle: Text(
-            "${int.parse(_payers[b][2].toString()) > 1 ? "${_payers[b][2]} members" : "Solo"}"),
-        trailing: Icon(Icons.chevron_right),
+            int.parse(_payers[b][2].toString()) > 1 ? "${_payers[b][2]} members" : "Solo"),
+        trailing: const Icon(Icons.chevron_right),
       ));
     }
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        physics: BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(10),
+        physics: const BouncingScrollPhysics(),
         child: Card(
           child: ListView(
               physics: const BouncingScrollPhysics(),
@@ -167,13 +168,13 @@ class _PayerListState extends State<PayerList> {
           FirebaseFirestore.instance.collection("users");
       List<UserProfile>? userProfile;
       collection.get().then((snapshots) {
-        snapshots.docs.forEach((document) {
+        for (var document in snapshots.docs) {
           if (_userIds.contains(document.id)) {
             UserProfile userProfile =
                 UserProfile.fromJson(document.data() as Map<String, dynamic>);
             userProfile.id = document.id;
           }
-        });
+        }
       }).whenComplete(() {
         setState(() {
           _payers.clear();
@@ -267,10 +268,12 @@ class _PayerListState extends State<PayerList> {
   // }
 
   _showProgressUi(bool isLoading, String msg) {
-    if (msg.length > 0) {
+    if (msg.isNotEmpty) {
       Fluttertoast.showToast(msg: msg);
     }
     setState(() => _isLoading = isLoading);
-    print(_isLoading);
+    if (kDebugMode) {
+      print(_isLoading);
+    }
   }
 }
