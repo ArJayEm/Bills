@@ -14,7 +14,7 @@ import 'package:global_configuration/global_configuration.dart';
 
 import 'package:bills/pages/components/modal_base.dart';
 
-Future<bool?> showAddRecord(
+Future<bool?> showBillManagement(
     context, data, quantification, title, color, userid) async {
   return await showModalBottomSheet<bool?>(
     context: context,
@@ -55,7 +55,7 @@ class _ManagementState extends State<Management> {
 
   Bill _bill = Bill();
 
-  late String _selectedUser;
+  late String _selectedUserId;
   List<String?> _selectedList = [];
   List<dynamic> _selectList = [];
   bool _selectedAll = false;
@@ -74,8 +74,8 @@ class _ManagementState extends State<Management> {
       _bill = widget.bill;
       _selectedList.addAll(_bill.payerIds ?? []);
       _billTypeId = int.parse(_bill.billType!.id!);
-      _bill.billTypeId = _billTypeId;
-      _selectedUser = widget.selectedUserId ?? "";
+      //_bill.billTypeId = _billTypeId;
+      _selectedUserId = widget.selectedUserId ?? "";
       _quantification = widget.quantification;
       _bill.billDate = _bill.billDate ?? DateTime.now();
       _ctrlBillDate.text = _bill.billDate!.format();
@@ -566,9 +566,9 @@ class _ManagementState extends State<Management> {
 
   _setSelectedPayersDisplay() {
     setState(() {
-      if (_selectedList.isEmpty) {
+      if (_selectedList.isNotEmpty) {
         int left = _selectedList.length - 1;
-        String? payer = _getPayerName(_selectedUser);
+        String? payer = _getPayerName(_selectedUserId);
         String? others =
             left > 0 ? " and $left other${left > 1 ? 's' : ''}" : "";
         _ctrlSelectedPayers.text = "$payer$others";

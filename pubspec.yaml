@@ -63,6 +63,7 @@ dependencies:
   dio: ^4.0.4
   print_color: ^3.0.0-dev.1
   switcher_button: ^0.0.4
+  flutter_speed_dial: ^5.0.0+1
 
   flutter_localizations:
     sdk: flutter

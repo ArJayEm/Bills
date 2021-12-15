@@ -7,12 +7,14 @@ import 'package:bills/models/user_model.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/maintenance/new_bill.dart';
+import 'package:bills/pages/maintenance/new_reading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +46,7 @@ class _ListViewPage extends State<ListViewBills> {
   final Bill _bill = Bill();
   late String _selectedUserId;
   final List<dynamic> _users = [];
-  final List<BillType?> _billTypeIds = [];
+  final List<BillType?> _billTypes = [];
   int _billTypeId = 0;
   String? _quantification = "";
 
@@ -53,6 +55,10 @@ class _ListViewPage extends State<ListViewBills> {
   bool _isLoading = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  var isDialOpen = ValueNotifier<bool>(false);
+  var customDialRoot = false;
+  var visible = true;
 
   @override
   void initState() {
@@ -100,13 +106,97 @@ class _ListViewPage extends State<ListViewBills> {
         ),
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
-      floatingActionButton: CustomFloatingActionButton(
-          title: 'Add ${_bill.billType?.description}',
-          icon: Icons.add,
-          color: Color(_bill.billType?.iconData?.color ?? 0),
-          onTap: () {
-            _showDataManager(_bill);
-          }),
+      // floatingActionButton: CustomFloatingActionButton(
+      //   title: 'Add ${_bill.billType?.description}',
+      //   icon: Icons.add,
+      //   color: Color(_bill.billType?.iconData?.color ?? 0),
+      //   onTap: () {
+      //     _showDataManager(_bill);
+      //   },
+      // ),
+      floatingActionButton: SpeedDial(
+        // animatedIcon: AnimatedIcons.menu_close,
+        // animatedIconTheme: IconThemeData(size: 22.0),
+        // / This is ignored if animatedIcon is non null
+        // child: Text("open"),
+        // activeChild: Text("close"),
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        spacing: 3,
+        openCloseDial: isDialOpen,
+        childPadding: const EdgeInsets.all(5),
+        spaceBetweenChildren: 4,
+        dialRoot: customDialRoot
+            ? (ctx, open, toggleChildren) {
+                return ElevatedButton(
+                  onPressed: toggleChildren,
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(_bill.billType?.iconData?.color ?? 0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 22, vertical: 18),
+                  ),
+                  child: const Text(
+                    "Custom Dial Root",
+                    style: TextStyle(fontSize: 17),
+                  ),
+                );
+              }
+            : null,
+        //buttonSize: buttonSize, // it's the SpeedDial size which defaults to 56 itself
+        // iconTheme: IconThemeData(size: 22),
+        //label: extend ? const Text("Open") : null, // The label of the main button.
+        /// The active label of the main button, Defaults to label if not specified.
+        //activeLabel: extend ? const Text("Close") : null,
+
+        /// Transition Builder between label and activeLabel, defaults to FadeTransition.
+        // labelTransitionBuilder: (widget, animation) => ScaleTransition(scale: animation,child: widget),
+        /// The below button size defaults to 56 itself, its the SpeedDial childrens size
+        childrenButtonSize: const Size(56.0, 56.0),
+        visible: visible,
+        direction: SpeedDialDirection.up,
+        switchLabelPosition: false,
+
+        /// If true user is forced to close dial manually
+        //closeManually: closeManually,
+
+        /// If false, backgroundOverlay will not be rendered.
+        renderOverlay: true,
+        // overlayColor: Colors.black,
+        // overlayOpacity: 0.5,
+        onOpen: () => debugPrint('OPENING DIAL'),
+        onClose: () => debugPrint('DIAL CLOSED'),
+        useRotationAnimation: true,
+        tooltip: 'Add',
+        heroTag: 'speed-dial-hero-tag',
+        foregroundColor: Colors.white,
+        backgroundColor: Color(_bill.billType?.iconData?.color ?? 0),
+        //activeForegroundColor: Colors.red,
+        //activeBackgroundColor: Colors.blue,
+        elevation: 8.0,
+        isOpenOnStart: false,
+        animationSpeed: 200,
+        shape: customDialRoot
+            ? const RoundedRectangleBorder()
+            : const StadiumBorder(),
+        // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.receipt),
+            foregroundColor: Colors.white,
+            backgroundColor: Color(_bill.billType?.iconData?.color ?? 0),
+            label: 'Bill',
+            onTap: () => _showDataManager(_bill, 1),
+            //onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+          ),
+          SpeedDialChild(
+              visible: _bill.billType?.hasReading ?? false,
+              child: const Icon(Icons.show_chart),
+              foregroundColor: Colors.white,
+              backgroundColor: Color(_bill.billType?.iconData?.color ?? 0),
+              label: 'Reading',
+              onTap: () => _showDataManager(_bill, 2)),
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
     );
   }
@@ -144,6 +234,8 @@ class _ListViewPage extends State<ListViewBills> {
                       Bill bill = Bill.fromJson(
                           document.data() as Map<String, dynamic>);
                       bill.id = document.id;
+                      bill.billType = _billTypes.firstWhere(
+                          (bt) => bt?.id == bill.billTypeId.toString());
                       bill.description = bill.description; // ?? widget.title;
                       String _formattedBillDate =
                           DateFormat('MMM dd, yyyy').format(bill.billDate!);
@@ -194,7 +286,7 @@ class _ListViewPage extends State<ListViewBills> {
                               // setState(() {
                               //   _isExpanded = !_isExpanded;
                               // });
-                              _showDataManager(bill);
+                              _showDataManager(bill, 1);
                             },
                           ),
                           const Divider()
@@ -208,16 +300,31 @@ class _ListViewPage extends State<ListViewBills> {
     );
   }
 
-  _showDataManager(data) async {
-    if ((await showAddRecord(
-            context,
-            data,
-            _quantification,
-            _bill.billType?.description,
-            Color(_bill.billType?.iconData?.color ?? 0),
-            _selectedUserId)) ??
-        false) {
-      //return added record userid (only first one if multiple selected users), then update _selectedUserId
+  _showDataManager(data, type) async {
+    switch (type) {
+      case 1:
+        if ((await showBillManagement(
+                context,
+                data,
+                _quantification,
+                _bill.billType?.description,
+                Color(_bill.billType?.iconData?.color ?? 0),
+                _selectedUserId)) ??
+            false) {
+          //return added record userid (only first one if multiple selected users), then update _selectedUserId
+        }
+        break;
+      case 2:
+        if ((await showReadingManagement(
+                context,
+                data,
+                _bill.billType?.description,
+                Color(_bill.billType?.iconData?.color ?? 0),
+                _selectedUserId)) ??
+            false) {
+          //return added record userid (only first one if multiple selected users), then update _selectedUserId
+        }
+        break;
     }
   }
 
@@ -399,15 +506,17 @@ class _ListViewPage extends State<ListViewBills> {
           .get()
           .then((snapshots) {
         for (var document in snapshots.docs) {
-          billTypes.add(BillType.fromJson(document.data()));
+          BillType bt = BillType.fromJson(document.data());
+          bt.id = document.id;
+          billTypes.add(bt);
         }
       }).whenComplete(() {
         setState(() {
-          _billTypeIds.clear();
-          _billTypeIds.addAll(billTypes);
+          _billTypes.clear();
+          _billTypes.addAll(billTypes);
         });
         if (kDebugMode) {
-          print("_billTypeIds: $_billTypeIds");
+          print("_billTypes: $_billTypes");
         }
       });
     } on FirebaseAuthException catch (e) {

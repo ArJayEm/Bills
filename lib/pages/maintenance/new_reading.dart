@@ -14,13 +14,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:bills/pages/components/modal_base.dart';
 
-Future<bool?> showAddRecord(
-    context, data, quantification, title, color, userid) async {
+Future<bool?> showReadingManagement(
+    context, reading, title, color, userid) async {
   return await showModalBottomSheet<bool?>(
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return Management(data, quantification, title, color);
+      return Management(reading, title, color, userid);
     },
   );
 }

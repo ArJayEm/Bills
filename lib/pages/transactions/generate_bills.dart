@@ -114,6 +114,8 @@ class _GenerateBillsState extends State<GenerateBills> {
                               primary: Colors.grey.shade700,
                               backgroundColor: Colors.white),
                           onPressed: () async {
+                            //await _getUsers();
+                            await _getBillTypes();
                             await _getClientReadings();
                             await _getBills();
                             await _getPreviousUnpaidAmount();
@@ -621,6 +623,7 @@ class _GenerateBillsState extends State<GenerateBills> {
           _billToPay.billIds?.clear();
           _billToPay.billIds?.addAll(billIds);
           _billToPay.subtotal = subtotal;
+          _billToPay.totalPayment = subtotal;
           _bills.clear();
           _bills.addAll(bills);
         });
@@ -827,7 +830,7 @@ class _GenerateBillsState extends State<GenerateBills> {
         setState(() {
           _previousBilling = billing;
           _billToPay.totalPayment =
-              (billing.totalPayment ?? 0) + (_billToPay.subtotal ?? 0);
+              (billing.totalPayment ?? 0) + (_billToPay.totalPayment ?? 0);
         });
       });
 
