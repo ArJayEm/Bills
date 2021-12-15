@@ -79,7 +79,10 @@ class _ListViewPage extends State<ListViewBills> {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(title: Text(_title)),
+      appBar: AppBar(
+        title: Text(_title),
+        backgroundColor: Color(_bill.billType?.iconData?.color ?? 0),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(10),
@@ -138,15 +141,15 @@ class _ListViewPage extends State<ListViewBills> {
                   shrinkWrap: true,
                   children: snapshot.data!.docs.map(
                     (DocumentSnapshot document) {
-                      Bill _bill = Bill.fromJson(
+                      Bill bill = Bill.fromJson(
                           document.data() as Map<String, dynamic>);
-                      _bill.id = document.id;
-                      _bill.description = _bill.description; // ?? widget.title;
+                      bill.id = document.id;
+                      bill.description = bill.description; // ?? widget.title;
                       String _formattedBillDate =
-                          DateFormat('MMM dd, yyyy').format(_bill.billDate!);
+                          DateFormat('MMM dd, yyyy').format(bill.billDate!);
                       String _lastModified =
                           DateFormat('MMM dd, yyyy hh:mm aaa')
-                              .format(_bill.modifiedOn ?? _bill.createdOn);
+                              .format(bill.modifiedOn ?? bill.createdOn);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -155,7 +158,7 @@ class _ListViewPage extends State<ListViewBills> {
                           ListTile(
                             //isThreeLine: true,
                             title: Text(
-                                "${_setSelectedPayersDisplay(_bill.payerIds ?? {})}${!(_bill.description?.isEmpty ?? true) ? " | ${_bill.description}" : ""}"),
+                                "${_setSelectedPayersDisplay(bill.payerIds ?? {})}${!(bill.description?.isEmpty ?? true) ? " | ${bill.description}" : ""}"),
                             //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
                             subtitle: Text(_lastModified),
                             trailing: Column(
@@ -170,15 +173,16 @@ class _ListViewPage extends State<ListViewBills> {
                                       fontWeight: FontWeight.w300),
                                 ),
                                 Text(
-                                  '${_bill.amount?.formatForDisplay()}',
+                                  '${bill.amount?.formatForDisplay()}',
                                   textAlign: TextAlign.right,
                                   style: TextStyle(
-                                      fontSize: 25,
-                                      color: Color(
-                                          _bill.billType?.iconData?.color ?? 0)),
+                                    fontSize: 25,
+                                    color: Color(
+                                        _bill.billType?.iconData?.color ?? 0),
+                                  ),
                                 ),
                                 Text(
-                                  '${_bill.quantification} $_quantification',
+                                  '${bill.quantification} $_quantification',
                                   textAlign: TextAlign.right,
                                   style: const TextStyle(
                                       fontSize: 13,
@@ -190,7 +194,7 @@ class _ListViewPage extends State<ListViewBills> {
                               // setState(() {
                               //   _isExpanded = !_isExpanded;
                               // });
-                              _showDataManager(_bill);
+                              _showDataManager(bill);
                             },
                           ),
                           const Divider()
@@ -315,8 +319,7 @@ class _ListViewPage extends State<ListViewBills> {
               }
               return DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value:
-                      _selectedUserId, 
+                  value: _selectedUserId,
                   isDense: true,
                   hint: const Text("Choose user..."),
                   onChanged: (String? newValue) {

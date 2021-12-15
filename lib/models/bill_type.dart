@@ -9,15 +9,23 @@ part 'bill_type.g.dart';
 @JsonSerializable()
 class BillType extends ModelBase {
   @JsonKey(name: "description")
-  String? description = "";
+  String? description;
+  @JsonKey(name: "has_reading")
+  bool? hasReading;
   @JsonKey(name: "icon_data")
   CustomIconData? iconData = new CustomIconData();
   @JsonKey(name: "is_debit")
   bool? isdebit = false;
   @JsonKey(name: "quantification")
-  String? quantification = "";
+  String? quantification;
 
-  BillType({id, this.description, this.iconData, this.quantification, this.isdebit = false});
+  BillType(
+      {id,
+      this.description = "",
+      this.hasReading = false,
+      this.iconData,
+      this.quantification = "",
+      this.isdebit = false});
 
   factory BillType.fromJson(Map<String, dynamic> json) =>
       _$BillTypeFromJson(json);

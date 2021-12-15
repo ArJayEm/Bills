@@ -8,11 +8,12 @@ part of 'bill_type.dart';
 
 BillType _$BillTypeFromJson(Map<String, dynamic> json) => BillType(
       id: json['id'],
-      description: json['description'] as String?,
+      description: json['description'] as String? ?? "",
+      hasReading: json['has_reading'] as bool? ?? false,
       iconData: json['icon_data'] == null
           ? null
           : CustomIconData.fromJson(json['icon_data'] as Map<String, dynamic>),
-      quantification: json['quantification'] as String?,
+      quantification: json['quantification'] as String? ?? "",
       isdebit: json['is_debit'] as bool? ?? false,
     )
       ..createdOn = DateTime.parse(json['created_on'] as String)
@@ -35,6 +36,7 @@ Map<String, dynamic> _$BillTypeToJson(BillType instance) {
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
   val['description'] = instance.description;
+  val['has_reading'] = instance.hasReading;
   val['icon_data'] = instance.iconData;
   val['is_debit'] = instance.isdebit;
   val['quantification'] = instance.quantification;
