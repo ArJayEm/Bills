@@ -3,7 +3,6 @@
 
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/bill.dart';
-import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/user_model.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
@@ -41,8 +40,6 @@ class _ListViewPage extends State<ListViewPage> {
 
   final Bill _bill = Bill();
   BillType _billType = BillType();
-  late CustomIconData _customIconData;
-
   late String _selectedUserId;
   final List<dynamic> _users = [];
   final List<BillType?> _billTypeIds = [];
@@ -60,8 +57,6 @@ class _ListViewPage extends State<ListViewPage> {
     setState(() {
       _billType = widget.billType;
       _quantification = _billType.quantification!;
-      _customIconData =
-          CustomIconData.fromJson(_billType.iconData as Map<String, dynamic>);
       _billTypeId = int.parse(_billType.id!);
       _selectedUserId = "";
     });
@@ -80,7 +75,7 @@ class _ListViewPage extends State<ListViewPage> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Color(_customIconData.color ?? 0),
+        backgroundColor: Color(_billType.iconData?.color ?? 0),
         title: Text(
           _billType.description!,
           style: const TextStyle(color: Colors.white),
@@ -106,7 +101,7 @@ class _ListViewPage extends State<ListViewPage> {
       floatingActionButton: CustomFloatingActionButton(
           title: 'Add ${_billType.description}',
           icon: Icons.add,
-          color: Color(_customIconData.color ?? 0),
+          color: Color(_billType.iconData?.color ?? 0),
           onTap: () {
             _showDataManager(_bill);
           }),
@@ -180,7 +175,7 @@ class _ListViewPage extends State<ListViewPage> {
                                   textAlign: TextAlign.right,
                                   style: TextStyle(
                                       fontSize: 25,
-                                      color: Color(_customIconData.color ?? 0)),
+                                      color: Color(_billType.iconData?.color ?? 0)),
                                 ),
                                 Text(
                                   '${_bill.quantification} $_quantification',
@@ -215,7 +210,7 @@ class _ListViewPage extends State<ListViewPage> {
             data,
             _quantification,
             _billType.description,
-            Color(_customIconData.color ?? 0),
+            Color(_billType.iconData?.color ?? 0),
             _selectedUserId)) ??
         false) {
       //return added record userid (only first one if multiple selected users), then update _selectedUserId

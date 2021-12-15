@@ -8,7 +8,6 @@
 
    <application
         android:label="Bills"
-        android:name="Bills"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_bills">
         <activity

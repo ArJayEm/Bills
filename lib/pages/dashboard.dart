@@ -2,7 +2,6 @@
 
 import 'package:badges/badges.dart';
 import 'package:bills/models/bill_type.dart';
-import 'package:bills/models/icon_data.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
@@ -474,8 +473,8 @@ class _DashboardState extends State<Dashboard> {
         children: <Widget>[
           ListTile(
             title: const Text('Amount to pay', style: TextStyle(fontSize: 20)),
-            trailing:
-                Text(_curentAmount.format(), style: const TextStyle(fontSize: 20)),
+            trailing: Text(_curentAmount.format(),
+                style: const TextStyle(fontSize: 20)),
           ),
           const CustomDivider(),
           _curentAmount > 0
@@ -585,13 +584,15 @@ class _DashboardState extends State<Dashboard> {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
           billTypes.add(b);
-          CustomIconData cid =
-              CustomIconData.fromJson(b.iconData as Map<String, dynamic>);
+          // CustomIconData cid =
+          //     CustomIconData.fromJson(b.iconData as Map<String, dynamic>);
           Menu m = Menu(
               location: b.description,
               view: ListViewPage(billType: b),
-              icon: Icon(IconData(cid.codepoint ?? 0, fontFamily: cid.fontfamily),
-                  color: Color(cid.color ?? 0)));
+              icon: Icon(
+                  IconData(b.iconData?.codepoint ?? 0,
+                      fontFamily: b.iconData?.fontfamily),
+                  color: Color(b.iconData?.color ?? 0)));
           menu.add(m);
         }
       }).whenComplete(() {
@@ -791,6 +792,7 @@ class CustomDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 2, indent: 10, endIndent: 10, color: Colors.grey);
+    return const Divider(
+        height: 2, indent: 10, endIndent: 10, color: Colors.grey);
   }
 }

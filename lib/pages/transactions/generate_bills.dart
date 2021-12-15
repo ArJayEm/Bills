@@ -115,12 +115,12 @@ class _GenerateBillsState extends State<GenerateBills> {
                               minimumSize: const Size(double.infinity, 50),
                               primary: Colors.grey.shade700,
                               backgroundColor: Colors.white),
-                          onPressed: () {
-                            _getUsers();
-                            _getBillTypes();
-                            _getClientMeterReadings();
-                            _getPreviousUnpaidAmount();
-                            _getBills();
+                          onPressed: () async {
+                            await _getUsers();
+                            await _getBillTypes();
+                            await _getClientMeterReadings();
+                            await _getPreviousUnpaidAmount();
+                            await _getBills();
                           },
                         ),
                         const SizedBox(height: 5),
@@ -184,9 +184,9 @@ class _GenerateBillsState extends State<GenerateBills> {
             _ctrlBillDate.text =
                 date.formatDate(dateOnly: true, fullMonth: true, hideDay: true);
           });
-          await _getClientMeterReadings();
-          await _getPreviousUnpaidAmount();
-          await _getBills();
+          // await _getClientMeterReadings();
+          // await _getPreviousUnpaidAmount();
+          // await _getBills();
         }
       },
       validator: (value) {
