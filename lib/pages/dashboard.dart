@@ -219,7 +219,7 @@ class _DashboardState extends State<Dashboard> {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(10),
-            physics: const BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             child: _buildDashboard(),
             //  _widgetOptions.elementAt(_selectedIndex),
           ),
@@ -293,29 +293,28 @@ class _DashboardState extends State<Dashboard> {
     try {
       if (_auth.currentUser != null) {
         DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        UserProfile userProfile = UserProfile();
+        UserProfile up = UserProfile();
 
         _collection.get().then((snapshots) {
           for (var document in snapshots.docs) {
             if (document.id == _auth.currentUser!.uid) {
-              userProfile =
+              up =
                   UserProfile.fromJson(document.data() as Map<String, dynamic>);
-              userProfile.id = document.id;
+              up.id = document.id;
             }
           }
         }).whenComplete(() {
           setState(() {
-            _userProfile = userProfile;
-            _displayname = userProfile.name ?? "No Name";
-            _isNewUser = (userProfile.userType.isNullOrEmpty()) &&
-                userProfile.members == 0;
-            _hasRequiredFields = (userProfile.userType.isNullOrEmpty()) ||
+            _userProfile = up;
+            _displayname = up.name ?? "No Name";
+            _isNewUser = (up.userType.isNullOrEmpty()) && up.members == 0;
+            _hasRequiredFields = (up.userType.isNullOrEmpty()) ||
                 (_userProfile.name.isNullOrEmpty()) ||
-                userProfile.members == 0;
+                up.members == 0;
             _isPayer = !_userProfile.userType.isNullOrEmpty() &&
                 _userProfile.userType != _collectorId;
           });
-          if (_auth.currentUser?.email == userProfile.email) {
+          if (_auth.currentUser?.email == up.email) {
             _document.update(
                 {'name': _displayname ?? _auth.currentUser!.displayName});
           }
@@ -368,7 +367,7 @@ class _DashboardState extends State<Dashboard> {
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
                       minLeadingWidth: 0,
-                      title: const Text('Generate Bills'),
+                      title: const Text('Generate Billing'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.push(

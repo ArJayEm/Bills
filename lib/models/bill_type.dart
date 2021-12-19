@@ -14,8 +14,12 @@ class BillType extends ModelBase {
   bool? hasReading;
   @JsonKey(name: "icon_data")
   CustomIconData? iconData = new CustomIconData();
+  @JsonKey(name: "include_in_billing")
+  bool? includeInBilling;
+  @JsonKey(name: "is_credit")
+  bool? isCredit;
   @JsonKey(name: "is_debit")
-  bool? isdebit = false;
+  bool? isdebit;
   @JsonKey(name: "quantification")
   String? quantification;
 
@@ -25,6 +29,8 @@ class BillType extends ModelBase {
       this.hasReading = false,
       this.iconData,
       this.quantification = "",
+      this.includeInBilling = false,
+      this.isCredit = false,
       this.isdebit = false});
 
   factory BillType.fromJson(Map<String, dynamic> json) =>

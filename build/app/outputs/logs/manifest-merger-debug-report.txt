@@ -25,6 +25,8 @@ MERGED from [com.google.firebase:firebase-analytics:20.0.1] C:\Users\MIS 3\.grad
 MERGED from [com.facebook.android:facebook-login:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\29ddef3817c4f5b226bd550cc5ce08b2\jetified-facebook-login-12.1.0\AndroidManifest.xml:21:1-31:12
 MERGED from [com.facebook.android:facebook-common:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cb4dcf3107243de9e4d6565a84de01db\jetified-facebook-common-12.2.0\AndroidManifest.xml:21:1-52:12
 MERGED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:21:1-60:12
+MERGED from [androidx.window:window-java:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a3b86b42fafb2019c6d99a912992ce19\jetified-window-java-1.0.0-beta04\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:17:1-33:12
 MERGED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:17:1-83:12
 MERGED from [com.google.firebase:firebase-firestore:24.0.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\50f63e17caca2b851f804bbbf7a394c2\jetified-firebase-firestore-24.0.0\AndroidManifest.xml:2:1-26:12
 MERGED from [com.google.firebase:firebase-database:20.0.3] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\7867b154f60011f124da44b73f036811\jetified-firebase-database-20.0.3\AndroidManifest.xml:15:1-38:12
@@ -163,6 +165,8 @@ MERGED from [com.facebook.android:facebook-common:12.2.0] C:\Users\MIS 3\.gradle
 MERGED from [com.facebook.android:facebook-common:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cb4dcf3107243de9e4d6565a84de01db\jetified-facebook-common-12.2.0\AndroidManifest.xml:29:5-50:19
 MERGED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:28:5-58:19
 MERGED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:28:5-58:19
+MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:24:5-31:19
+MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:24:5-31:19
 MERGED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:26:5-81:19
 MERGED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:26:5-81:19
 MERGED from [com.google.firebase:firebase-firestore:24.0.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\50f63e17caca2b851f804bbbf7a394c2\jetified-firebase-firestore-24.0.0\AndroidManifest.xml:16:5-24:19
@@ -349,6 +353,10 @@ MERGED from [com.facebook.android:facebook-common:12.2.0] C:\Users\MIS 3\.gradle
 MERGED from [com.facebook.android:facebook-common:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cb4dcf3107243de9e4d6565a84de01db\jetified-facebook-common-12.2.0\AndroidManifest.xml:25:5-27:41
 MERGED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:24:5-26:41
 MERGED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:24:5-26:41
+MERGED from [androidx.window:window-java:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a3b86b42fafb2019c6d99a912992ce19\jetified-window-java-1.0.0-beta04\AndroidManifest.xml:19:5-21:41
+MERGED from [androidx.window:window-java:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a3b86b42fafb2019c6d99a912992ce19\jetified-window-java-1.0.0-beta04\AndroidManifest.xml:19:5-21:41
+MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:20:5-22:41
 MERGED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:21:5-44
 MERGED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:21:5-44
 MERGED from [com.google.firebase:firebase-firestore:24.0.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\50f63e17caca2b851f804bbbf7a394c2\jetified-firebase-firestore-24.0.0\AndroidManifest.xml:7:5-9:41
@@ -589,6 +597,18 @@ action#com.facebook.sdk.ACTION_CURRENT_AUTHENTICATION_TOKEN_CHANGED
 ADDED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:55:17-103
 	android:name
 		ADDED from [com.facebook.android:facebook-core:12.2.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\d167af4b70e58476863ce2d5b47caa24\jetified-facebook-core-12.2.0\AndroidManifest.xml:55:25-100
+uses-library#androidx.window.extensions
+ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:25:9-27:40
+	android:required
+		ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:26:13-54
+uses-library#androidx.window.sidecar
+ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:28:9-30:40
+	android:required
+		ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:30:13-37
+	android:name
+		ADDED from [androidx.window:window:1.0.0-beta04] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\cea45e25bbe77c9713c39e234ccfd7bd\jetified-window-1.0.0-beta04\AndroidManifest.xml:29:13-51
 uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from [com.google.firebase:firebase-auth:21.0.1] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\a019e4e63ad7a70d0f2aebf4e86fe327\jetified-firebase-auth-21.0.1\AndroidManifest.xml:24:5-79
 MERGED from [com.google.firebase:firebase-firestore:24.0.0] C:\Users\MIS 3\.gradle\caches\transforms-2\files-2.1\50f63e17caca2b851f804bbbf7a394c2\jetified-firebase-firestore-24.0.0\AndroidManifest.xml:13:5-79

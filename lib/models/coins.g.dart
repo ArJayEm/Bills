@@ -8,7 +8,9 @@ part of 'coins.dart';
 
 Coins _$CoinsFromJson(Map<String, dynamic> json) => Coins()
   ..id = json['id'] as String?
+  ..createdBy = json['created_by'] as String?
   ..createdOn = DateTime.parse(json['created_on'] as String)
+  ..modifiedBy = json['modified_by'] as String?
   ..modifiedOn = json['modified_on'] == null
       ? null
       : DateTime.parse(json['modified_on'] as String)
@@ -27,7 +29,9 @@ Map<String, dynamic> _$CoinsToJson(Coins instance) {
   }
 
   writeNotNull('id', instance.id);
+  val['created_by'] = instance.createdBy;
   val['created_on'] = instance.createdOn.toIso8601String();
+  val['modified_by'] = instance.modifiedBy;
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
   val['amount'] = instance.amount;

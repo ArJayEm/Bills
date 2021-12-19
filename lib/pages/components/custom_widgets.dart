@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors, duplicate_ignore, unnecessary_new
-
 import 'package:bills/pages/styles/style.dart';
 import 'package:flutter/material.dart';
 
@@ -33,9 +31,8 @@ class CustomFloatingActionButton extends StatelessWidget {
   //final bool isLoading;
   final Function()? onTap;
 
-  // ignore: use_key_in_widget_constructors
   const CustomFloatingActionButton(
-      {required this.title, required this.color, this.icon, this.onTap});
+      {Key? key, required this.title, required this.color, this.icon, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +53,11 @@ class CustomIconButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomIconButton(
-      {required this.color,
+      {Key? key, required this.color,
       required this.textColor,
       required this.image,
       required this.text,
-      required this.onPressed});
+      required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +107,11 @@ class CustomAppBarButton extends StatelessWidget {
   final bool isChecked;
 
   const CustomAppBarButton(
-      {required this.icon,
+      {Key? key, required this.icon,
       required this.onTap,
       required this.uncheckedColor,
       required this.checkedColor,
-      required this.isChecked});
+      required this.isChecked}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -140,14 +137,14 @@ class CustomPinWidget extends StatelessWidget {
   final VoidCallback onChanged;
 
   const CustomPinWidget(
-      {required this.controllerSingle,
+      {Key? key, required this.controllerSingle,
       required this.controllerAll,
       required this.focusNode,
       required this.focusNodeNext,
       //required this.onTap,
       required this.onChanged,
       required this.isFirst,
-      required this.isLast});
+      required this.isLast}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +202,7 @@ class CustomExpandableWidget extends StatefulWidget {
   final bool isExpanded;
 
   const CustomExpandableWidget(
-      {required this.title, required this.body, required this.isExpanded});
+      {Key? key, required this.title, required this.body, required this.isExpanded}) : super(key: key);
 
   @override
   _CustomExpandableWidgetState createState() => _CustomExpandableWidgetState();
@@ -230,7 +227,7 @@ class _CustomExpandableWidgetState extends State<CustomExpandableWidget> {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           color: Theme.of(context).cardColor),
       child: ConstrainedBox(
-        constraints: new BoxConstraints(
+        constraints: BoxConstraints(
           minHeight: _isExpanded ? 100 : 0,
         ),
         child: Column(
@@ -240,8 +237,8 @@ class _CustomExpandableWidgetState extends State<CustomExpandableWidget> {
           children: [
             InkWell(
               child: Container(
-                margin:
-                    const EdgeInsets.only(top: 12, left: 15, right: 15, bottom: 12),
+                margin: const EdgeInsets.only(
+                    top: 12, left: 15, right: 15, bottom: 12),
                 child: Text(
                   widget.title,
                   style: cardTitleStyle3,
@@ -269,7 +266,7 @@ class MultiSelectDialog extends StatelessWidget {
   final List<String> selectedIds = [];
   static Map<String, bool> mappedItem = <String, bool>{};
 
-  MultiSelectDialog({required this.payers, required this.question});
+  MultiSelectDialog({Key? key, required this.payers, required this.question}) : super(key: key);
 
   /// Function that converts the list answer to a map.
   initMap() {
@@ -374,7 +371,9 @@ class CustomDropDownItem extends StatelessWidget {
   final dynamic item;
   final String itemDesignation;
 
-  const CustomDropDownItem({Key? key, required this.item, required this.itemDesignation}) : super(key: key);
+  const CustomDropDownItem(
+      {Key? key, required this.item, required this.itemDesignation})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,7 @@ class _DynamicFormState extends State<DynamicForm> {
   final List<Map<String, dynamic>> _values = [];
   //int _count = 0;
   String _result = '';
-  final Bill _billClass = Bill();
+  late Bill _billClass;
 
   @override
   Widget build(BuildContext context) {

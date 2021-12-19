@@ -12,7 +12,7 @@ Bill _$BillFromJson(Map<String, dynamic> json) => Bill(
           ? null
           : DateTime.parse(json['bill_date'] as String),
       description: json['description'] as String? ?? "",
-      amount: json['amount'] as num? ?? 0.00,
+      amount: json['amount'] as num? ?? 0,
       quantification: json['quantification'] as int? ?? 1,
       payerIds: (json['payer_ids'] as List<dynamic>?)
           ?.map((e) => e as String?)
@@ -21,10 +21,10 @@ Bill _$BillFromJson(Map<String, dynamic> json) => Bill(
           ?.map((e) => e as String?)
           .toList(),
       billTypeId: json['bill_type'] as int? ?? 0,
-      clientMembers: json['client_members'] as int? ?? 0,
-      collectorMembers: json['collector_members'] as int? ?? 0,
     )
+      ..createdBy = json['created_by'] as String?
       ..createdOn = DateTime.parse(json['created_on'] as String)
+      ..modifiedBy = json['modified_by'] as String?
       ..modifiedOn = json['modified_on'] == null
           ? null
           : DateTime.parse(json['modified_on'] as String)
@@ -40,7 +40,9 @@ Map<String, dynamic> _$BillToJson(Bill instance) {
   }
 
   writeNotNull('id', instance.id);
+  val['created_by'] = instance.createdBy;
   val['created_on'] = instance.createdOn.toIso8601String();
+  val['modified_by'] = instance.modifiedBy;
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
   val['bill_date'] = instance.billDate?.toIso8601String();
@@ -50,7 +52,5 @@ Map<String, dynamic> _$BillToJson(Bill instance) {
   val['payer_ids'] = instance.payerIds;
   val['payers_billtype'] = instance.payersBillType;
   val['bill_type'] = instance.billTypeId;
-  val['client_members'] = instance.clientMembers;
-  val['collector_members'] = instance.collectorMembers;
   return val;
 }

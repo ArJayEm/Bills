@@ -1,4 +1,5 @@
 import 'package:bills/models/user_profile.dart';
+import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -15,10 +16,10 @@ class PayerList extends StatefulWidget {
 }
 
 class _PayerListState extends State<PayerList> {
-  late FirebaseAuth _auth;
-  String? _id;
-  List<dynamic> _userIds = [];
-  final List<dynamic> _payers = [];
+  //late final FirebaseAuth _auth;
+  final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
+  //late final String? _id;
+  final List<UserProfile?> _userProfiles = [];
 
   final String _title = "Monthly Bills";
 
@@ -30,17 +31,17 @@ class _PayerListState extends State<PayerList> {
   void initState() {
     super.initState();
     setState(() {
-      _auth = widget.auth;
-      _id = _auth.currentUser!.uid;
+      //_auth = widget.auth;
+      //_id = _auth.currentUser!.uid;
     });
     _getUserIds();
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
+      //initialIndex: 1,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -48,9 +49,9 @@ class _PayerListState extends State<PayerList> {
           //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
           title: Text(_title),
           titleSpacing: 0,
-          centerTitle: false,
+          centerTitle: true,
           backgroundColor: Colors.grey.shade800,
-          elevation: 0,
+          elevation: 1,
           bottom: const TabBar(
             tabs: [
               Tab(text: "Bills"),
@@ -65,6 +66,7 @@ class _PayerListState extends State<PayerList> {
             const Icon(Icons.directions_bike),
           ],
         ),
+        bottomNavigationBar: const CustomBottomNavigationBar(),
       ),
     );
   }
@@ -126,7 +128,7 @@ class _PayerListState extends State<PayerList> {
   //                   ),
   //                 );
   //               }
-  //               return Center(child: Text('No $_title Yet.'));
+  //               return Center(child: Text('No $_titlefound.'));
   //             },
   //           ),
   //         ],
@@ -136,118 +138,51 @@ class _PayerListState extends State<PayerList> {
   // }
 
   Widget _buildPayerList() {
-    List<Widget> mList = <Widget>[];
-    for (int b = 0; b < _payers.length; b++) {
-      mList.add(ListTile(
-        title: Text(_payers[b][1]),
-        subtitle: Text(
-            int.parse(_payers[b][2].toString()) > 1 ? "${_payers[b][2]} members" : "Solo"),
-        trailing: const Icon(Icons.chevron_right),
-      ));
-    }
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
         physics: const BouncingScrollPhysics(),
         child: Card(
           child: ListView(
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              children: mList),
+            physics: const BouncingScrollPhysics(),
+            shrinkWrap: true,
+            children: _userProfiles
+                .map(
+                  (user) => ListTile(
+                    //dense: true,
+                    title: Text("${user?.name}"),
+                    subtitle: Text("${user?.members} member(s)"),
+                    trailing: const Icon(Icons.chevron_right),
+                  ),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
-  }
-
-  Future<void> _getlist() async {
-    _showProgressUi(true, "");
-
-    try {
-      List<dynamic> payers = [];
-      CollectionReference collection =
-          FirebaseFirestore.instance.collection("users");
-      List<UserProfile>? userProfile;
-      collection.get().then((snapshots) {
-        for (var document in snapshots.docs) {
-          if (_userIds.contains(document.id)) {
-            UserProfile userProfile =
-                UserProfile.fromJson(document.data() as Map<String, dynamic>);
-            userProfile.id = document.id;
-          }
-        }
-      }).whenComplete(() {
-        setState(() {
-          _payers.clear();
-          _payers.addAll(payers);
-          //_listStream = stream;
-        });
-        _showProgressUi(false, userProfile.toString());
-      });
-
-      // collection.get().then((querySnapshot) {
-      //   querySnapshot.docs.forEach((document) {
-      //     stream
-      //     users.add([document.id, document.get('name')]);
-      //   });
-      // }).whenComplete(() {
-      //   setState(() {
-      //     _listStream = stream;
-      //   });
-      //   _showProgressUi(false, "");
-      // });
-      // dynamic userIds = [];
-      // Stream<QuerySnapshot<Object?>>? stream;
-
-      // document.get().then((snapshot) {
-      //   if (snapshot.exists) {
-      //     userIds = snapshot.get('user_ids');
-      //     //stream = document.snapshots();
-      //   }
-      // }).whenComplete(() {l
-      // });
-    } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
-    } catch (e) {
-      _showProgressUi(false, "$e.");
-    }
   }
 
   Future<void> _getUserIds() async {
     _showProgressUi(true, "");
 
     try {
-      var collection = FirebaseFirestore.instance
-          .collection("users"); //.where("deleted", isEqualTo: false).get();
-      var document = collection.doc(_id);
-      List<dynamic> userids = [];
-      // Fluttertoast.showToast(
-      //     msg: FirebaseFirestore.instance.collection("users").path);
-      // FirebaseFirestore.instance
-      //     .collection("users").doc()
-      //     .where("user_type", isNotEqualTo: _collectorId)
-      //     .snapshots()
-      //     .forEach((element) {
-      //   element.docs.forEach((document) {
-      //     users.add([document.id, document.get('name')]);
-      //   });
-      // }).whenComplete(() {
-      //   setState(() {
-      //     _selectList.addAll(users);
-      //   });
-      //   _showProgressUi(false, "");
-      //   _getlist();
-      // });
+      var collection =
+          _ffInstance.collection("users").where("deleted", isEqualTo: false);
+      List<UserProfile?> userids = [];
+      UserProfile up = UserProfile();
 
-      document.get().then((snapshot) {
-        if (snapshot.exists) {
-          userids = snapshot.get('user_ids');
+      collection.get().then((snapshot) {
+        for (var document in snapshot.docs) {
+          up = UserProfile.fromJson(document.data());
+          up.id = document.id;
+          userids.add(up);
         }
       }).whenComplete(() {
         setState(() {
-          _userIds = userids;
+          _userProfiles.clear();
+          _userProfiles.addAll(userids);
         });
         _showProgressUi(false, "");
-        _getlist();
       });
     } on FirebaseAuthException catch (e) {
       _showProgressUi(false, "${e.message}.");

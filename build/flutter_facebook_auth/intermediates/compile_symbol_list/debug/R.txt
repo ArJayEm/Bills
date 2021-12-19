@@ -62,7 +62,9 @@ int attr actionOverflowButtonStyle 0x0
 int attr actionOverflowMenuStyle 0x0
 int attr actionProviderClass 0x0
 int attr actionViewClass 0x0
+int attr activityAction 0x0
 int attr activityChooserViewStyle 0x0
+int attr activityName 0x0
 int attr alertDialogButtonGroupStyle 0x0
 int attr alertDialogCenterButtons 0x0
 int attr alertDialogStyle 0x0
@@ -70,6 +72,7 @@ int attr alertDialogTheme 0x0
 int attr allowStacking 0x0
 int attr alpha 0x0
 int attr alphabeticModifiers 0x0
+int attr alwaysExpand 0x0
 int attr arrowHeadLength 0x0
 int attr arrowShaftLength 0x0
 int attr autoCompleteTextViewStyle 0x0
@@ -107,6 +110,7 @@ int attr cardUseCompatPadding 0x0
 int attr cardViewStyle 0x0
 int attr checkboxStyle 0x0
 int attr checkedTextViewStyle 0x0
+int attr clearTop 0x0
 int attr closeIcon 0x0
 int attr closeItemLayout 0x0
 int attr collapseContentDescription 0x0
@@ -178,6 +182,8 @@ int attr editTextColor 0x0
 int attr editTextStyle 0x0
 int attr elevation 0x0
 int attr expandActivityOverflowButtonDrawable 0x0
+int attr finishPrimaryWithSecondary 0x0
+int attr finishSecondaryWithPrimary 0x0
 int attr firstBaselineToTopHeight 0x0
 int attr font 0x0
 int attr fontFamily 0x0
@@ -250,10 +256,12 @@ int attr paddingTopNoTitle 0x0
 int attr panelBackground 0x0
 int attr panelMenuListTheme 0x0
 int attr panelMenuListWidth 0x0
+int attr placeholderActivityName 0x0
 int attr popupMenuStyle 0x0
 int attr popupTheme 0x0
 int attr popupWindowStyle 0x0
 int attr preserveIconSpacing 0x0
+int attr primaryActivityName 0x0
 int attr progressBarPadding 0x0
 int attr progressBarStyle 0x0
 int attr queryBackground 0x0
@@ -266,6 +274,8 @@ int attr ratingBarStyleSmall 0x0
 int attr searchHintIcon 0x0
 int attr searchIcon 0x0
 int attr searchViewStyle 0x0
+int attr secondaryActivityAction 0x0
+int attr secondaryActivityName 0x0
 int attr seekBarStyle 0x0
 int attr selectableItemBackground 0x0
 int attr selectableItemBackgroundBorderless 0x0
@@ -278,6 +288,10 @@ int attr singleChoiceItemLayout 0x0
 int attr spinBars 0x0
 int attr spinnerDropDownItemStyle 0x0
 int attr spinnerStyle 0x0
+int attr splitLayoutDirection 0x0
+int attr splitMinSmallestWidth 0x0
+int attr splitMinWidth 0x0
+int attr splitRatio 0x0
 int attr splitTrack 0x0
 int attr srcCompat 0x0
 int attr state_above_anchor 0x0
@@ -781,6 +795,7 @@ int id actions 0x0
 int id activity_chooser_view_content 0x0
 int id add 0x0
 int id alertTitle 0x0
+int id androidx_window_activity_scope 0x0
 int id async 0x0
 int id automatic 0x0
 int id blocking 0x0
@@ -839,6 +854,8 @@ int id line1 0x0
 int id line3 0x0
 int id listMode 0x0
 int id list_item 0x0
+int id locale 0x0
+int id ltr 0x0
 int id media_actions 0x0
 int id message 0x0
 int id multiply 0x0
@@ -860,6 +877,7 @@ int id radio 0x0
 int id right 0x0
 int id right_icon 0x0
 int id right_side 0x0
+int id rtl 0x0
 int id screen 0x0
 int id scrollIndicatorDown 0x0
 int id scrollIndicatorUp 0x0
@@ -1451,6 +1469,11 @@ int styleable ActionMode_titleTextStyle 5
 int[] styleable ActivityChooserView { 0x0, 0x0 }
 int styleable ActivityChooserView_expandActivityOverflowButtonDrawable 0
 int styleable ActivityChooserView_initialActivityCount 1
+int[] styleable ActivityFilter { 0x0, 0x0 }
+int styleable ActivityFilter_activityAction 0
+int styleable ActivityFilter_activityName 1
+int[] styleable ActivityRule { 0x0 }
+int styleable ActivityRule_alwaysExpand 0
 int[] styleable AlertDialog { 0x10100f2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable AlertDialog_android_layout 0
 int styleable AlertDialog_buttonIconDimen 1
@@ -1823,6 +1846,24 @@ int styleable Spinner_android_entries 1
 int styleable Spinner_android_popupBackground 2
 int styleable Spinner_android_prompt 3
 int styleable Spinner_popupTheme 4
+int[] styleable SplitPairFilter { 0x0, 0x0, 0x0 }
+int styleable SplitPairFilter_primaryActivityName 0
+int styleable SplitPairFilter_secondaryActivityAction 1
+int styleable SplitPairFilter_secondaryActivityName 2
+int[] styleable SplitPairRule { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
+int styleable SplitPairRule_clearTop 0
+int styleable SplitPairRule_finishPrimaryWithSecondary 1
+int styleable SplitPairRule_finishSecondaryWithPrimary 2
+int styleable SplitPairRule_splitLayoutDirection 3
+int styleable SplitPairRule_splitMinSmallestWidth 4
+int styleable SplitPairRule_splitMinWidth 5
+int styleable SplitPairRule_splitRatio 6
+int[] styleable SplitPlaceholderRule { 0x0, 0x0, 0x0, 0x0, 0x0 }
+int styleable SplitPlaceholderRule_placeholderActivityName 0
+int styleable SplitPlaceholderRule_splitLayoutDirection 1
+int styleable SplitPlaceholderRule_splitMinSmallestWidth 2
+int styleable SplitPlaceholderRule_splitMinWidth 3
+int styleable SplitPlaceholderRule_splitRatio 4
 int[] styleable StateListDrawable { 0x1010196, 0x101011c, 0x101030c, 0x101030d, 0x1010195, 0x1010194 }
 int styleable StateListDrawable_android_constantSize 0
 int styleable StateListDrawable_android_dither 1

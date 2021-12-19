@@ -13,27 +13,24 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 
 import 'package:bills/pages/components/modal_base.dart';
+import 'package:print_color/print_color.dart';
 
-Future<bool?> showBillManagement(
-    context, data, quantification, title, color, userid) async {
+Future<bool?> showBillManagement(context, data, color, userid) async {
   return await showModalBottomSheet<bool?>(
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return Management(data, quantification, title, color, userid);
+      return Management(data, color, userid);
     },
   );
 }
 
 class Management extends StatefulWidget {
-  final String title;
   final Bill bill;
-  final String quantification;
   final Color color;
   final String? selectedUserId;
 
-  const Management(this.bill, this.quantification, this.title, this.color,
-      this.selectedUserId);
+  const Management(this.bill, this.color, this.selectedUserId);
 
   @override
   State<StatefulWidget> createState() {
@@ -56,33 +53,39 @@ class _ManagementState extends State<Management> {
   Bill _bill = Bill();
 
   late String _selectedUserId;
-  List<String?> _selectedList = [];
-  List<dynamic> _selectList = [];
+  List<String?> _selectedUserList = [];
+  List<String?> _selectedUserBillTypeList = [];
+  List<dynamic> _userList = [];
   bool _selectedAll = false;
   bool _isExpanded = false;
 
   String _quantification = '';
-  int _billTypeId = 0;
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _getPayers();
     setState(() {
       _bill = widget.bill;
-      _selectedList.addAll(_bill.payerIds ?? []);
-      _billTypeId = int.parse(_bill.billType!.id!);
-      //_bill.billTypeId = _billTypeId;
+      _quantification = _bill.billType?.quantification ?? "";
+
+      //_bill.billTypeId = int.parse(_bill.billType!.id!);
       _selectedUserId = widget.selectedUserId ?? "";
-      _quantification = widget.quantification;
+      _selectedUserList = [_selectedUserId];
+      _selectedUserBillTypeList = ["${_selectedUserId}_${_bill.billTypeId}"];
+      _bill.payerIds?.addAll(_selectedUserList);
+      _bill.payersBillType?.addAll(_selectedUserBillTypeList);
+      //_selectedUserList.add(_selectedUserId);
+      //_selectedUserBillTypeList.add("${_selectedUserId}_${_bill.billTypeId}");
       _bill.billDate = _bill.billDate ?? DateTime.now();
-      _ctrlBillDate.text = _bill.billDate!.format();
+
+      _ctrlBillDate.text = _bill.billDate!.formatDate(dateOnly: true);
       _ctrlDesciption.text = _bill.description ?? "";
       _ctrlAmount.text = _bill.amount!.format();
       _ctrlQuantif.text = _bill.quantification.toString();
     });
+    _onLoad();
   }
 
   @override
@@ -94,11 +97,10 @@ class _ManagementState extends State<Management> {
 
   @override
   Widget build(BuildContext context) {
-    //String titleLast = widget.title.substring(widget.title.length - 1, widget.title.length);
-    //bool isLastS = widget.title.endsWith("s"); //titleLast == 's';
-    String _title = widget.title.endsWith("s")
-        ? widget.title.substring(0, widget.title.length - 1)
-        : widget.title;
+    String? _title = (_bill.billType?.description ?? "").endsWith("s")
+        ? _bill.billType?.description
+            ?.substring(0, (_bill.billType?.description ?? "").length - 1)
+        : _bill.billType?.description;
 
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
@@ -148,7 +150,7 @@ class _ManagementState extends State<Management> {
                       onTap: () {
                         if ((_bill.description.isNullOrEmpty()) ||
                             _bill.description!.isEmpty ||
-                            _bill.description == widget.title) {
+                            _bill.description == _bill.billType?.description) {
                           _ctrlDesciption.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset: _ctrlDesciption.text.length);
@@ -240,23 +242,21 @@ class _ManagementState extends State<Management> {
                               icon: Icon(Icons.person, color: widget.color),
                               suffixIcon: _isExpanded
                                   ? CustomAppBarButton(
-                                      onTap: () => setState(() {
-                                        _selectedList.clear();
-                                        //_selectedList2.clear();
-                                        if (!_selectedAll) {
-                                          for (int b = 0;
-                                              b < _selectList.length;
-                                              b++) {
-                                            _selectedList
-                                                .addAll(_selectList[b]);
-                                            //_selectedList2.add(_selectList)
-                                          }
-                                        }
+                                      onTap: () {
                                         setState(() {
+                                          _selectedUserList.clear();
+                                          _selectedUserBillTypeList.clear();
+                                          if (!_selectedAll) {
+                                            for (var user in _userList) {
+                                              _selectedUserList.add(user.id);
+                                              _selectedUserBillTypeList.add(
+                                                  "${user.id}_${_bill.billType?.id}");
+                                            }
+                                          }
                                           _selectedAll = !_selectedAll;
                                         });
                                         _setSelectedPayersDisplay();
-                                      }),
+                                      },
                                       icon: Icons.select_all,
                                       checkedColor: Colors.teal,
                                       uncheckedColor: Colors.white,
@@ -283,7 +283,7 @@ class _ManagementState extends State<Management> {
                             },
                             onChanged: (value) {},
                             validator: (value) {
-                              if (_selectedList.isEmpty) {
+                              if (_selectedUserList.isEmpty) {
                                 return 'Must select at least 1';
                               }
                               return null;
@@ -350,6 +350,11 @@ class _ManagementState extends State<Management> {
             header: 'Add $_title');
   }
 
+  Future<void> _onLoad() async {
+    await _getPayers();
+    await _setSelectedPayersDisplay();
+  }
+
   _getDate() async {
     var date = await showDatePicker(
       context: context,
@@ -366,58 +371,45 @@ class _ManagementState extends State<Management> {
   }
 
   _saveRecord() async {
-    _showProgressUi(true, "Saving");
+    _showProgressUi(msg: "Saving");
+    setState(() {
+      _isExpanded = false;
+      _bill.payerIds?.clear();
+      _bill.payersBillType?.clear();
+      _bill.payerIds?.addAll(_selectedUserList);
+      _bill.payersBillType?.addAll(_selectedUserBillTypeList);
+    });
 
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _bill.payerIds?.clear();
-        _bill.payerIds?.addAll(_selectedList);
-      });
-
-      List<String> newPayers = [];
-      _bill.payerIds?.forEach((element) {
-        String? pbt = "${element}_$_billTypeId";
-        newPayers.add(pbt);
-      });
-      setState(() {
-        _bill.payersBillType = newPayers;
-      });
-
       try {
         CollectionReference list = _ffInstance.collection("bills");
         if (_bill.id.isNullOrEmpty()) {
           var data = _bill.toJson();
           list.add(data).then((value) {
-            setState(() {
-              _isExpanded = false;
-            });
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                 overlays: SystemUiOverlay.values);
             _updateBillingDates();
-            _showProgressUi(false, "");
-            Navigator.pop(context);
+            _showProgressUi(msg: "Bill saved!");
+            //Navigator.pop(context);
           }).catchError((error) {
-            _showProgressUi(false, "Failed to add bill: $error.");
+            _showProgressUi(errMsg: error, msg: "Failed to add bill.");
           });
         } else {
           _bill.modifiedOn = DateTime.now();
           list.doc(_bill.id).update(_bill.toJson()).then((value) {
-            setState(() {
-              _isExpanded = false;
-            });
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                 overlays: SystemUiOverlay.values);
             Navigator.pop(context);
             _updateBillingDates();
-            _showProgressUi(false, "Bill updated.");
+            _showProgressUi(msg: "Bill updated!");
           }).catchError((error) {
-            _showProgressUi(false, "Failed to update bill: $error.");
+            _showProgressUi(errMsg: error, msg: "Failed to update bill.");
           });
         }
       } on FirebaseAuthException catch (e) {
-        _showProgressUi(false, "${e.message}.");
+        _showProgressUi(errMsg: "${e.message}.");
       } catch (e) {
-        _showProgressUi(false, "$e.");
+        _showProgressUi(errMsg: "$e.");
       }
     }
   }
@@ -426,7 +418,7 @@ class _ManagementState extends State<Management> {
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Confirm Delete'),
         content: const Text(
             'You are about to delete a record. This action is irreversible'),
@@ -437,23 +429,21 @@ class _ManagementState extends State<Management> {
           ),
           TextButton(
             onPressed: () async {
-              _showProgressUi(true, "Deleting record...");
+              _showProgressUi(msg: "Deleting record...");
               try {
-                String collection = widget.title.toLowerCase();
-
                 _ffInstance
-                    .collection(collection)
+                    .collection("bills")
                     .doc(_bill.id)
                     .delete()
-                    .then((_) {
-                  _showProgressUi(false, "Record deleted");
+                    .then((value) {
+                  _showProgressUi(msg: "Bill deleted!");
                   Navigator.pop(context);
                   Navigator.pop(context);
                 });
               } on FirebaseAuthException catch (e) {
-                _showProgressUi(false, "${e.message}.");
+                _showProgressUi(errMsg: "${e.message}.");
               } catch (e) {
-                _showProgressUi(false, "$e.");
+                _showProgressUi(errMsg: "$e.");
               }
             },
             child: const Text('Ok'),
@@ -464,7 +454,7 @@ class _ManagementState extends State<Management> {
   }
 
   _updateBillingDates() {
-    if (widget.title.toLowerCase() != 'payment') {
+    if (_bill.billType?.description?.toLowerCase() != 'payment') {
       try {
         CollectionReference collection = _ffInstance.collection("users");
         UserProfile userProfile = UserProfile();
@@ -482,12 +472,12 @@ class _ManagementState extends State<Management> {
             }
           }
         }).whenComplete(() {
-          _showProgressUi(false, "");
+          _showProgressUi();
         });
       } on FirebaseAuthException catch (e) {
-        _showProgressUi(false, "${e.message}.");
+        _showProgressUi(errMsg: "${e.message}.");
       } catch (e) {
-        _showProgressUi(false, "$e.");
+        _showProgressUi(errMsg: "$e.");
       }
     }
   }
@@ -496,13 +486,13 @@ class _ManagementState extends State<Management> {
     setState(() {
       _ctrlBillDate.clear();
       _ctrlAmount.clear();
-      _selectedList.clear();
+      _selectedUserList.clear();
     });
     Navigator.of(context).pop(false);
   }
 
   Future<void> _getPayers() async {
-    _showProgressUi(true, "");
+    //_showProgressUi(true);
 
     try {
       List<dynamic> users = [];
@@ -514,49 +504,47 @@ class _ManagementState extends State<Management> {
         }
       }).whenComplete(() {
         setState(() {
-          _selectList.clear();
-          _selectList.addAll(users);
+          _userList.clear();
+          _userList.addAll(users);
         });
-        _showProgressUi(false, "");
+        //_showProgressUi(false);
         _setSelectedPayersDisplay();
       });
     } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
+      _showProgressUi(errMsg: "${e.message}.");
     } catch (e) {
-      _showProgressUi(false, "$e.");
+      _showProgressUi(errMsg: "$e.");
     }
   }
 
   Widget _payersSelectionWidget() {
     List<Widget> mList = <Widget>[];
-    for (int b = 0; b < _selectList.length; b++) {
-      String id = _selectList[b][0];
-      String displayname = _selectList[b][1] ?? "No Name";
+    for (int b = 0; b < _userList.length; b++) {
+      String id = _userList[b][0];
+      String displayname = _userList[b][1] ?? "No Name";
       mList.add(CheckboxListTile(
-        selected: _selectedList.toString().contains(id),
+        selected: _selectedUserList.toString().contains(id),
         //selected: _selectedList.contains(id),
         //selected: _selectedList.contains((value) => value[0] == id),
         //selected: _selectedList.contains((value) => value.contains(id)),
         onChanged: (bool? value) {
           setState(() {
             if (value as bool) {
-              _selectedList.add(id);
-              //_selectedList.addAll({{"id": id, "name": displayname, "deleted": false}});
-              //_selectedList.addAll({{"id": id, "deleted": false, "name": displayname}});
+              _selectedUserList.add(id);
+              _bill.payerIds?.add(id);
+              _bill.payersBillType?.add("${id}_1");
             } else {
-              //_selectedList.removeWhere((value) => value.toString().contains(id));
-              //_selectedList.remove((key, value) => key == id);
-              _selectedList.remove(id);
-              //_selectedList.remove((key, value) => key.containsKey(id));
-              //_selectedList.removeWhere((key, value) => key == id);
+              _selectedUserList.remove(id);
+              _bill.payerIds?.remove(id);
+              _bill.payersBillType?.remove("${id}_1");
             }
           });
           if (kDebugMode) {
-            print(_selectedList);
+            print(_selectedUserList);
           }
           _setSelectedPayersDisplay();
         },
-        value: _selectedList.toString().contains(id),
+        value: _selectedUserList.toString().contains(id),
         title: Text(displayname),
         controlAffinity: ListTileControlAffinity.leading,
       ));
@@ -565,35 +553,38 @@ class _ManagementState extends State<Management> {
   }
 
   _setSelectedPayersDisplay() {
+    String selectedPayers = "";
+    if (_selectedUserList.isNotEmpty && _userList.isNotEmpty) {
+      int left = _selectedUserList.length - 1;
+      String? payer = _userList
+          .where((element) => element.first == _selectedUserId)
+          .last
+          .last
+          .toString();
+      String? others = left > 0 ? " and $left other${left > 1 ? 's' : ''}" : "";
+      selectedPayers = "$payer$others";
+    } else {
+      selectedPayers = 'Select Payer(s)';
+    }
+
     setState(() {
-      if (_selectedList.isNotEmpty) {
-        int left = _selectedList.length - 1;
-        String? payer = _getPayerName(_selectedUserId);
-        String? others =
-            left > 0 ? " and $left other${left > 1 ? 's' : ''}" : "";
-        _ctrlSelectedPayers.text = "$payer$others";
-      } else {
-        _ctrlSelectedPayers.text = 'Select Payer(s)';
-      }
-      _selectedAll = _selectList.length == _selectedList.length;
+      _ctrlSelectedPayers.text = selectedPayers;
+      _selectedAll = _userList.length == _selectedUserList.length;
     });
   }
 
-  String? _getPayerName(String? id) {
-    String ret = (_selectList.where((element) => element.first == id).last)
-        .last
-        .toString();
-    return ret;
-  }
-
-  _showProgressUi(bool isLoading, String msg) {
-    if (msg.isNotEmpty) {
-      Fluttertoast.showToast(msg: msg);
+  _showProgressUi({String? errMsg, String? msg}) {
+    if (!msg.isNullOrEmpty()) {
+      Fluttertoast.showToast(msg: msg!);
+      setState(() => _isLoading = !_isLoading);
+    }
+    if (!errMsg.isNullOrEmpty()) {
+      Fluttertoast.showToast(msg: "Something went wrong.");
 
       if (kDebugMode) {
-        print("msg: $msg");
+        Print.red("msg: $errMsg");
       }
+      setState(() => _isLoading = !_isLoading);
     }
-    setState(() => _isLoading = isLoading);
   }
 }

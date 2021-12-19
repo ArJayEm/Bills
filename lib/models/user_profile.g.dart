@@ -8,7 +8,9 @@ part of 'user_profile.dart';
 
 UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
   ..id = json['id'] as String?
+  ..createdBy = json['created_by'] as String?
   ..createdOn = DateTime.parse(json['created_on'] as String)
+  ..modifiedBy = json['modified_by'] as String?
   ..modifiedOn = json['modified_on'] == null
       ? null
       : DateTime.parse(json['modified_on'] as String)
@@ -42,7 +44,9 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   }
 
   writeNotNull('id', instance.id);
+  val['created_by'] = instance.createdBy;
   val['created_on'] = instance.createdOn.toIso8601String();
+  val['modified_by'] = instance.modifiedBy;
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
   val['name'] = instance.name;

@@ -24,10 +24,10 @@ class Bill extends ModelBase {
   List<String?>? payersBillType = [];
   @JsonKey(name: "bill_type")
   int? billTypeId;
-  @JsonKey(name: "client_members")
-  int? clientMembers;
-  @JsonKey(name: "collector_members")
-  int? collectorMembers;
+  // @JsonKey(name: "client_members")
+  // int? clientMembers;
+  // @JsonKey(name: "collector_members")
+  // int? collectorMembers;
 
   @JsonKey(ignore: true)
   String? payerNames;
@@ -41,23 +41,23 @@ class Bill extends ModelBase {
   @JsonKey(ignore: true)
   int currentReading = 0;
   @JsonKey(ignore: true)
-  num rate = 0.00;
+  num rate = 0;
   @JsonKey(ignore: true)
-  num amountToPay = 0.00;
+  num amountToPay = 0;
 
-  Bill(
-      {id,
-      this.billDate,
-      this.description = "",
-      this.amount = 0.00,
-      this.quantification = 1,
-      this.payerIds,
-      this.payersBillType,
-      this.billTypeId = 0,
-      this.clientMembers = 0,
-      this.collectorMembers = 0
-      //this.lastModified= (modifiedOn ?? createdOn)
-      });
+  Bill({
+    id,
+    this.billDate,
+    this.description = "",
+    this.amount = 0,
+    this.quantification = 1,
+    this.payerIds,
+    this.payersBillType,
+    this.billTypeId = 0,
+    // this.clientMembers = 0,
+    // this.collectorMembers = 0
+    //this.lastModified= (modifiedOn ?? createdOn)
+  });
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
   Map<String, dynamic> toJson() => _$BillToJson(this);

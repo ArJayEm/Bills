@@ -32,8 +32,13 @@ extension DateTimeFormatHelper on DateTime {
   String formatDate(
       {bool dateOnly = false, bool fullMonth = false, bool hideDay = false}) {
     return DateFormat(
-            "${fullMonth ? "MMMM " : "MMM "} ${hideDay ? "" : "dd, "}yyyy${dateOnly ? "" : " hh:mm aaa"}")
+            "${fullMonth ? "MMMM" : "MMM"} ${hideDay ? "" : "dd, "}yyyy${dateOnly ? "" : " hh:mm aaa"}")
         .format(this);
+  }
+
+  DateTime formatDateOnly() {
+    DateTime d = this;
+    return DateTime(d.year, d.month, d.day);
   }
 }
 
