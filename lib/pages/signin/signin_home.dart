@@ -7,7 +7,7 @@ import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:flutter/cupertino.dart';
@@ -62,6 +62,7 @@ class _SignInHomeState extends State<SignInHome> {
   Widget build(BuildContext ctxt) {
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey.shade800,
@@ -289,6 +290,7 @@ class _SignInHomeState extends State<SignInHome> {
       _document.get().then((snapshot) {
         if (!snapshot.exists) {
           userProfile.name = _firebaseAuthUser.displayName;
+          userProfile.nameseparated = name.split(" ");
           userProfile.userCode = _generateUserCode();
           userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;
           userProfile.email = _firebaseAuthUser.email;

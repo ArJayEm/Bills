@@ -42,6 +42,7 @@ class _OtpAutoFillState extends State<OtpAutoFill> with CodeAutoFill {
     const textStyle = TextStyle(fontSize: 18);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text("Listening for code"),
       ),

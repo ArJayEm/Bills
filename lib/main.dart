@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
-import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/pages/signin/pin/pin_home.dart';
 //import 'package:bills/pages/signin/email.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

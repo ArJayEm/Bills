@@ -308,14 +308,14 @@ packages:
       name: firebase_core_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.2"
+    version: "4.2.3"
   firebase_core_web:
     dependency: transitive
     description:
       name: firebase_core_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.2"
+    version: "1.5.3"
   firebase_database:
     dependency: "direct main"
     description:
@@ -337,6 +337,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0+2"
+  firebase_storage:
+    dependency: "direct main"
+    description:
+      name: firebase_storage
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "10.2.4"
+  firebase_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_storage_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.11"
+  firebase_storage_web:
+    dependency: transitive
+    description:
+      name: firebase_storage_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.2.5"
   fixnum:
     dependency: transitive
     description:
@@ -396,13 +417,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
-  flutter_multiselect:
-    dependency: "direct main"
-    description:
-      name: flutter_multiselect
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -410,13 +424,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
-  flutter_speed_dial:
-    dependency: "direct main"
-    description:
-      name: flutter_speed_dial
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "5.0.0+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -616,13 +623,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
-  month_picker_dialog:
-    dependency: "direct main"
-    description:
-      name: month_picker_dialog
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.0"
   nested:
     dependency: transitive
     description:
@@ -701,7 +701,7 @@ packages:
     source: hosted
     version: "2.0.4"
   pdf:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pdf
       url: "https://pub.dartlang.org"
@@ -763,6 +763,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.3"
+  printing:
+    dependency: "direct main"
+    description:
+      name: printing
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.6.6"
   process:
     dependency: transitive
     description:
@@ -805,13 +812,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1+1"
-  rxdart:
-    dependency: transitive
-    description:
-      name: rxdart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.26.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -957,13 +957,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
-  switcher_button:
-    dependency: "direct main"
-    description:
-      name: switcher_button
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.4"
   synchronized:
     dependency: transitive
     description:

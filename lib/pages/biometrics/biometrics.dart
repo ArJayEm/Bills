@@ -32,6 +32,8 @@ class _BiometricsState extends State<Biometrics> {
   String _authorized = 'Not Authorized';
   bool _isAuthenticating = false;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,8 @@ class _BiometricsState extends State<Biometrics> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {

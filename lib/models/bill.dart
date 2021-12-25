@@ -1,4 +1,5 @@
 import 'package:bills/models/bill_type.dart';
+import 'package:bills/models/meter_readings.dart';
 import 'package:bills/models/model_base.dart';
 //import 'package:googleapis/content/v2_1.dart';
 //import 'package:intl/intl.dart';
@@ -24,10 +25,6 @@ class Bill extends ModelBase {
   List<String?>? payersBillType = [];
   @JsonKey(name: "bill_type")
   int? billTypeId;
-  // @JsonKey(name: "client_members")
-  // int? clientMembers;
-  // @JsonKey(name: "collector_members")
-  // int? collectorMembers;
 
   @JsonKey(ignore: true)
   String? payerNames;
@@ -44,20 +41,10 @@ class Bill extends ModelBase {
   num rate = 0;
   @JsonKey(ignore: true)
   num amountToPay = 0;
+  @JsonKey(ignore: true)
+  List<Reading> readings = [];
 
-  Bill({
-    id,
-    this.billDate,
-    this.description = "",
-    this.amount = 0,
-    this.quantification = 1,
-    this.payerIds,
-    this.payersBillType,
-    this.billTypeId = 0,
-    // this.clientMembers = 0,
-    // this.collectorMembers = 0
-    //this.lastModified= (modifiedOn ?? createdOn)
-  });
+  Bill();
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
   Map<String, dynamic> toJson() => _$BillToJson(this);

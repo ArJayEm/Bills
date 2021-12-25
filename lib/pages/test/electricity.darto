@@ -48,6 +48,7 @@ class _Electricity extends State<Electricity> {
         .snapshots();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: widget.color,

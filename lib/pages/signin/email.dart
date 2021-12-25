@@ -3,7 +3,7 @@
 import 'dart:math';
 
 import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_auth/email_auth.dart';
@@ -81,6 +81,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {

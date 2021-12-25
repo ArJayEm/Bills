@@ -23,8 +23,10 @@ import 'package:intl/intl.dart';
 import 'components/custom_widgets.dart';
 
 class ListViewBills extends StatefulWidget {
-  const ListViewBills({Key? key, required this.billType}) : super(key: key);
+  const ListViewBills({Key? key, required this.auth, required this.billType})
+      : super(key: key);
 
+  final FirebaseAuth auth;
   final BillType billType;
 
   @override
@@ -42,8 +44,10 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
     }
   }
 
+  late FirebaseAuth _auth;
   late FToast fToast = FToast();
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
+  late final String _loggedInId;
 
   String _title = "";
 
@@ -73,6 +77,8 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
     fToast.init(context);
     //_ctrlTab.dispose();
     setState(() {
+      _auth = widget.auth;
+      _loggedInId = _auth.currentUser!.uid;
       _bill.billType = widget.billType;
       _quantification = _bill.billType?.quantification;
       _billTypeId = int.parse(_bill.billType!.id!);
@@ -100,7 +106,7 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
       initialIndex: _tabInitialIndex,
       child: Scaffold(
         key: _scaffoldKey,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           //leadingWidth: 0,
           centerTitle: true,
@@ -140,16 +146,19 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
         //_buildBody()
         //],
         //),
-        body: _hasReading
-            ? TabBarView(
-                physics: const BouncingScrollPhysics(),
-                controller: _ctrlTab,
-                children: [
-                  _buildBillsListView(),
-                  if (_hasReading) _buildReadingsListView(),
-                ],
-              )
-            : _buildBillsListView(),
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          child: _hasReading
+              ? TabBarView(
+                  physics: const BouncingScrollPhysics(),
+                  controller: _ctrlTab,
+                  children: [
+                    _buildBillsListView(),
+                    if (_hasReading) _buildReadingsListView(),
+                  ],
+                )
+              : _buildBillsListView(),
+        ),
         bottomNavigationBar: const CustomBottomNavigationBar(),
         floatingActionButton: CustomFloatingActionButton(
           title: 'Add ${_bill.billType?.description}',
@@ -248,6 +257,8 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _refresh() async {}
+
   Widget _buildBillsListView() {
     return StreamBuilder<QuerySnapshot>(
       stream: _ffInstance
@@ -273,8 +284,9 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
             ? Center(child: Text('No ${_bill.billType?.description} found.'))
             : SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(10),
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : Card(
@@ -290,13 +302,6 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                     bt?.id == bill.billTypeId.toString());
                                 bill.billTypeId = int.parse(
                                     bill.billType?.id.toString() ?? "0");
-                                bill.description = bill.description;
-                                String _formattedBillDate =
-                                    DateFormat('MMM dd, yyyy')
-                                        .format(bill.billDate!);
-                                String _lastModified =
-                                    DateFormat('MMM dd, yyyy hh:mm aaa').format(
-                                        bill.modifiedOn ?? bill.createdOn);
                                 return Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
@@ -308,7 +313,9 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                       title: Text(
                                           "${_setSelectedPayersDisplay(bill.payerIds)}${!(bill.description?.isEmpty ?? true) ? " | ${bill.description}" : ""}"),
                                       //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
-                                      subtitle: Text(_lastModified),
+                                      subtitle: Text(bill.createdOn
+                                          .lastModified(
+                                              modified: bill.modifiedOn)),
                                       trailing: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
@@ -316,7 +323,7 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            '$_formattedBillDate',
+                                            "${bill.billDate?.format(dateOnly: true)}",
                                             textAlign: TextAlign.right,
                                             style: const TextStyle(
                                                 fontSize: 15,
@@ -336,19 +343,29 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                             '${bill.quantification} $_quantification',
                                             textAlign: TextAlign.right,
                                             style: const TextStyle(
-                                                fontSize: 13,
+                                                fontSize: 11,
                                                 fontWeight: FontWeight.w200),
                                           ),
                                         ],
                                       ),
-                                      onTap: () {
+                                      onTap: () async {
                                         // setState(() {
                                         //   _isExpanded = !_isExpanded;
                                         // });
-                                        _showDataManager(bill);
+                                        if ((await showBillManagement(
+                                                context,
+                                                bill,
+                                                Color(bill.billType?.iconData
+                                                        ?.color ??
+                                                    0),
+                                                _selectedUserId,
+                                                _loggedInId)) ??
+                                            false) {
+                                          //return added record userid (only first one if multiple selected users), then update _selectedUserId
+                                        }
                                       },
                                     ),
-                                    const Divider()
+                                    //const Divider()
                                   ],
                                 );
                               },
@@ -387,8 +404,9 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
             ? const Center(child: Text('No readings found.'))
             : SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(10),
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : Card(
@@ -414,10 +432,11 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
+                                      dense: true,
                                       //isThreeLine: true,
                                       //title: Text("${_setSelectedPayersDisplay(reading.payerIds)}${!(reading.description?.isEmpty ?? true) ? " | ${reading.description}" : ""}"),
                                       title: Text(
-                                        '${reading.date?.formatDate(dateOnly: true)}',
+                                        '${reading.date?.formatToMonthYear()}',
                                         textAlign: TextAlign.left,
                                         style: const TextStyle(
                                             fontSize: 25,
@@ -442,14 +461,20 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                           ),
                                         ],
                                       ),
-                                      onTap: () {
+                                      onTap: () async {
                                         // setState(() {
                                         //   _isExpanded = !_isExpanded;
                                         // });
-                                        _showDataManager(reading);
+                                        if ((await showReadingManagement(
+                                                context,
+                                                reading,
+                                                reading.billType,
+                                                _selectedUserId)) ??
+                                            false) {
+                                          //return added record userid (only first one if multiple selected users), then update _selectedUserId
+                                        }
                                       },
-                                    ),
-                                    const Divider()
+                                    )
                                   ],
                                 );
                               },
@@ -469,14 +494,16 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                 context,
                 data,
                 Color(_bill.billType?.iconData?.color ?? 0),
-                _selectedUserId)) ??
+                _selectedUserId,
+                _loggedInId)) ??
             false) {
           //return added record userid (only first one if multiple selected users), then update _selectedUserId
         }
         break;
       case 1:
+        Reading reading = Reading();
         if ((await showReadingManagement(
-                context, data, _bill.billType, _selectedUserId)) ??
+                context, reading, _bill.billType, _selectedUserId)) ??
             false) {
           //return added record userid (only first one if multiple selected users), then update _selectedUserId
         }

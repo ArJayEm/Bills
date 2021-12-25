@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:bills/pages/components/modal_base.dart';
@@ -73,9 +74,9 @@ class _ManagementState extends State<Management> {
       _selectedList.add(_selectedUserId); //_reading.userIds ?? ;
       _reading = widget.reading;
       _reading.type = _billTypeId;
-      _reading.date = (_reading.date ?? DateTime.now()).formatDateOnly();
+      _reading.date = _reading.date ?? DateTime.now();
       _ctrlBillDate.text = _reading.date!.formatDate(dateOnly: true);
-      _ctrlReading.text = _reading.reading.toString();
+      _ctrlReading.text = (_reading.reading ?? 0).toString();
     });
     _getPayers();
   }
@@ -101,7 +102,7 @@ class _ManagementState extends State<Management> {
             Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -235,6 +236,17 @@ class _ManagementState extends State<Management> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : const Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          primary: Color(_billType.iconData?.color ?? 0),
+                          textStyle: const TextStyle(color: Colors.white)),
+                      onPressed: !_isLoading ? _saveRecord : null,
+                    ),
                   ],
                 ),
               ),
@@ -258,12 +270,12 @@ class _ManagementState extends State<Management> {
                             size: 30, color: Colors.grey),
                         onPressed: !_isLoading ? _deleteRecord : null,
                       )
-                    : const SizedBox(),
-                TextButton(
-                  child: Icon(Icons.done,
-                      size: 30, color: Color(_billType.iconData!.color ?? 0)),
-                  onPressed: !_isLoading ? _saveRecord : null,
-                ),
+                    : const SizedBox(width: 53),
+                // TextButton(
+                //   child: Icon(Icons.done,
+                //       size: 30, color: Color(_billType.iconData!.color ?? 0)),
+                //   onPressed: !_isLoading ? _saveRecord : null,
+                // ),
               ],
             ),
             header: 'Add $_title');
@@ -298,18 +310,30 @@ class _ManagementState extends State<Management> {
   }
 
   _getDate() async {
-    var date = await showDatePicker(
-      context: context,
-      initialDate: _reading.date!,
-      firstDate: _firstdate,
-      lastDate: _lastdate,
-    );
-    if (date != null) {
-      setState(() {
-        _reading.date = DateTime(date.year, date.month, date.day);
-        _ctrlBillDate.text = _reading.date!.formatDate(dateOnly: true);
-      });
-    }
+    // DateTime newDate = await showDatePicker(
+    //   context: context,
+    //   initialDate: _reading.date!,
+    //   firstDate: _firstdate,
+    //   lastDate: _lastdate,
+    // ) ??
+    //     _reading.date ??
+    //     DateTime.now();
+    DateTime newDate = await DatePicker.showSimpleDatePicker(
+          context,
+          initialDate: _reading.date!,
+          firstDate: _firstdate,
+          lastDate: _lastdate,
+          dateFormat: "yyyy-MMMM-dd",
+          locale: DateTimePickerLocale.en_us,
+          looping: true,
+        ) ??
+        _reading.date ??
+        DateTime.now();
+
+    setState(() {
+      _reading.date = DateTime(newDate.year, newDate.month, newDate.day);
+      _ctrlBillDate.text = _reading.date!.formatDate(dateOnly: true);
+    });
   }
 
   _cancel() {

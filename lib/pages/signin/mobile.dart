@@ -3,7 +3,7 @@
 import 'dart:math';
 
 import 'package:bills/models/user_profile.dart';
-import 'package:bills/pages/pin/pin_home.dart';
+import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -474,8 +474,8 @@ class _MobileSignInPageState extends State<MobileSignInPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => PinHome(
-                      auth: _auth, displayName: userProfile.name!)));
+                  builder: (context) =>
+                      PinHome(auth: _auth, displayName: userProfile.name!)));
         });
       }
     } on FirebaseAuthException catch (e) {

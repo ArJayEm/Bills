@@ -10,6 +10,12 @@ extension NumberFormatHelper on num {
             locale: "en_US", symbol: withCurrency ? currency : "")
         .format(this);
   }
+
+  num toNumAsFixed({int decimals = 0}) {
+    num number = num.parse(toStringAsFixed(decimals));
+    //num number = num.tryParse(format()) ?? 0.00;
+    return number;
+  }
 }
 
 extension MsEpochToDateTimeFormat on int {
@@ -39,6 +45,14 @@ extension DateTimeFormatHelper on DateTime {
   DateTime formatDateOnly() {
     DateTime d = this;
     return DateTime(d.year, d.month, d.day);
+  }
+
+  String lastModified(
+      {DateTime? modified, bool dateOnly = false}) {
+    bool isModified = modified.toString().isNotEmpty;
+    String prefix = isModified ? "M: " : "C: ";
+    DateTime d = modified ?? this;
+    return "$prefix${d.formatDate(dateOnly: dateOnly)}";
   }
 }
 
@@ -109,6 +123,12 @@ extension DateFormatHelper on DateTime {
     } else {
       return format();
     }
+  }
+
+  String lastModifiedDate(
+      {dynamic data, DateTime? modified, bool dateOnly = false}) {
+    String newDate = (modified ?? this).format(dateOnly: dateOnly);
+    return "${(modified.toString().isNotEmpty ? "M: " : "C: ")}$newDate";
   }
 }
 

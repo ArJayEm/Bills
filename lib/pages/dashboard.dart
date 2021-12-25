@@ -1,25 +1,26 @@
-// import 'dart:js';
-
 import 'package:badges/badges.dart';
+import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill_type.dart';
+import 'package:bills/models/billing.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
-import 'package:bills/pages/pin/pin_home.dart';
-import 'package:bills/pages/profile/profile_home.dart';
+import 'package:bills/pages/signin/pin/pin_home.dart';
+import 'package:bills/pages/user/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:bills/pages/test/dropdown_test.dart';
 import 'package:bills/pages/transactions/generate_bills.dart';
-import 'package:bills/pages/transactions/history_bills.dart';
+import 'package:bills/pages/user/history_bills.dart';
 import 'package:bills/pages/transactions/payer_list.dart';
-import 'package:bills/pages/transactions/history_payment.dart';
+import 'package:bills/pages/user/history_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
+import 'package:print_color/print_color.dart';
 
 import 'listview_bills.dart';
 
@@ -49,10 +50,10 @@ class _DashboardState extends State<Dashboard> {
   late CollectionReference _collection;
 
   String? _displayname;
-  num _curentAmount = 0;
+  Billing? _billingCurrent = Billing();
 
   bool _isPayer = false;
-  final bool _getAmountToPayLoading = false;
+  bool _isLoadingGetAmountToPay = false;
   // ignore: unused_field
   bool _isLoadingUser = false;
 
@@ -123,7 +124,8 @@ class _DashboardState extends State<Dashboard> {
                 trailing: const Icon(Icons.chevron_right, size: 20),
                 onTap: _profile,
               ),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
+              const Divider(),
+              //const Divider(indent: 15, endIndent: 15, thickness: 1),
               ListTile(
                 leading: const Icon(Icons.settings),
                 minLeadingWidth: 0,
@@ -131,7 +133,7 @@ class _DashboardState extends State<Dashboard> {
                 trailing: const Icon(Icons.chevron_right, size: 20),
                 onTap: _settings,
               ),
-              //Divider(indent: 15, endIndent: 15, thickness: 1),
+              const Divider(indent: 15, endIndent: 15, thickness: 1),
               // ListTile(
               //   leading: Icon(Icons.expand),
               //   minLeadingWidth: 0,
@@ -162,35 +164,47 @@ class _DashboardState extends State<Dashboard> {
               //     _openBills(context, ExpandableSample());
               //   },
               // ),
-              const Divider(),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
-              ListTile(
-                leading: const Icon(Icons.expand),
-                minLeadingWidth: 0,
-                title: const Text('Dropdown'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _openBills(context, const DropdDownTest());
-                },
+              //const Divider(),
+              if (_userProfile.isAdmin ?? false) _getTestWidgets(),
+
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    //const Divider(indent: 15, endIndent: 15, thickness: 1),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      minLeadingWidth: 0,
+                      title: const Text('Log Out'),
+                      onTap: _logoutDialog,
+                    ),
+                    const Divider(indent: 15, endIndent: 15, thickness: 1),
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      minLeadingWidth: 0,
+                      title: const Text('About'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openBills(context, const About());
+                      },
+                    ),
+                  ],
+                ),
               ),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                minLeadingWidth: 0,
-                title: const Text('Log Out'),
-                onTap: _logoutDialog,
-              ),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                minLeadingWidth: 0,
-                title: const Text('About'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _openBills(context, const About());
-                },
-              ),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
+              // const Expanded(
+              //   child: Align(
+              //     alignment: FractionalOffset.bottomCenter,
+              //     child: ListTile(
+              //       leading:
+              //           Icon(Icons.account_box, color: Colors.white, size: 25),
+              //       //onTap: () {},
+              //       title: Text(
+              //         'Account',
+              //         style: TextStyle(color: Colors.white, fontSize: 20),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -215,11 +229,12 @@ class _DashboardState extends State<Dashboard> {
               ),
       ),
       body: RefreshIndicator(
-        onRefresh: _loadLandingPage,
+        onRefresh: _onLoad,
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(10),
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics()),
             child: _buildDashboard(),
             //  _widgetOptions.elementAt(_selectedIndex),
           ),
@@ -274,6 +289,23 @@ class _DashboardState extends State<Dashboard> {
       //   child: Icon(Icons.add, color: Colors.white),
       // ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+    );
+  }
+
+  Widget _getTestWidgets() {
+    return Column(
+      children: [
+        const Divider(indent: 15, endIndent: 15, thickness: 1),
+        ListTile(
+          leading: const Icon(Icons.expand),
+          minLeadingWidth: 0,
+          title: const Text('Dropdown'),
+          onTap: () {
+            Navigator.pop(context);
+            _openBills(context, const DropdDownTest());
+          },
+        ),
+      ],
     );
   }
 
@@ -333,9 +365,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future _loadLandingPage() async {
+    // setState(() {
+    //   _currentAmount = _isLoadingGetAmountToPay ? 100 : 0;
+    // });
     setState(() {
-      _curentAmount = _getAmountToPayLoading ? 100 : 0;
+      _isLoadingGetAmountToPay = true;
     });
+    _getAmountToPay();
   }
 
   Widget _buildDashboard() {
@@ -345,42 +381,40 @@ class _DashboardState extends State<Dashboard> {
       children: [
         _isDebug || _isPayer ? _amountToPay() : const SizedBox(),
         _isDebug || _isPayer ? _billingPayment() : const SizedBox(),
-        _isDebug || !_isPayer ? _menuButtons() : const SizedBox(),
-        _isDebug || !_isPayer
-            ? Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: const Icon(Icons.people_alt_outlined),
-                      minLeadingWidth: 0,
-                      title: const Text('Payers'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PayerList(auth: _auth)));
-                      },
-                    ),
-                    const CustomDivider(),
-                    ListTile(
-                      leading: const Icon(Icons.receipt_long),
-                      minLeadingWidth: 0,
-                      title: const Text('Generate Billing'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    GenerateBills(auth: _auth)));
-                      },
-                    ),
-                  ],
+        if (_userProfile.isAdmin ?? false) _menuButtons(),
+        if (_userProfile.isAdmin ?? false)
+          Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.people_alt_outlined),
+                  minLeadingWidth: 0,
+                  title: const Text('Payers'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PayerList(auth: _auth)));
+                  },
                 ),
-              )
-            : const SizedBox(),
+                const CustomDivider(),
+                ListTile(
+                  leading: const Icon(Icons.receipt_long),
+                  minLeadingWidth: 0,
+                  title: const Text('Generate Billing'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GenerateBills(auth: _auth)));
+                  },
+                ),
+              ],
+            ),
+          )
       ],
     );
   }
@@ -420,27 +454,74 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Future<void> _getAmountToPay() async {
+    Billing billing = Billing();
+
+    try {
+      _ffInstance
+          .collection("billings")
+          .where("user_id", arrayContains: _auth.currentUser!.uid)
+          .where("deleted", isEqualTo: false)
+          .orderBy("billing_date", descending: true)
+          .limit(1)
+          .get()
+          .then((snapshots) {
+        for (var document in snapshots.docs) {
+          billing = Billing.fromJson(document.data());
+        }
+      }).whenComplete(() {
+        setState(() {
+          _billingCurrent = billing;
+        });
+      });
+      setState(() {
+        _isLoadingGetAmountToPay = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      _isLoadingGetAmountToPay.updateProgressStatus(errMsg: "${e.message}.");
+    } catch (e) {
+      _isLoadingGetAmountToPay.updateProgressStatus(errMsg: "$e.");
+    }
+  }
+
   Widget _amountToPay() {
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            title: const Text('Amount to pay', style: TextStyle(fontSize: 20)),
-            trailing: Text(_curentAmount.format(),
-                style: const TextStyle(fontSize: 20)),
-          ),
-          const CustomDivider(),
-          _curentAmount > 0
-              ? const SizedBox()
-              : const ListTile(
-                  dense: true,
-                  title: Text(
-                    'Thank you for your payment!',
-                    style: TextStyle(fontSize: 15),
-                    textAlign: TextAlign.center,
+              title:
+                  const Text('Amount to pay', style: TextStyle(fontSize: 20)),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "${_billingCurrent?.totalPayment?.formatForDisplay()}",
+                    style: const TextStyle(fontSize: 22),
                   ),
-                )
+                  if ((_billingCurrent?.totalPayment ?? 0) > 0)
+                    Text(
+                      "Due on: ${_billingCurrent?.dueDate?.formatDate(dateOnly: true)}",
+                      style: TextStyle(
+                          color: _billingCurrent!.dueDate!
+                                      .compareTo(DateTime.now()) >
+                                  0
+                              ? Colors.redAccent
+                              : Colors.white),
+                    ),
+                ],
+              )),
+          if ((_billingCurrent?.totalPayment ?? 0) == 0) const CustomDivider(),
+          if ((_billingCurrent?.totalPayment ?? 0) == 0)
+            const ListTile(
+              dense: true,
+              title: Text(
+                'Thank you for your payment!',
+                style: TextStyle(fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+            )
           // const ListTile(
           //   leading: Icon(Icons.album),
           //   title: Text('The Enchanted Nightingale'),
@@ -488,9 +569,18 @@ class _DashboardState extends State<Dashboard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          _billTypeMenuList[index].icon!,
-                          const SizedBox(height: 20),
-                          Text(_billTypeMenuList[index].location!,
+                          //_billTypeMenuList[index].icon!,
+                          Text("${_billTypeMenuList[index].iconData.name}",
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  fontFamily: _billTypeMenuList[index]
+                                      .iconData
+                                      .fontfamily,
+                                  color: Color(
+                                      _billTypeMenuList[index].iconData.color ??
+                                          0))),
+                          const SizedBox(height: 10),
+                          Text(_billTypeMenuList[index].location,
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis)
                         ],
@@ -498,7 +588,7 @@ class _DashboardState extends State<Dashboard> {
                       onTap: () {
                         _setAllFalse();
                         _billTypeMenuList[index].isSelected = true;
-                        _openBills(context, _billTypeMenuList[index].view!);
+                        _openBills(context, _billTypeMenuList[index].view);
                       },
                     ),
                   );
@@ -537,13 +627,17 @@ class _DashboardState extends State<Dashboard> {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
           billTypes.add(b);
+          Icon icon = Icon(
+              IconData(b.iconData?.codepoint ?? 0,
+                  fontFamily: b.iconData?.fontfamily),
+              color: Color(b.iconData?.color ?? 0));
           menu.add(Menu(
-              location: b.description,
-              view: ListViewBills(billType: b),
-              icon: Icon(
-                  IconData(b.iconData?.codepoint ?? 0,
-                      fontFamily: b.iconData?.fontfamily),
-                  color: Color(b.iconData?.color ?? 0))));
+              location: "${b.description}",
+              iconData: b.iconData!,
+              view: ListViewBills(billType: b, auth: _auth),
+              icon: icon));
+          Print.green(
+              "Icon : [codePoint: ${icon.icon?.codePoint}, key: ${icon.icon.toString()}, family: ${icon.icon?.fontFamily}, package: ${icon.icon?.fontPackage}]");
         }
       }).whenComplete(() {
         setState(() {

@@ -15,9 +15,11 @@ Coins _$CoinsFromJson(Map<String, dynamic> json) => Coins()
       ? null
       : DateTime.parse(json['modified_on'] as String)
   ..deleted = json['deleted'] as bool?
-  ..amount = json['amount'] as num?
+  ..amount = json['amount'] as num
   ..payerId = json['payer_id'] as String?
-  ..payerIdDeleted = json['payerid_deleted'] as String?;
+  ..payerIdDeleted = json['payerid_deleted'] as String?
+  ..userIds =
+      (json['user_ids'] as List<dynamic>).map((e) => e as String?).toList();
 
 Map<String, dynamic> _$CoinsToJson(Coins instance) {
   final val = <String, dynamic>{};
@@ -37,5 +39,6 @@ Map<String, dynamic> _$CoinsToJson(Coins instance) {
   val['amount'] = instance.amount;
   val['payer_id'] = instance.payerId;
   val['payerid_deleted'] = instance.payerIdDeleted;
+  val['user_ids'] = instance.userIds;
   return val;
 }

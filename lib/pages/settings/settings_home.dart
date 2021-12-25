@@ -1,6 +1,6 @@
 import 'package:bills/pages/biometrics/biometrics.dart';
 import 'package:bills/pages/dashboard.dart';
-import 'package:bills/pages/pin/current.dart';
+import 'package:bills/pages/signin/pin/current.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +27,7 @@ class _SettingsHomeState extends State<SettingsHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         // leading: GestureDetector(
         //   onTap: () => Navigator.pop(context),

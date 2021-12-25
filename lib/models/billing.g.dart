@@ -18,12 +18,24 @@ Billing _$BillingFromJson(Map<String, dynamic> json) => Billing()
   ..date = json['billing_date'] == null
       ? null
       : DateTime.parse(json['billing_date'] as String)
+  ..billingFrom = json['billing_from'] == null
+      ? null
+      : DateTime.parse(json['billing_from'] as String)
+  ..billingTo = json['billing_to'] == null
+      ? null
+      : DateTime.parse(json['billing_to'] as String)
   ..coins = json['coins'] as num?
+  ..dueDate = json['due_date'] == null
+      ? null
+      : DateTime.parse(json['due_date'] as String)
   ..previousUnpaid = json['previous_unpaid'] as num?
   ..subtotal = json['subtotal'] as num?
   ..totalPayment = json['total_payment'] as num?
   ..billIds =
       (json['bill_ids'] as List<dynamic>).map((e) => e as String?).toList()
+  ..computations = (json['computations'] as List<dynamic>)
+      .map((e) => e as Map<String, dynamic>)
+      .toList()
   ..paymentIds =
       (json['payment_ids'] as List<dynamic>).map((e) => e as String?).toList()
   ..readingIds =
@@ -47,11 +59,15 @@ Map<String, dynamic> _$BillingToJson(Billing instance) {
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
   val['billing_date'] = instance.date?.toIso8601String();
+  val['billing_from'] = instance.billingFrom?.toIso8601String();
+  val['billing_to'] = instance.billingTo?.toIso8601String();
   val['coins'] = instance.coins;
+  val['due_date'] = instance.dueDate?.toIso8601String();
   val['previous_unpaid'] = instance.previousUnpaid;
   val['subtotal'] = instance.subtotal;
   val['total_payment'] = instance.totalPayment;
   val['bill_ids'] = instance.billIds;
+  val['computations'] = instance.computations;
   val['payment_ids'] = instance.paymentIds;
   val['reading_ids'] = instance.readingIds;
   val['user_id'] = instance.userId;

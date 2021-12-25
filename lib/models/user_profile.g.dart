@@ -25,6 +25,7 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
   ..phoneNumber = json['phone_number'] as String?
   ..loggedIn = json['logged_in'] as bool?
   ..members = json['members'] as int
+  ..isAdmin = json['is_admin'] as bool?
   ..registeredUsing = json['registered_using'] as String?
   ..billingDate = json['billing_date'] == null
       ? null
@@ -57,6 +58,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   val['phone_number'] = instance.phoneNumber;
   val['logged_in'] = instance.loggedIn;
   val['members'] = instance.members;
+  val['is_admin'] = instance.isAdmin;
   val['registered_using'] = instance.registeredUsing;
   val['billing_date'] = instance.billingDate?.toIso8601String();
   val['user_type'] = instance.userType;

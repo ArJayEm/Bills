@@ -44,6 +44,7 @@ class _PayerListState extends State<PayerList> {
       //initialIndex: 1,
       child: Scaffold(
         key: _scaffoldKey,
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.grey.shade300),
           //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
@@ -140,7 +141,7 @@ class _PayerListState extends State<PayerList> {
   Widget _buildPayerList() {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
         physics: const BouncingScrollPhysics(),
         child: Card(
           child: ListView(

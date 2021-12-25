@@ -1,18 +1,18 @@
+import 'package:bills/models/icon_data.dart';
 import 'package:flutter/material.dart';
 
 class Menu {
-  String? location;
+  String location;
   String? route;
-  Widget? view;
+  Widget view;
   Icon? icon;
-  bool? isSelected;
+  bool? isSelected = false;
   Function? onPressed;
+  CustomIconData iconData;
 
   Menu(
-      {this.location,
-      this.route,
-      this.view,
+      {required this.location,
+      required this.view,
       this.icon,
-      this.onPressed,
-      this.isSelected = false});
+      required this.iconData});
 }

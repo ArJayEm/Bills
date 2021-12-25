@@ -18,6 +18,7 @@ class _DropdDownTestState extends State<DropdDownTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(title: const Text("DropdownSearch Demo")),
       body: Padding(
         padding: const EdgeInsets.all(25),

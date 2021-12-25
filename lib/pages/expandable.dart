@@ -16,9 +16,8 @@ class ExpandableSampleState extends State<ExpandableSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Expandable Demo"),
-      ),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(title: const Text("Expandable Demo")),
       body: ExpandableTheme(
         data: const ExpandableThemeData(
           iconColor: Colors.blue,
@@ -93,7 +92,8 @@ Widget _card1(context) {
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                    padding:
+                        const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Expandable(
                       collapsed: collapsed,
                       expanded: expanded,

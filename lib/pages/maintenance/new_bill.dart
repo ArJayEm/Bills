@@ -9,18 +9,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 
 import 'package:bills/pages/components/modal_base.dart';
 import 'package:print_color/print_color.dart';
 
-Future<bool?> showBillManagement(context, data, color, userid) async {
+Future<bool?> showBillManagement(
+    context, data, color, userid, loggedInId) async {
   return await showModalBottomSheet<bool?>(
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return Management(data, color, userid);
+      return Management(data, color, userid, loggedInId);
     },
   );
 }
@@ -29,8 +31,9 @@ class Management extends StatefulWidget {
   final Bill bill;
   final Color color;
   final String? selectedUserId;
+  final String? loggedInId;
 
-  const Management(this.bill, this.color, this.selectedUserId);
+  const Management(this.bill, this.color, this.selectedUserId, this.loggedInId);
 
   @override
   State<StatefulWidget> createState() {
@@ -70,7 +73,7 @@ class _ManagementState extends State<Management> {
       _bill = widget.bill;
       _quantification = _bill.billType?.quantification ?? "";
 
-      //_bill.billTypeId = int.parse(_bill.billType!.id!);
+      _bill.billTypeId = int.parse(_bill.billType!.id!);
       _selectedUserId = widget.selectedUserId ?? "";
       _selectedUserList = [_selectedUserId];
       _selectedUserBillTypeList = ["${_selectedUserId}_${_bill.billTypeId}"];
@@ -80,10 +83,10 @@ class _ManagementState extends State<Management> {
       //_selectedUserBillTypeList.add("${_selectedUserId}_${_bill.billTypeId}");
       _bill.billDate = _bill.billDate ?? DateTime.now();
 
-      _ctrlBillDate.text = _bill.billDate!.formatDate(dateOnly: true);
+      _ctrlBillDate.text = _bill.billDate!.format(dateOnly: true);
       _ctrlDesciption.text = _bill.description ?? "";
-      _ctrlAmount.text = _bill.amount!.format();
-      _ctrlQuantif.text = _bill.quantification.toString();
+      _ctrlAmount.text = (_bill.amount ?? 0).format();
+      _ctrlQuantif.text = (_bill.quantification ?? 1).toString();
     });
     _onLoad();
   }
@@ -108,7 +111,7 @@ class _ManagementState extends State<Management> {
             Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -298,17 +301,17 @@ class _ManagementState extends State<Management> {
                         ],
                       ),
                     ),
-                    //SizedBox(height: 10),
-                    // ElevatedButton(
-                    //   child: _isLoading
-                    //       ? Center(child: CircularProgressIndicator())
-                    //       : Text('Save'),
-                    //   style: ElevatedButton.styleFrom(
-                    //       minimumSize: Size(double.infinity, 50),
-                    //       primary: widget.color,
-                    //       textStyle: TextStyle(color: Colors.white)),
-                    //   onPressed: !_isLoading ? _saveRecord : null,
-                    // ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : const Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          primary: widget.color,
+                          textStyle: const TextStyle(color: Colors.white)),
+                      onPressed: !_isLoading ? _saveRecord : null,
+                    ),
                     // SizedBox(height: 10),
                     // ElevatedButton(
                     //   onPressed: _cancel,
@@ -340,11 +343,11 @@ class _ManagementState extends State<Management> {
                             size: 30, color: Colors.grey),
                         onPressed: !_isLoading ? _deleteRecord : null,
                       )
-                    : const SizedBox(),
-                TextButton(
-                  child: Icon(Icons.done, size: 30, color: widget.color),
-                  onPressed: !_isLoading ? _saveRecord : null,
-                ),
+                    : const SizedBox(width: 53),
+                // TextButton(
+                //   child: Icon(Icons.done, size: 30, color: widget.color),
+                //   onPressed: !_isLoading ? _saveRecord : null,
+                // ),
               ],
             ),
             header: 'Add $_title');
@@ -356,18 +359,30 @@ class _ManagementState extends State<Management> {
   }
 
   _getDate() async {
-    var date = await showDatePicker(
-      context: context,
-      initialDate: _bill.billDate!,
-      firstDate: _firstdate,
-      lastDate: _lastdate,
-    );
-    if (date != null) {
-      setState(() {
-        _bill.billDate = DateTime(date.year, date.month, date.day);
-        _ctrlBillDate.text = _bill.billDate!.formatDate(dateOnly: true);
-      });
-    }
+    // DateTime newDate = await showDatePicker(
+    //       context: context,
+    //       initialDate: _bill.billDate!,
+    //       firstDate: _firstdate,
+    //       lastDate: _lastdate,
+    //     ) ??
+    //     _bill.billDate ??
+    //     DateTime.now();
+    DateTime newDate = await DatePicker.showSimpleDatePicker(
+          context,
+          initialDate: _bill.billDate!,
+          firstDate: _firstdate,
+          lastDate: _lastdate,
+          dateFormat: "yyyy-MMMM-dd",
+          locale: DateTimePickerLocale.en_us,
+          looping: true,
+        ) ??
+        _bill.billDate ??
+        DateTime.now();
+
+    setState(() {
+      _bill.billDate = DateTime(newDate.year, newDate.month, newDate.day);
+      _ctrlBillDate.text = _bill.billDate!.formatDate(dateOnly: true);
+    });
   }
 
   _saveRecord() async {
@@ -384,8 +399,12 @@ class _ManagementState extends State<Management> {
       try {
         CollectionReference list = _ffInstance.collection("bills");
         if (_bill.id.isNullOrEmpty()) {
+          _bill.createdBy = widget.loggedInId;
           var data = _bill.toJson();
-          list.add(data).then((value) {
+          list.add(data).then((document) {
+            setState(() {
+              _bill.id = document.id;
+            });
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
                 overlays: SystemUiOverlay.values);
             _updateBillingDates();
@@ -395,6 +414,7 @@ class _ManagementState extends State<Management> {
             _showProgressUi(errMsg: error, msg: "Failed to add bill.");
           });
         } else {
+          _bill.modifiedBy = widget.loggedInId;
           _bill.modifiedOn = DateTime.now();
           list.doc(_bill.id).update(_bill.toJson()).then((value) {
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,

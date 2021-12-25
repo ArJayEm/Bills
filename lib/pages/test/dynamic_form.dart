@@ -17,6 +17,7 @@ class _DynamicFormState extends State<DynamicForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Dynamic Form'),
         actions: [

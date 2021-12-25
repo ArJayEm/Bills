@@ -10,9 +10,10 @@ class CustomIconData {
   int? color = 0;
   @JsonKey(name: "font_family")
   String? fontfamily = "MaterialIcons";
+  @JsonKey(name: "name")
+  String? name = "";
 
-  CustomIconData(
-      {this.codepoint, this.color, this.fontfamily});
+  CustomIconData();
 
   factory CustomIconData.fromJson(Map<String, dynamic> json) =>
       _$CustomIconDataFromJson(json);
