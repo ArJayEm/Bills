@@ -104,25 +104,35 @@ class _PinHomeState extends State<PinHome> {
           children: [
             const Spacer(),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _auth.currentUser!.photoURL != null
-                    ? Container(
-                        height: 20,
-                        width: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: NetworkImage(
-                              _auth.currentUser!.photoURL.toString(),
-                            ),
-                          ),
+                if (_auth.currentUser!.photoURL != null)
+                  Container(
+                    height: 20,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: NetworkImage(
+                          _auth.currentUser!.photoURL.toString(),
                         ),
-                      )
-                    : const SizedBox(),
-                Text(
-                  '  $_displayName',
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+                if (_auth.currentUser!.photoURL != null)
+                  const SizedBox(width: 5),
+                SizedBox(
+                  //width: 150,
+                  child: Text(
+                    _displayName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey.shade600,
+                        overflow: TextOverflow.ellipsis),
+                  ),
                 ),
               ],
             ),
@@ -197,96 +207,101 @@ class _PinHomeState extends State<PinHome> {
           ),
         ),
         const SizedBox(height: 20),
-        GridView.builder(
-          padding: const EdgeInsets.fromLTRB(50, 10, 50, 10),
-          shrinkWrap: true,
-          //physics: BouncingScrollPhysics(),
-          itemCount: _mpinButtons.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              childAspectRatio: 1.5,
-              crossAxisCount: 3,
-              mainAxisExtent: 80,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10),
-          itemBuilder: (BuildContext context, int index) {
-            return _mpinButtons[index].length > 0 && _mpinButtons[index] != '<'
-                ? FloatingActionButton(
-                    onPressed: () {
-                      if (!_isLoading) {
-                        if (_pinController.text.length < 6) {
-                          _pinController.text =
-                              '${_pinController.text}${_mpinButtons[index]}';
-                          _setBoolean();
-                          if (_pinController.text.length == 6) {
+        SizedBox(
+          width: 450,
+          //height: 400,
+          child: GridView.builder(
+            padding: const EdgeInsets.fromLTRB(50, 10, 50, 10),
+            shrinkWrap: true,
+            //physics: BouncingScrollPhysics(),
+            itemCount: _mpinButtons.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 1,
+                crossAxisCount: 3,
+                //mainAxisExtent: 80,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10),
+            itemBuilder: (BuildContext context, int index) {
+              return _mpinButtons[index].length > 0 &&
+                      _mpinButtons[index] != '<'
+                  ? FloatingActionButton(
+                      onPressed: () {
+                        if (!_isLoading) {
+                          if (_pinController.text.length < 6) {
+                            _pinController.text =
+                                '${_pinController.text}${_mpinButtons[index]}';
+                            _setBoolean();
+                            if (_pinController.text.length == 6) {
+                              _verifyMpin();
+                            }
+                          } else if (_pinController.text.length == 6) {
                             _verifyMpin();
                           }
-                        } else if (_pinController.text.length == 6) {
-                          _verifyMpin();
+                          _buttonPressed(index);
                         }
-                        _buttonPressed(index);
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border:
-                            Border.all(color: Colors.grey.shade700, width: 1.5),
-                        borderRadius: BorderRadius.circular(35),
-                        color: _isLoading
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade800,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${_mpinButtons[index]}',
-                          style: TextStyle(
-                            fontSize: 30,
-                            color: _isButtonPressed
-                                ? Colors.grey.shade700
-                                : Colors.grey.shade300,
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: Colors.grey.shade700, width: 1.5),
+                          borderRadius: BorderRadius.circular(35),
+                          color: _isLoading
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade800,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${_mpinButtons[index]}',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: _isButtonPressed
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade300,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                : _mpinButtons[index].toString() == '<'
-                    ? _showBackSpace == true
-                        ? GestureDetector(
-                            onTap: () {
-                              if (!_isLoading) {
+                    )
+                  : _mpinButtons[index].toString() == '<'
+                      ? _showBackSpace == true
+                          ? GestureDetector(
+                              onTap: () {
+                                if (!_isLoading) {
+                                  if (_pinController.text.isNotEmpty) {
+                                    _pinController.text = _pinController.text
+                                        .substring(
+                                            0, _pinController.text.length - 1);
+                                    _setBoolean();
+                                  }
+                                }
+                              },
+                              onLongPress: () {
                                 if (_pinController.text.isNotEmpty) {
-                                  _pinController.text = _pinController.text
-                                      .substring(
-                                          0, _pinController.text.length - 1);
+                                  for (var i = 0;
+                                      i < _pinController.text.length + 1;
+                                      i++) {
+                                    _pinController.text = _pinController.text
+                                        .substring(
+                                            0, _pinController.text.length - 1);
+                                  }
                                   _setBoolean();
                                 }
-                              }
-                            },
-                            onLongPress: () {
-                              if (_pinController.text.isNotEmpty) {
-                                for (var i = 0;
-                                    i < _pinController.text.length + 1;
-                                    i++) {
-                                  _pinController.text = _pinController.text
-                                      .substring(
-                                          0, _pinController.text.length - 1);
-                                }
-                                _setBoolean();
-                              }
-                            },
-                            child: Center(
-                              child: Icon(
-                                Icons.backspace,
-                                color: _isLoading
-                                    ? Colors.grey.shade700
-                                    : Colors.grey.shade800,
-                                size: 35,
+                              },
+                              child: Center(
+                                child: Icon(
+                                  Icons.backspace,
+                                  color: _isLoading
+                                      ? Colors.grey.shade700
+                                      : Colors.grey.shade800,
+                                  size: 35,
+                                ),
                               ),
-                            ),
-                          )
-                        : const SizedBox()
-                    : const SizedBox();
-          },
-        )
+                            )
+                          : const SizedBox()
+                      : const SizedBox();
+            },
+          ),
+        ),
       ],
     );
   }
@@ -353,10 +368,10 @@ class _PinHomeState extends State<PinHome> {
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
-          userProfile.name = snapshot.get('name') as String?;
-          userProfile.loggedIn = snapshot.get('logged_in') as bool?;
-          userProfile.pin = snapshot.get("pin") as String?;
-          _document.update({'pin': userProfile.pin});
+          userProfile =
+              UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+
+          ///_document.update({'pin': userProfile.pin});
         } else {
           _auth.signOut();
           _showProgressUi(false, "User not found.");
@@ -364,22 +379,21 @@ class _PinHomeState extends State<PinHome> {
               MaterialPageRoute(builder: (context) => SignInHome(auth: _auth)));
         }
       }).whenComplete(() {
-        if (userProfile.loggedIn == true) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
-        } else {
-          if (userProfile.pin.isNullOrEmpty()) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => EnterMpin(
-                        auth: _auth, isChange: false, nominatedPin: '')));
-          } else {}
-        }
         setState(() {
           _displayName =
-              userProfile.name ?? _auth.currentUser!.displayName ?? '???';
+              "${userProfile.phoneNumber ?? userProfile.email ?? userProfile.name}";
         });
+        if (userProfile.loggedIn ?? false) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
+        } else if (userProfile.pin.isNullOrEmpty()) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EnterMpin(
+                      auth: _auth, isChange: false, nominatedPin: '')));
+        } else {}
+
         _showProgressUi(false, "");
       });
     } on FirebaseAuthException catch (e) {

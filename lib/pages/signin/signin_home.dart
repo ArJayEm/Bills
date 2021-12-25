@@ -286,10 +286,10 @@ class _SignInHomeState extends State<SignInHome> {
       UserProfile userProfile = UserProfile();
 
       String name =
-          _firebaseAuthUser.displayName ?? _firebaseAuthUser.email ?? '';
+          "${_firebaseAuthUser.displayName ?? _firebaseAuthUser.phoneNumber ?? (_firebaseAuthUser.photoURL?.isEmpty ?? false ? _firebaseAuthUser.email?.split("@").first.toString() : _firebaseAuthUser.email)}";
       _document.get().then((snapshot) {
         if (!snapshot.exists) {
-          userProfile.name = _firebaseAuthUser.displayName;
+          userProfile.name = name;
           userProfile.nameseparated = name.split(" ");
           userProfile.userCode = _generateUserCode();
           userProfile.phoneNumber = _firebaseAuthUser.phoneNumber;

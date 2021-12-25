@@ -201,8 +201,8 @@ class _ProfileHomeState extends State<ProfileHome> {
                                     },
                                     controller: _displayNameController,
                                     //autofocus: true,
-                                    decoration:
-                                        const InputDecoration(hintText: "Name"),
+                                    decoration: const InputDecoration(
+                                        hintText: "Name", labelText: "Name"),
                                     validator: (value) {
                                       if (value == null ||
                                           value.isEmpty ||

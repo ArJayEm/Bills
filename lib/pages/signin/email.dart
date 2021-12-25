@@ -291,27 +291,30 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _email!, password: _password!);
-      late String _displayName;
+      String displayName = "";
       User? user = userCredential.user;
 
       if (user != null) {
         DocumentReference document = _collection.doc(user.uid);
-        document.get().then((snapshot) {
-          if (snapshot.exists) {
-            _displayName = snapshot.get("name") as String;
+        document.get().then((document) {
+          if (document.exists) {
+            UserProfile up =
+                UserProfile.fromJson(document.data() as Map<String, dynamic>);
+            displayName = "${user.displayName ?? up.email ?? up.name}";
           }
         }).whenComplete(() {
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      PinHome(auth: _auth, displayName: _displayName)));
+                      PinHome(auth: _auth, displayName: displayName)));
         });
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         _showProgressUi(false, "User not found.");
         setState(() {
+          _auth.signOut();
           _showSignUp = true;
         });
         FocusScope.of(context).requestFocus(_emailFocusNode);
@@ -430,8 +433,13 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
         setState(() {
           _title = "Verify OTP";
           _emailState = EmailVerificationState.SHOW_OTP_SENT;
+          _isLoading = false;
         });
+      } else {
+        _showProgressUi(false, "OTP not sent.");
       }
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message.toString());
     } catch (e) {
       _showProgressUi(false, "$e.");
     }
@@ -456,7 +464,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
           document.get().then((snapshot) {
             if (!snapshot.exists) {
-              userProfile.name = _firebaseAuthUser.email;
+              userProfile.name =
+                  _firebaseAuthUser.displayName ?? _firebaseAuthUser.email;
+              userProfile.nameseparated = userProfile.name?.split(" ");
               userProfile.email = _firebaseAuthUser.email;
               userProfile.userCode = _generateUserCode();
               userProfile.registeredUsing = 'email';

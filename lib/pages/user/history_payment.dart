@@ -256,7 +256,8 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                                   "${bill.amount?.formatForDisplay()}",
                                                   textAlign: TextAlign.right,
                                                   style: const TextStyle(
-                                                      fontSize: 25)),
+                                                      fontSize: 25,
+                                                      color: Colors.green)),
                                             ],
                                           ),
                                           const Icon(Icons.chevron_right),
