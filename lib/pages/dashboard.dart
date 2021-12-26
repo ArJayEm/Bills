@@ -497,7 +497,7 @@ class _DashboardState extends State<Dashboard> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${_billingCurrent?.totalPayment?.formatForDisplay()}",
+                    "${_billingCurrent?.totalPayment.formatForDisplay()}",
                     style: const TextStyle(fontSize: 22),
                   ),
                   if ((_billingCurrent?.totalPayment ?? 0) > 0)

@@ -15,15 +15,15 @@ class Billing extends ModelBase {
   @JsonKey(name: "billing_to")
   DateTime? billingTo = DateTime.now();
   @JsonKey(name: "coins")
-  num? coins = 0;
+  num coins;
   @JsonKey(name: "due_date")
   DateTime? dueDate = DateTime.now();
   @JsonKey(name: "previous_unpaid")
-  num? previousUnpaid = 0;
+  num previousUnpaid;
   @JsonKey(name: "subtotal")
-  num? subtotal = 0;
+  num subtotal;
   @JsonKey(name: "total_payment")
-  num? totalPayment = 0;
+  num totalPayment;
 
   @JsonKey(name: "bill_ids")
   List<String?> billIds = [];
@@ -47,7 +47,11 @@ class Billing extends ModelBase {
   @JsonKey(ignore: true)
   List<Bill?> billReadings = [];
 
-  Billing();
+  Billing(
+      {this.totalPayment = 0.00,
+      this.subtotal = 0.00,
+      this.previousUnpaid = 0.00,
+      this.coins = 0.00});
 
   factory Billing.fromJson(Map<String, dynamic> json) =>
       _$BillingFromJson(json);

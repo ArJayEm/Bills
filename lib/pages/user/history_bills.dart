@@ -253,7 +253,7 @@ class _BillingHistoryState extends State<BillingHistory> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                              "${billing.totalPayment?.formatForDisplay()}",
+                                              billing.totalPayment.formatForDisplay(),
                                               textAlign: TextAlign.right,
                                               style: const TextStyle(
                                                   fontSize: 25)),

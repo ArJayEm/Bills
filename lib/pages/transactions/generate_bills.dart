@@ -15,6 +15,7 @@ import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:print_color/print_color.dart';
+import 'package:bills/helpers/firebase/exception_messages.dart' as em;
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -61,7 +62,7 @@ class _GenerateBillsState extends State<GenerateBills> {
   //final Billing _previousUnpaidBilling = Billing();
   //Billing _previousBilling = Billing();
   Billing _billingExisting = Billing();
-  final Coins _coins = Coins();
+  Coins _coins = Coins();
 
   final List<Bill?> _billsCurrrent = [];
   //final List<Bill?> _billsPayments = [];
@@ -569,28 +570,42 @@ class _GenerateBillsState extends State<GenerateBills> {
           prevBilling.id = document.id;
         }
       }).whenComplete(() {
+        num prevBillingTotal = 0.00;
+        num coins =
+            0.00; //(_billingPrevious.totalPayment.toNumAsFixed(decimals: 2);
+        if (prevBilling.totalPayment.toNumAsFixed(decimals: 2) >
+            _billingPayment.totalPayment.toNumAsFixed(decimals: 2)) {
+          prevBillingTotal =
+              (prevBilling.totalPayment - _billingPayment.totalPayment)
+                  .toNumAsFixed(decimals: 2);
+        } else {
+          coins = (_billingPayment.totalPayment - prevBilling.totalPayment)
+              .toNumAsFixed(decimals: 2);
+        }
         setState(() {
           _billingPrevious = prevBilling;
           // _billingPrevious.id = prevBilling.id;
           // _billingPrevious.subtotal = prevBilling.subtotal;
-          _billingPrevious.totalPayment = ((prevBilling.totalPayment ?? 0) -
-                  (_billingPayment.totalPayment ?? 0))
-              .toNumAsFixed(decimals: 2);
+          _billingPrevious.totalPayment = prevBillingTotal;
           _isLoadingBills = false;
         });
 
         Print.green(
             "_billsFrom: $_billsFrom, _billsTo: $_billsTo, _prevBillsFrom: $_prevBillsFrom, _prevBillsTo: $_prevBillsTo.");
         Print.green(
-            "last payment: ${_billingPayment.totalPayment?.formatForDisplay()}");
+            "last payment: ${_billingPayment.totalPayment.formatForDisplay()}");
 
-        num coins =
-            (_billingPrevious.totalPayment ?? 0).toNumAsFixed(decimals: 2);
         setState(() {
           _hasCoins = coins > 0.00;
           _useCoins = false; // coins > 0.00;
+          _coins.amount =
+              ((coins.isNegative ? -1 : 1) * coins).toNumAsFixed(decimals: 2);
+          _coins.totalAmount = _coins.amount;
         });
-        _computeCoins(coins);
+        if (kDebugMode) {
+          Print.green(
+              "_hasCoins: $_hasCoins ${_coins.amount.toNumAsFixed(decimals: 2).formatForDisplay()}");
+        }
         _getCurrentBills();
       });
     } on FirebaseAuthException catch (e) {
@@ -600,6 +615,48 @@ class _GenerateBillsState extends State<GenerateBills> {
         _isLoadingBills.updateProgressStatus(errMsg: "$e.");
       });
     }
+  }
+
+  void _computeCoins() {
+    if (_useCoins) {
+      if (_coins.amount > _billingCurrent.totalPayment) {
+        setState(() {
+          _coins.totalAmount = (_coins.amount - _billingCurrent.totalPayment)
+              .toNumAsFixed(decimals: 2);
+          _coins.amount =
+              (_coins.amount - _coins.totalAmount).toNumAsFixed(decimals: 2);
+          _billingCurrent.totalPayment = 0.00;
+        });
+      } else {
+        setState(() {
+          _billingCurrent.totalPayment =
+              (_billingCurrent.totalPayment - _coins.amount)
+                  .toNumAsFixed(decimals: 2);
+          _billingCurrent.coins = _coins.amount.toNumAsFixed(decimals: 2);
+          //_coins.totalAmount = 0.00;
+        });
+      }
+      //_creditsFocusNode.unfocus();
+    } else {
+      if (_coins.amount > _billingCurrent.totalPayment) {
+        setState(() {
+          _coins.amount =
+              (_coins.amount + _coins.totalAmount).toNumAsFixed(decimals: 2);
+          _coins.totalAmount = _coins.amount;
+          _billingCurrent.totalPayment =
+              (_billingPrevious.totalPayment + _billingCurrent.subtotal)
+                  .toNumAsFixed(decimals: 2);
+          _billingCurrent.coins = 0.00;
+          //_ctrlCreditAmount.clear();
+        });
+        //_creditsFocusNode.requestFocus();
+      } else {
+        _billingCurrent.totalPayment = _billingCurrent.subtotal.toNumAsFixed(decimals: 2);
+      }
+    }
+
+    _hasBillingExists =
+        !(_billingCurrent.totalPayment == _billingExisting.totalPayment);
   }
 
   Future<void> _getExistingBilling() async {
@@ -624,9 +681,9 @@ class _GenerateBillsState extends State<GenerateBills> {
           existingBilling = Billing.fromJson(document.data());
           existingBilling.id = document.id;
           existingBilling.subtotal =
-              existingBilling.subtotal?.toNumAsFixed(decimals: 2);
+              existingBilling.subtotal.toNumAsFixed(decimals: 2);
           existingBilling.totalPayment =
-              existingBilling.totalPayment?.toNumAsFixed(decimals: 2);
+              existingBilling.totalPayment.toNumAsFixed(decimals: 2);
           hasBillingExists = true;
         }
       }).whenComplete(() {
@@ -644,7 +701,7 @@ class _GenerateBillsState extends State<GenerateBills> {
             _isLoadingBills.updateProgressStatus(
                 msg: "Billing with same Month and Year already exists!");
             _hasBillingExistingText =
-                " ${_billingExisting.date?.format(dateOnly: true)} Billing (${_billingExisting.totalPayment?.formatForDisplay()})";
+                " ${_billingExisting.date?.format(dateOnly: true)} Billing (${_billingExisting.totalPayment.formatForDisplay()})";
             _hasBillingExistingTextOld = _hasBillingExistingText;
           }
         }
@@ -747,11 +804,11 @@ class _GenerateBillsState extends State<GenerateBills> {
           // _billingPayment.totalPayment = debitSubtotal;
 
           // _billingPrevious.totalPayment =
-          //     (_billingPrevious.totalPayment ?? 0) - (_billingPayment.totalPayment ?? 0);
+          //     (_billingPrevious.totalPayment - (_billingPayment.totalPayment ?? 0);
 
-          _billingCurrent.subtotal = creditSubtotal;
+          _billingCurrent.subtotal = creditSubtotal.toNumAsFixed(decimals: 2);
           _billingCurrent.totalPayment =
-              ((_billingPrevious.totalPayment ?? 0) + creditSubtotal)
+              (_billingPrevious.totalPayment + creditSubtotal)
                   .toNumAsFixed(decimals: 2);
 
           _isLoadingBills = false;
@@ -888,22 +945,21 @@ class _GenerateBillsState extends State<GenerateBills> {
                       const Text("Subtotal:"),
                       const Spacer(),
                       Text(
-                        "${_billingCurrent.subtotal?.formatForDisplay()}",
+                        _billingCurrent.subtotal.formatForDisplay(),
                         style:
                             TextStyle(fontSize: 18, color: Colors.red.shade400),
                       ),
                     ],
                   ),
                   //SizedBox(height: 3),
-                  if ((_billingPrevious.totalPayment ?? 0)
-                          .toNumAsFixed(decimals: 2) >
+                  if (_billingPrevious.totalPayment.toNumAsFixed(decimals: 2) >
                       0.00)
                     Row(
                       children: [
                         const Text("Previous Unpaid:"),
                         const Spacer(),
                         Text(
-                            (_billingPrevious.totalPayment ?? 0)
+                            _billingPrevious.totalPayment
                                 .toNumAsFixed(decimals: 2)
                                 .formatForDisplay(),
                             style: TextStyle(
@@ -935,18 +991,21 @@ class _GenerateBillsState extends State<GenerateBills> {
               ),
               const Spacer(),
               Text(
-                "${_billingCurrent.totalPayment?.formatForDisplay()}",
+                _billingCurrent.totalPayment.formatForDisplay(),
                 style: const TextStyle(
                   fontSize: 20,
                 ),
               ),
             ],
           ),
-          if (_billingCurrent.totalPayment != 0) const SizedBox(height: 10),
-          if (_billingCurrent.totalPayment != 0)
+          if (_billingCurrent.totalPayment != 0.00 ||
+              (_useCoins && _billingCurrent.totalPayment == 0.00))
+            const SizedBox(height: 10),
+          if (_billingCurrent.totalPayment != 0.00 ||
+              (_useCoins && _billingCurrent.totalPayment == 0.00))
             TextButton(
               child: Text(
-                  _hasBillingExists
+                  _hasBillingExistingText!.isNotEmpty && _hasBillingExists
                       ? "Overwrite$_hasBillingExistingText"
                       : (_isEdit ? "Update" : "Generate"),
                   style: const TextStyle(fontSize: 18)),
@@ -961,20 +1020,6 @@ class _GenerateBillsState extends State<GenerateBills> {
     );
   }
 
-  void _computeCoins(num newCoins) {
-    if (newCoins.isNegative) {
-      _coins.amount = newCoins * -1;
-      //_billingPrevious.totalPayment = 0.00;
-      if (kDebugMode) {
-        Print.green(
-            "_hasCoins: $_hasCoins ${_coins.amount.toNumAsFixed(decimals: 2).formatForDisplay()}");
-      }
-    } else {
-      //when payments or additional coins exceeded curent total payment and becomes negative...
-
-    }
-  }
-
   Widget _getCoinsWidget() {
     return Card(
       child: CheckboxListTile(
@@ -983,37 +1028,24 @@ class _GenerateBillsState extends State<GenerateBills> {
         dense: true,
         value: _useCoins,
         onChanged: (val) {
-          if (_coins.amount > 0) {
-            setState(() {
-              _useCoins = val!;
-            });
-            if (_useCoins) {
-              setState(() {
-                _billingCurrent.totalPayment =
-                    (_billingCurrent.totalPayment ?? 0) - _coins.amount;
-                _billingCurrent.coins = _coins.amount;
-              });
-              //_creditsFocusNode.unfocus();
-            } else {
-              setState(() {
-                _billingCurrent.totalPayment = (_billingPrevious.totalPayment ??
-                        0) +
-                    (_billingCurrent.subtotal ?? 0).toNumAsFixed(decimals: 2);
-                _billingCurrent.coins = 0;
-                //_ctrlCreditAmount.clear();
-              });
-              //_creditsFocusNode.requestFocus();
-            }
-          } else {
-            return;
-          }
+          // if (_coins.amount > 0) {
+          //   setState(() {
+          //     _useCoins = val!;
+          //   });
+          // } else {
+          //   return;
+          // }
+          setState(() {
+            _useCoins = val!; //_coins.amount > 0.00 ? val! : _useCoins;
+          });
+          _computeCoins();
           if (kDebugMode) {
             Print.green("_billingCurrent.coins: ${_billingCurrent.coins}");
           }
         },
         title: Row(
           children: [
-            Text("Redeem coins ${_coins.amount.formatForDisplay()}"),
+            Text("Redeem coins ${_coins.totalAmount.formatForDisplay()}"),
             const Spacer(),
             Text("[-${_coins.amount.formatForDisplay()}]",
                 style: TextStyle(
@@ -1030,7 +1062,7 @@ class _GenerateBillsState extends State<GenerateBills> {
   }
 
   Future<void> _getCoins() async {
-    num coins = 0.00;
+    Coins coins = Coins();
     setState(() {
       _coins.amount = 0.00;
       _hasCoins = false;
@@ -1049,13 +1081,15 @@ class _GenerateBillsState extends State<GenerateBills> {
           .get()
           .then((snapshots) {
         for (var doc in snapshots.docs) {
-          Coins c = Coins.fromJson(doc.data());
-          coins += c.amount;
+          coins = Coins.fromJson(doc.data());
+          coins.id = doc.id;
+          //coins += c.amount;
         }
       }).whenComplete(() {
         setState(() {
-          _coins.amount += coins;
-          _hasCoins = _coins.amount > 0.00;
+          //_coins.amount += coins;
+          _coins = coins;
+          _hasCoins = _coins.amount.toNumAsFixed(decimals: 2) > 0.00;
           _useCoins = false;
           _isLoadingCoins = false;
         });
@@ -1065,10 +1099,6 @@ class _GenerateBillsState extends State<GenerateBills> {
     } catch (e) {
       _isLoadingCoins.updateProgressStatus(errMsg: "$e.");
     }
-  }
-
-  Future<void> _saveCoins() async {
-    //if (_billing)
   }
 
   Future<void> _generatePdf(List<Bill?> billsCurrrent) async {
@@ -1156,15 +1186,15 @@ class _GenerateBillsState extends State<GenerateBills> {
       "",
       "",
       "",
-      _billingCurrent.subtotal?.formatForDisplay(currency: "P")
+      _billingCurrent.subtotal.formatForDisplay(currency: "P")
     ]);
-    if ((_billingPrevious.totalPayment ?? 0).toNumAsFixed(decimals: 2) > 0.00) {
+    if (_billingPrevious.totalPayment.toNumAsFixed(decimals: 2) > 0.00) {
       currentBillings.add([
         "Previous Unpaid:",
         _billingPrevious.date?.formatDate(dateOnly: true),
-        _billingPrevious.subtotal?.formatForDisplay(currency: "P"),
-        "Amount - ${(_billingPrevious.coins ?? 0.00).formatForDisplay(currency: "P")} coins",
-        (_billingPrevious.totalPayment ?? 0)
+        _billingPrevious.subtotal.formatForDisplay(currency: "P"),
+        "Amount - ${_billingPrevious.coins.formatForDisplay(currency: "P")} coins",
+        _billingPrevious.totalPayment
             .toNumAsFixed(decimals: 2)
             .formatForDisplay(currency: "P")
       ]);
@@ -1183,7 +1213,7 @@ class _GenerateBillsState extends State<GenerateBills> {
       "",
       "",
       "",
-      _billingCurrent.totalPayment?.formatForDisplay(currency: "P")
+      _billingCurrent.totalPayment.formatForDisplay(currency: "P")
     ]);
     //#endregion
 
@@ -1195,26 +1225,27 @@ class _GenerateBillsState extends State<GenerateBills> {
               alignment: pw.Alignment.topCenter,
               child: pw.Column(
                 children: [
-                  pw.Table.fromTextArray(
-                    cellAlignment: pw.Alignment.center,
-                    headers: tableHeadersReading,
-                    headerStyle: pw.TextStyle(
-                      color: _accentTextColor,
-                      fontSize: 10,
-                      fontWeight: pw.FontWeight.bold,
+                  if (_readings.isNotEmpty)
+                    pw.Table.fromTextArray(
+                      cellAlignment: pw.Alignment.center,
+                      headers: tableHeadersReading,
+                      headerStyle: pw.TextStyle(
+                        color: _accentTextColor,
+                        fontSize: 10,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      headerHeight: 25,
+                      //cellHeight: 40,
+                      cellAlignments: {
+                        0: pw.Alignment.centerLeft,
+                        1: pw.Alignment.center,
+                        2: pw.Alignment.center,
+                        3: pw.Alignment.center,
+                        4: pw.Alignment.centerRight,
+                      },
+                      data: readings,
                     ),
-                    headerHeight: 25,
-                    //cellHeight: 40,
-                    cellAlignments: {
-                      0: pw.Alignment.centerLeft,
-                      1: pw.Alignment.center,
-                      2: pw.Alignment.center,
-                      3: pw.Alignment.center,
-                      4: pw.Alignment.centerRight,
-                    },
-                    data: readings,
-                  ),
-                  pw.SizedBox(height: 10),
+                  if (_readings.isNotEmpty) pw.SizedBox(height: 10),
                   pw.Table.fromTextArray(
                     cellAlignment: pw.Alignment.center,
                     headers: tableHeaders,
@@ -1302,6 +1333,36 @@ class _GenerateBillsState extends State<GenerateBills> {
 
     if (_formKey.currentState!.validate()) {
       try {
+        CollectionReference coinsCol = _ffInstance.collection("coins");
+        if (_coins.id.isNullOrEmpty()) {
+          if (_useCoins && _coins.amount > 0.00) {
+            setState(() {
+              _coins.payerId = _selectedUserId;
+              _coins.payerIdDeleted = "${_selectedUserId}_0";
+              _coins.userIds.clear();
+              _coins.userIds.add(_selectedUserId);
+              _coins.amount = _coins.totalAmount;
+            });
+            coinsCol.add(_coins.toJson()).then((document) {
+              setState(() {
+                _coins.id = document.id;
+              });
+            }).catchError((e) {
+              _isLoading.updateProgressStatus(
+                  msg: "Coins not saved!", errMsg: e.toString());
+            });
+          }
+        } else {
+          _coins.modifiedBy = _loggedInId;
+          _coins.modifiedOn = DateTime.now();
+          _coins.deleted = true;
+          coinsCol.doc(_coins.id).update(_coins.toJson()).then((value) {
+            if (kDebugMode) {
+              Print.green("Coins: coins deleted");
+            }
+          });
+        }
+
         CollectionReference collection = _ffInstance.collection("billings");
         if (_billingCurrent.id.isNullOrEmpty()) {
           _billingCurrent.createdBy = _loggedInId;
@@ -1330,7 +1391,9 @@ class _GenerateBillsState extends State<GenerateBills> {
         }
         setState(() {
           _isEdit = true;
-          _billingExisting = _billingCurrent;
+          //_billingExisting = _billingCurrent;
+          _hasBillingExists = false;
+          _useCoins = false;
         });
         //Generate PDF report
         //save in Firebase Storage, viewable and downloadable file

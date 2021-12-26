@@ -241,6 +241,8 @@ class _PinHomeState extends State<PinHome> {
                         }
                       },
                       child: Container(
+                        height: 80,
+                        width: 80,
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: Colors.grey.shade700, width: 1.5),

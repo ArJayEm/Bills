@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:print_color/print_color.dart';
 
 class ExceptionMessages {
-  String authExceptionMessage(FirebaseAuthException e) {
+  static String authExceptionMessage(FirebaseAuthException e) {
     String msg = e.message.toString();
     Print.red("Authentication error: $msg");
     if (e.code == "user-not-found" || e.code == "email-already-in-use") {
@@ -13,6 +13,12 @@ class ExceptionMessages {
     } else {
       msg = "Something went wrong.";
     }
+    return msg;
+  }
+
+  static String dbExceptionMessage(FirebaseException e) {
+    String msg = e.message.toString();
+    Print.red("FirebaseException error: $msg");
     return msg;
   }
 }

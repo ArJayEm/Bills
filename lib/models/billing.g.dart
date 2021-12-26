@@ -6,42 +6,45 @@ part of 'billing.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Billing _$BillingFromJson(Map<String, dynamic> json) => Billing()
-  ..id = json['id'] as String?
-  ..createdBy = json['created_by'] as String?
-  ..createdOn = DateTime.parse(json['created_on'] as String)
-  ..modifiedBy = json['modified_by'] as String?
-  ..modifiedOn = json['modified_on'] == null
-      ? null
-      : DateTime.parse(json['modified_on'] as String)
-  ..deleted = json['deleted'] as bool?
-  ..date = json['billing_date'] == null
-      ? null
-      : DateTime.parse(json['billing_date'] as String)
-  ..billingFrom = json['billing_from'] == null
-      ? null
-      : DateTime.parse(json['billing_from'] as String)
-  ..billingTo = json['billing_to'] == null
-      ? null
-      : DateTime.parse(json['billing_to'] as String)
-  ..coins = json['coins'] as num?
-  ..dueDate = json['due_date'] == null
-      ? null
-      : DateTime.parse(json['due_date'] as String)
-  ..previousUnpaid = json['previous_unpaid'] as num?
-  ..subtotal = json['subtotal'] as num?
-  ..totalPayment = json['total_payment'] as num?
-  ..billIds =
-      (json['bill_ids'] as List<dynamic>).map((e) => e as String?).toList()
-  ..computations = (json['computations'] as List<dynamic>)
-      .map((e) => e as Map<String, dynamic>)
-      .toList()
-  ..paymentIds =
-      (json['payment_ids'] as List<dynamic>).map((e) => e as String?).toList()
-  ..readingIds =
-      (json['reading_ids'] as List<dynamic>).map((e) => e as String?).toList()
-  ..userId =
-      (json['user_id'] as List<dynamic>).map((e) => e as String?).toList();
+Billing _$BillingFromJson(Map<String, dynamic> json) => Billing(
+      totalPayment: json['total_payment'] as num? ?? 0.00,
+      subtotal: json['subtotal'] as num? ?? 0.00,
+      previousUnpaid: json['previous_unpaid'] as num? ?? 0.00,
+      coins: json['coins'] as num? ?? 0.00,
+    )
+      ..id = json['id'] as String?
+      ..createdBy = json['created_by'] as String?
+      ..createdOn = DateTime.parse(json['created_on'] as String)
+      ..modifiedBy = json['modified_by'] as String?
+      ..modifiedOn = json['modified_on'] == null
+          ? null
+          : DateTime.parse(json['modified_on'] as String)
+      ..deleted = json['deleted'] as bool?
+      ..date = json['billing_date'] == null
+          ? null
+          : DateTime.parse(json['billing_date'] as String)
+      ..billingFrom = json['billing_from'] == null
+          ? null
+          : DateTime.parse(json['billing_from'] as String)
+      ..billingTo = json['billing_to'] == null
+          ? null
+          : DateTime.parse(json['billing_to'] as String)
+      ..dueDate = json['due_date'] == null
+          ? null
+          : DateTime.parse(json['due_date'] as String)
+      ..billIds =
+          (json['bill_ids'] as List<dynamic>).map((e) => e as String?).toList()
+      ..computations = (json['computations'] as List<dynamic>)
+          .map((e) => e as Map<String, dynamic>)
+          .toList()
+      ..paymentIds = (json['payment_ids'] as List<dynamic>)
+          .map((e) => e as String?)
+          .toList()
+      ..readingIds = (json['reading_ids'] as List<dynamic>)
+          .map((e) => e as String?)
+          .toList()
+      ..userId =
+          (json['user_id'] as List<dynamic>).map((e) => e as String?).toList();
 
 Map<String, dynamic> _$BillingToJson(Billing instance) {
   final val = <String, dynamic>{};
