@@ -11,7 +11,7 @@ extension NumberFormatHelper on num {
         .format(this);
   }
 
-  num toNumAsFixed({int decimals = 0}) {
+  num roundTenths({int decimals = 2}) {
     num number = num.parse(toStringAsFixed(decimals));
     //num number = num.tryParse(format()) ?? 0.00;
     return number;

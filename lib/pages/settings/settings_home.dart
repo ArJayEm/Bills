@@ -1,13 +1,16 @@
 import 'package:bills/pages/biometrics/biometrics.dart';
 import 'package:bills/pages/dashboard.dart';
+import 'package:bills/pages/settings/logs.dart';
 import 'package:bills/pages/signin/pin/current.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SettingsHome extends StatefulWidget {
-  const SettingsHome({Key? key, required this.auth}) : super(key: key);
+  const SettingsHome({Key? key, required this.auth, required this.scaffoldKey})
+      : super(key: key);
 
   final FirebaseAuth auth;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
   _SettingsHomeState createState() => _SettingsHomeState();
@@ -15,12 +18,14 @@ class SettingsHome extends StatefulWidget {
 
 class _SettingsHomeState extends State<SettingsHome> {
   late FirebaseAuth _auth;
+  late GlobalKey<ScaffoldState> _scaffoldKey;
 
   @override
   void initState() {
     super.initState();
     setState(() {
       _auth = widget.auth;
+      _scaffoldKey = widget.scaffoldKey;
     });
   }
 
@@ -77,9 +82,27 @@ class _SettingsHomeState extends State<SettingsHome> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Biometrics(auth: _auth)))
+                    .whenComplete(() {
+                  _scaffoldKey.currentState!.openDrawer();
+                });
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.list),
+              minLeadingWidth: 0,
+              title: const Text('Logs'),
+              trailing: const Icon(Icons.chevron_right, size: 20),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Biometrics(auth: _auth)));
+                        builder: (context) =>
+                            Logs(auth: _auth, scaffoldKey: _scaffoldKey)));
               },
             ),
             const Divider(),

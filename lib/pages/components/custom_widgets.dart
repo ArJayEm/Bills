@@ -1,4 +1,4 @@
-import 'package:bills/pages/styles/style.dart';
+import 'package:bills/pages/components/styles/style.dart';
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {

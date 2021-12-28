@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:badges/badges.dart';
+import 'package:bills/models/members.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
 import 'package:bills/pages/dashboard.dart';
@@ -43,12 +44,14 @@ class _ProfileHomeState extends State<ProfileHome> {
   final _billGenDateController = TextEditingController();
   final _userTypeController = TextEditingController();
 
+  int _members = 0;
   bool _isLoading = false;
   bool _isUpdate = false;
   bool _hasRequiredFields = false;
   //bool _mobileUser = false;
 
   final TextStyle _hint = const TextStyle(fontSize: 15, color: Colors.white30);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   void initState() {
@@ -63,6 +66,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         // actions: _isLoading
@@ -132,11 +136,14 @@ class _ProfileHomeState extends State<ProfileHome> {
         backgroundColor: Colors.grey.shade800,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-          physics: const BouncingScrollPhysics(),
-          child: _getPayerDisplay(),
+      body: RefreshIndicator(
+        onRefresh: _getPayer,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            physics: const BouncingScrollPhysics(),
+            child: _getPayerDisplay(),
+          ),
         ),
       ),
     );
@@ -237,20 +244,8 @@ class _ProfileHomeState extends State<ProfileHome> {
                           ],
                         ),
                       )
-                    : showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Name'),
-                          content: Text(
-                              "How your name will appear on your bills.",
-                              style: _hint),
-                          actions: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("OK")),
-                          ],
-                        ),
-                      ),
+                    : infoDialog(
+                        'Name', "How your name will appear on your bills."),
               ),
               const Divider(indent: 15, endIndent: 15),
               ListTile(
@@ -366,6 +361,149 @@ class _ProfileHomeState extends State<ProfileHome> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const ListTile(
+                title: Text("Members History"),
+              ),
+              const CustomDivider(),
+              ListTile(
+                leading: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _members < 1
+                        ? Badge(
+                            badgeContent: const Text(''),
+                            animationType: BadgeAnimationType.scale,
+                            child: const Icon(Icons.people_alt_outlined),
+                          )
+                        : const Icon(Icons.people_alt_outlined),
+                  ],
+                ),
+                minLeadingWidth: 0,
+                title: Text(_membersController.text),
+                subtitle: const Text("Members"),
+                trailing: _hasRequiredFields && _isUpdate && _members < 1
+                    ? const Icon(Icons.edit)
+                    : const Icon(Icons.info_outline),
+                onTap: () => _hasRequiredFields && _isUpdate && _members < 1
+                    ? showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Enter Member(s)'),
+                          content: SafeArea(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              child: Column(
+                                children: [
+                                  Text(
+                                      "Hint: 1 if you're solo or number of family members if you're in a household. (To be used for 'per head' computations).",
+                                      style: _hint),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        //_userProfile.members = int.parse(value);
+                                        //_membersController.text = value;
+                                      });
+                                    },
+                                    controller: _membersController,
+                                    autofocus: true,
+                                    decoration: const InputDecoration(
+                                        hintText: "Member(s)"),
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.isEmpty ||
+                                          value == "0") {
+                                        return 'Must be geater than 0.';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel')),
+                            TextButton(
+                                onPressed: () {
+                                  if (_membersController.text
+                                          .trim()
+                                          .isNotEmpty &&
+                                      _membersController.text.trim() != "0") {
+                                    Navigator.pop(context);
+                                    setState(() {
+                                      _isUpdate = true;
+                                      _members = int.tryParse(
+                                          _membersController.text)!;
+
+                                      for (var m in _userProfile.membersArr) {
+                                        if (m.modifiedBy?.isEmpty ?? false) {
+                                          m.modifiedBy = _userProfile.id;
+                                          m.effectivityEnd = DateTime.now();
+                                        }
+                                      }
+
+                                      if (_members !=
+                                          _userProfile.membersArr.last.count) {
+                                        Members m = Members();
+                                        m.count = _members;
+                                        m.createdBy = _userProfile.id;
+                                        m.createdBy = _userProfile.id;
+                                        _userProfile.membersArr.add(m);
+                                      }
+                                    });
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg:
+                                            "Member(s) must be greater than 0.");
+                                  }
+                                },
+                                child: const Text("OK")),
+                          ],
+                        ),
+                      )
+                    : infoDialog('Members',
+                        "You or your number of family members if you're in a household. (To be used for 'per head' computations)."),
+              ),
+              const Divider(indent: 15, endIndent: 15),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                shrinkWrap: true,
+                children: <Widget>[
+                  ..._userProfile.membersArr.map((member) {
+                    return ListTile(
+                      minLeadingWidth: 0,
+                      title: Text(
+                          "From ${member.effectivityStart.formatDate(dateOnly: true)} ${member.modifiedOn == null ? "up to present" : "to ${member.effectivityEnd?.formatDate(dateOnly: true)}"}"),
+                      subtitle: Text(
+                          member.createdOn.lastModified(modified: member.modifiedOn)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${member.count} member(s)"),
+                          IconButton(
+                            icon: const Icon(Icons.delete,
+                                color: Colors.redAccent),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                      onTap: () {},
+                    );
+                  }).toList(),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const ListTile(
                 title: Text("Payer Details"),
               ),
               const CustomDivider(),
@@ -422,123 +560,7 @@ class _ProfileHomeState extends State<ProfileHome> {
                           // ],
                         ),
                       )
-                    : showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('User Type'),
-                          content:
-                              Text("Hint: How you use this app.", style: _hint),
-                          actions: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("OK")),
-                          ],
-                        ),
-                      ),
-              ),
-              const Divider(indent: 15, endIndent: 15),
-              ListTile(
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _userProfile.members == 0
-                        ? Badge(
-                            badgeContent: const Text(''),
-                            animationType: BadgeAnimationType.scale,
-                            child: const Icon(Icons.people_alt_outlined),
-                          )
-                        : const Icon(Icons.people_alt_outlined),
-                  ],
-                ),
-                minLeadingWidth: 0,
-                title: Text(_membersController.text),
-                subtitle: const Text("Members"),
-                trailing:
-                    _hasRequiredFields && _isUpdate && _userProfile.members == 0
-                        ? const Icon(Icons.edit)
-                        : const Icon(Icons.info_outline),
-                onTap: () => _hasRequiredFields &&
-                        _isUpdate &&
-                        _userProfile.members == 0
-                    ? showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Enter Member(s)'),
-                          content: SafeArea(
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              child: Column(
-                                children: [
-                                  Text(
-                                      "Hint: 1 if you're solo or number of family members if you're in a household. (To be used for 'per head' computations).",
-                                      style: _hint),
-                                  const SizedBox(height: 10),
-                                  TextFormField(
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        //_userProfile.members = int.parse(value);
-                                        //_membersController.text = value;
-                                      });
-                                    },
-                                    controller: _membersController,
-                                    autofocus: true,
-                                    decoration: const InputDecoration(
-                                        hintText: "Member(s)"),
-                                    validator: (value) {
-                                      if (value == null ||
-                                          value.isEmpty ||
-                                          value == "0") {
-                                        return 'Must be geater than 0.';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel')),
-                            TextButton(
-                                onPressed: () {
-                                  if (_membersController.text
-                                          .trim()
-                                          .isNotEmpty &&
-                                      _membersController.text.trim() != "0") {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      _isUpdate = true;
-                                      _userProfile.members =
-                                          int.parse(_membersController.text);
-                                    });
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg:
-                                            "Member(s) must be greater than 0.");
-                                  }
-                                },
-                                child: const Text("OK")),
-                          ],
-                        ),
-                      )
-                    : showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Members'),
-                          content: Text(
-                              "You or your number of family members if you're in a household. (To be used for 'per head' computations).",
-                              style: _hint),
-                          actions: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("OK")),
-                          ],
-                        ),
-                      ),
+                    : infoDialog('User Type', "Hint: How you use this app."),
               ),
               const Divider(indent: 15, endIndent: 15),
               ListTile(
@@ -571,18 +593,17 @@ class _ProfileHomeState extends State<ProfileHome> {
           ),
         ),
         const SizedBox(height: 20),
-        _hasRequiredFields
-            ? ElevatedButton(
-                onPressed: _confirmSubmit,
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : const Text('Submit Changes'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  primary: _isUpdate ? Colors.white38 : Colors.grey.shade800,
-                ),
-              )
-            : const SizedBox(),
+        if (_hasRequiredFields)
+          ElevatedButton(
+            onPressed: _confirmSubmit,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : const Text('Submit Changes'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              primary: _isUpdate ? Colors.white38 : Colors.grey.shade800,
+            ),
+          ),
       ],
     );
   }
@@ -604,11 +625,16 @@ class _ProfileHomeState extends State<ProfileHome> {
       DocumentReference _document = _ffInstance.collection("users").doc(_id);
       UserProfile userProfile = UserProfile();
 
-      _document.get().then((snapshot) {
-        if (snapshot.exists) {
+      _document.get().then((doc) {
+        if (doc.exists) {
           userProfile =
-              UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          //_id = snapshot.id;
+              UserProfile.fromJson(doc.data() as Map<String, dynamic>);
+          userProfile.id = doc.id;
+          userProfile.membersArr =
+              List<Members>.from(userProfile.members.map((e) {
+            return Members.fromJson(e);
+          }));
+          //_id = doc.id;
           if (userProfile.userCode.isNullOrEmpty()) {
             String usercode = _generateUserCode();
             _document.update({"user_code": usercode}).whenComplete(() {
@@ -626,7 +652,8 @@ class _ProfileHomeState extends State<ProfileHome> {
           _emailController.text = _userProfile.email ?? "No Email";
           _phoneNumberController.text =
               _userProfile.phoneNumber ?? "No Mobile Number";
-          _membersController.text = _userProfile.members.toString();
+          _membersController.text =
+              _userProfile.membersArr.last.count.toString();
           _billGenDateController.text = _userProfile.billingDate != null
               ? DateFormat('MMM dd, yyyy')
                   .format(_userProfile.billingDate!)
@@ -639,7 +666,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           _hasRequiredFields = //_mobileUser ||
               (_userProfile.name.isNullOrEmpty()) ||
                   (_userProfile.userType.isNullOrEmpty()) ||
-                  _userProfile.members == 0;
+                  _members < 1;
 
           _isUpdate = _hasRequiredFields;
         });
@@ -666,8 +693,14 @@ class _ProfileHomeState extends State<ProfileHome> {
     try {
       if (_id != null) {
         DocumentReference _document = _ffInstance.collection("users").doc(_id);
+        _userProfile.modifiedBy = _userProfile.id;
         _userProfile.modifiedOn = DateTime.now();
         _userProfile.billingDate = _userProfile.billingDate;
+        _userProfile.members.clear();
+        _userProfile.members =
+            List<Map<String, dynamic>>.from(_userProfile.membersArr.map((e) {
+          return e.toJson();
+        }));
 
         _document.set(_userProfile.toJson()).then((value) {
           setState(() {
@@ -750,6 +783,20 @@ class _ProfileHomeState extends State<ProfileHome> {
         height: 150.0, // Change as per your requirement
         width: 300.0, // Change as per your requirement
         child: ListView(shrinkWrap: true, children: mList));
+  }
+
+  Future<void> infoDialog(String title, String msg) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: Text(msg, style: _hint),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK")),
+        ],
+      ),
+    );
   }
 
   String _getUserTypeDescription(String id) {

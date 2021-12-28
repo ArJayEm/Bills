@@ -24,7 +24,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
   ..photoUrl = json['photo_url'] as String?
   ..phoneNumber = json['phone_number'] as String?
   ..loggedIn = json['logged_in'] as bool?
-  ..members = json['members'] as int
+  ..lastLoggedIn = json['last_logged_in'] == null
+      ? null
+      : DateTime.parse(json['last_logged_in'] as String)
   ..isAdmin = json['is_admin'] as bool?
   ..registeredUsing = json['registered_using'] as String?
   ..billingDate = json['billing_date'] == null
@@ -32,8 +34,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
       : DateTime.parse(json['billing_date'] as String)
   ..userType = json['user_type'] as String?
   ..pin = json['pin'] as String?
-  ..userIds =
-      (json['user_ids'] as List<dynamic>?)?.map((e) => e as String).toList();
+  ..members = (json['members'] as List<dynamic>)
+      .map((e) => e as Map<String, dynamic>)
+      .toList();
 
 Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   final val = <String, dynamic>{};
@@ -57,12 +60,12 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   val['photo_url'] = instance.photoUrl;
   val['phone_number'] = instance.phoneNumber;
   val['logged_in'] = instance.loggedIn;
-  val['members'] = instance.members;
+  val['last_logged_in'] = instance.lastLoggedIn?.toIso8601String();
   val['is_admin'] = instance.isAdmin;
   val['registered_using'] = instance.registeredUsing;
   val['billing_date'] = instance.billingDate?.toIso8601String();
   val['user_type'] = instance.userType;
   val['pin'] = instance.pin;
-  val['user_ids'] = instance.userIds;
+  val['members'] = instance.members;
   return val;
 }

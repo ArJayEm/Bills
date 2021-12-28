@@ -2,6 +2,7 @@ import 'package:badges/badges.dart';
 import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/billing.dart';
+import 'package:bills/models/coins.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
@@ -11,9 +12,9 @@ import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:bills/pages/user/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:bills/pages/test/dropdown_test.dart';
-import 'package:bills/pages/transactions/generate_bills.dart';
+import 'package:bills/pages/maintenance/bills_generate.dart';
 import 'package:bills/pages/user/history_bills.dart';
-import 'package:bills/pages/transactions/payer_list.dart';
+import 'package:bills/pages/maintenance/users_list.dart';
 import 'package:bills/pages/user/history_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +23,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:print_color/print_color.dart';
 
-import 'listview_bills.dart';
+import 'maintenance/bills_listview.dart';
 
 class Dashboard extends StatefulWidget {
   static const String route = '/';
@@ -57,7 +58,7 @@ class _DashboardState extends State<Dashboard> {
   // ignore: unused_field
   bool _isLoadingUser = false;
 
-  int _selectedIndex = 0;
+  //int _selectedIndex = 0;
   bool _isNewUser = false;
   bool _hasRequiredFields = false;
 
@@ -96,120 +97,137 @@ class _DashboardState extends State<Dashboard> {
       drawer: SafeArea(
         child: Drawer(
           key: _drawerKey,
-          child: ListView(
-            children: <Widget>[
-              // _isLoadingUser
-              //     ? Container(
-              //         padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-              //         child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.center,
-              //             children: [
-              //               Center(child: CircularProgressIndicator())
-              //             ]),
-              //       )
-              //     :
-              ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(18, 20, 15, 15),
-                leading: _hasRequiredFields
-                    ? Badge(
-                        badgeContent: const Text(''),
-                        animationType: BadgeAnimationType.scale,
-                        child: _getUserImage(),
-                      )
-                    : _getUserImage(),
-                title: Text(
-                  "$_displayname",
-                  style: const TextStyle(fontSize: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DrawerHeader(
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  tileColor: Colors.yellow.shade800,
+                  contentPadding: const EdgeInsets.fromLTRB(18, 20, 15, 15),
+                  leading: _hasRequiredFields
+                      ? Badge(
+                          badgeContent: const Text(''),
+                          animationType: BadgeAnimationType.scale,
+                          child: _getUserImage(),
+                        )
+                      : _getUserImage(),
+                  title: Text(
+                    "$_displayname",
+                    style: const TextStyle(fontSize: 20.0),
+                  ),
+                  subtitle:
+                      Text("${(_userProfile.members.last["count"])} member(s)"),
+                  trailing: const Icon(Icons.edit, size: 20),
+                  onTap: _profile,
                 ),
-                trailing: const Icon(Icons.chevron_right, size: 20),
-                onTap: _profile,
               ),
-              const Divider(),
-              //const Divider(indent: 15, endIndent: 15, thickness: 1),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                minLeadingWidth: 0,
-                title: const Text('Settings'),
-                trailing: const Icon(Icons.chevron_right, size: 20),
-                onTap: _settings,
-              ),
-              const Divider(indent: 15, endIndent: 15, thickness: 1),
-              // ListTile(
-              //   leading: Icon(Icons.expand),
-              //   minLeadingWidth: 0,
-              //   title: Text('New Record'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     _openBills(context, SelectPayers());
-              //   },
-              // ),
-              //Divider(indent: 15, endIndent: 15, thickness: 1),
-              // ListTile(
-              //   leading: Icon(Icons.info_outline),
-              //   minLeadingWidth: 0,
-              //   title: Text('Dynamic Form'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     _openBills(context, DynamicForm());
-              //   },
-              // ),
-              //Divider(),
-              //Divider(indent: 15, endIndent: 15, thickness: 1),
-              // ListTile(
-              //   leading: Icon(Icons.expand),
-              //   minLeadingWidth: 0,
-              //   title: Text('Expandable'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     _openBills(context, ExpandableSample());
-              //   },
-              // ),
-              //const Divider(),
-              if (_userProfile.isAdmin ?? false) _getTestWidgets(),
-
-              Align(
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    //const Divider(indent: 15, endIndent: 15, thickness: 1),
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    // _isLoadingUser
+                    //     ? Container(
+                    //         padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                    //         child: Row(
+                    //             mainAxisAlignment: MainAxisAlignment.center,
+                    //             children: [
+                    //               Center(child: CircularProgressIndicator())
+                    //             ]),
+                    //       )
+                    //     :
+                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
+                    // const Divider(),
+                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
                     ListTile(
-                      leading: const Icon(Icons.logout),
-                      minLeadingWidth: 0,
-                      title: const Text('Log Out'),
-                      onTap: _logoutDialog,
+                      leading: const Icon(Icons.settings),
+                      //minLeadingWidth: 0,
+                      title: const Text('Settings'),
+                      //trailing: const Icon(Icons.chevron_right, size: 20),
+                      onTap: _settings,
                     ),
-                    const Divider(indent: 15, endIndent: 15, thickness: 1),
-                    ListTile(
-                      leading: const Icon(Icons.info_outline),
-                      minLeadingWidth: 0,
-                      title: const Text('About'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        _openBills(context, const About());
-                      },
+                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
+                    // ListTile(
+                    //   leading: Icon(Icons.expand),
+                    //   minLeadingWidth: 0,
+                    //   title: Text('New Record'),
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //     _openBills(context, SelectPayers());
+                    //   },
+                    // ),
+                    //Divider(indent: 15, endIndent: 15, thickness: 1),
+                    // ListTile(
+                    //   leading: Icon(Icons.info_outline),
+                    //   minLeadingWidth: 0,
+                    //   title: Text('Dynamic Form'),
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //     _openBills(context, DynamicForm());
+                    //   },
+                    // ),
+                    //Divider(),
+                    //Divider(indent: 15, endIndent: 15, thickness: 1),
+                    // ListTile(
+                    //   leading: Icon(Icons.expand),
+                    //   minLeadingWidth: 0,
+                    //   title: Text('Expandable'),
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //     _openBills(context, ExpandableSample());
+                    //   },
+                    // ),
+                    //const Divider(),
+                    if (_userProfile.isAdmin ?? false) _getBillsWidgets(),
+                    if (_userProfile.isAdmin ?? false) _getTestWidgets(),
+                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          //const Divider(indent: 15, endIndent: 15, thickness: 1),
+                          ListTile(
+                            leading: const Icon(Icons.logout),
+                            //minLeadingWidth: 0,
+                            title: const Text('Log Out'),
+                            onTap: _logoutDialog,
+                          ),
+                          const Divider(
+                              indent: 15, endIndent: 15, thickness: 1),
+                          ListTile(
+                            leading: const Icon(Icons.info_outline),
+                            //minLeadingWidth: 0,
+                            title: const Text('About'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _openBills(context, const About());
+                            },
+                          ),
+                        ],
+                      ),
                     ),
+                    // const Expanded(
+                    //   child: Align(
+                    //     alignment: FractionalOffset.bottomCenter,
+                    //     child: ListTile(
+                    //       leading:
+                    //           Icon(Icons.account_box, color: Colors.white, size: 25),
+                    //       //onTap: () {},
+                    //       title: Text(
+                    //         'Account',
+                    //         style: TextStyle(color: Colors.white, fontSize: 20),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
-              // const Expanded(
-              //   child: Align(
-              //     alignment: FractionalOffset.bottomCenter,
-              //     child: ListTile(
-              //       leading:
-              //           Icon(Icons.account_box, color: Colors.white, size: 25),
-              //       //onTap: () {},
-              //       title: Text(
-              //         'Account',
-              //         style: TextStyle(color: Colors.white, fontSize: 20),
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         iconTheme: Theme.of(context).iconTheme,
         //titleTextStyle: Theme.of(context).textTheme,
         title: Text('Hi, $_displayname!'),
@@ -233,6 +251,7 @@ class _DashboardState extends State<Dashboard> {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            clipBehavior: Clip.hardEdge,
             physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics()),
             child: _buildDashboard(),
@@ -240,48 +259,54 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage("assets/icons/google.png"),
-              color: Color(0xFF3A5A98),
-            ),
-            label: 'Me',
-          ),
-        ],
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        currentIndex: _selectedIndex,
-        backgroundColor: Colors.grey.shade800,
-        selectedItemColor: Colors.white,
-        selectedFontSize: 12,
-        unselectedItemColor: Colors.grey.shade700,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // switch (index) {
-          //   case 2:
-          //     _profile();
-          //     break;
-          //   case 1:
-          //     _settings();
-          //     break;
-          //   default:
-          //     _home();
-          //     break;
-          // }
-        },
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: <BottomNavigationBarItem>[
+      //     const BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: 'Dashboard',
+      //     ),
+      //     const BottomNavigationBarItem(
+      //       icon: Icon(Icons.settings),
+      //       label: 'Settings',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       // icon: ImageIcon(AssetImage("assets/icons/google.png"),
+      //       //     color: Color(0xFF3A5A98)),
+      //       icon: _hasRequiredFields
+      //           ? Badge(
+      //               badgeContent: const Text(''),
+      //               animationType: BadgeAnimationType.scale,
+      //               child: _getUserImage(),
+      //             )
+      //           : _getUserImage(),
+      //       label: 'Me',
+      //     ),
+      //   ],
+      //   showSelectedLabels: false,
+      //   showUnselectedLabels: false,
+      //   currentIndex: _selectedIndex,
+      //   backgroundColor: Colors.grey.shade800,
+      //   selectedItemColor: Colors.white,
+      //   selectedFontSize: 12,
+      //   unselectedItemColor: Colors.grey.shade700,
+      //   onTap: (index) {
+      //     setState(() {
+      //       _selectedIndex = index;
+      //     });
+      //     switch (index) {
+      //       case 2:
+      //         //_profile();
+      //         _scaffoldKey.currentState!.openDrawer();
+      //         break;
+      //       case 1:
+      //         _settings();
+      //         break;
+      //       default:
+      //         _home();
+      //         break;
+      //     }
+      //   },
+      // ),
       //),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: addUser,
@@ -293,12 +318,15 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _getTestWidgets() {
-    return Column(
-      children: [
-        const Divider(indent: 15, endIndent: 15, thickness: 1),
+    return ExpansionTile(
+      title: const Text("Test Widgets"),
+      collapsedTextColor: Colors.white,
+      leading: const Icon(Icons.science),
+      childrenPadding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
+      children: <Widget>[
         ListTile(
-          leading: const Icon(Icons.expand),
-          minLeadingWidth: 0,
+          leading: const Icon(Icons.arrow_drop_down),
+          //minLeadingWidth: 0,
           title: const Text('Dropdown'),
           onTap: () {
             Navigator.pop(context);
@@ -309,10 +337,40 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _getBillsWidgets() {
+    return ExpansionTile(
+      title: const Text("Bills"),
+      collapsedTextColor: Colors.white,
+      leading: const Icon(Icons.list_alt),
+      //tilePadding: const EdgeInsets.only(left: 0),
+      //tilePadding: const EdgeInsets.only(left: 0),
+      //controlAffinity: ListTileControlAffinity.trailing,
+      childrenPadding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
+      children: <Widget>[
+        ..._billTypeMenuList.map((menu) {
+          return ListTile(
+            //minLeadingWidth: 0,
+            leading: Text(menu.iconData.name!,
+                style: TextStyle(
+                    fontSize: 25,
+                    fontFamily: menu.iconData.fontfamily,
+                    color: Color(menu.iconData.color ?? 0))),
+            title: Text(menu.location),
+            onTap: () {
+              _setAllFalse();
+              menu.isSelected = true;
+              _openBills(context, menu.view);
+            },
+          );
+        }).toList()
+      ],
+    );
+  }
+
   Widget _getUserImage() {
     return GetUserImage(
-        height: 40,
-        width: 40,
+        height: 50,
+        width: 50,
         borderColor: Colors.white,
         borderWidth: 1.5,
         //shape: BoxShape.circle,
@@ -339,10 +397,11 @@ class _DashboardState extends State<Dashboard> {
           setState(() {
             _userProfile = up;
             _displayname = up.name ?? "No Name";
-            _isNewUser = (up.userType.isNullOrEmpty()) && up.members == 0;
+            _isNewUser =
+                (up.userType.isNullOrEmpty()) && up.membersArr.last.count == 0;
             _hasRequiredFields = (up.userType.isNullOrEmpty()) ||
                 (_userProfile.name.isNullOrEmpty()) ||
-                up.members == 0;
+                up.membersArr.last.count == 0;
             _isPayer = !_userProfile.userType.isNullOrEmpty() &&
                 _userProfile.userType != _collectorId;
           });
@@ -379,9 +438,10 @@ class _DashboardState extends State<Dashboard> {
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       children: [
-        _isDebug || _isPayer ? _amountToPay() : const SizedBox(),
-        _isDebug || _isPayer ? _billingPayment() : const SizedBox(),
-        if (_userProfile.isAdmin ?? false) _menuButtons(),
+        _amountToPay(),
+        _buildCoinsWidget(),
+        _billingPayment(),
+        //if (_userProfile.isAdmin ?? false) _menuButtons(),
         if (_userProfile.isAdmin ?? false)
           Card(
             child: Column(
@@ -521,7 +581,7 @@ class _DashboardState extends State<Dashboard> {
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
-            )
+            ),
           // const ListTile(
           //   leading: Icon(Icons.album),
           //   title: Text('The Enchanted Nightingale'),
@@ -547,56 +607,101 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _menuButtons() {
-    return _isDebug
-        ? Column(
-            children: [
-              GridView.builder(
-                padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
-                shrinkWrap: true,
-                physics: const BouncingScrollPhysics(),
-                itemCount: _billTypeMenuList.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    childAspectRatio: 1,
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 4.0,
-                    mainAxisSpacing: 4.0),
-                itemBuilder: (BuildContext context, int index) {
-                  //_updateBillType(menu[index]);
-                  return Card(
-                    child: InkWell(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          //_billTypeMenuList[index].icon!,
-                          Text("${_billTypeMenuList[index].iconData.name}",
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  fontFamily: _billTypeMenuList[index]
-                                      .iconData
-                                      .fontfamily,
-                                  color: Color(
-                                      _billTypeMenuList[index].iconData.color ??
-                                          0))),
-                          const SizedBox(height: 10),
-                          Text(_billTypeMenuList[index].location,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis)
-                        ],
+  // Widget _menuButtons() {
+  //   return Column(
+  //     children: [
+  //       GridView.builder(
+  //         padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+  //         shrinkWrap: true,
+  //         physics: const BouncingScrollPhysics(),
+  //         itemCount: _billTypeMenuList.length,
+  //         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //             childAspectRatio: 1,
+  //             crossAxisCount: 4,
+  //             crossAxisSpacing: 4.0,
+  //             mainAxisSpacing: 4.0),
+  //         itemBuilder: (BuildContext context, int index) {
+  //           //_updateBillType(menu[index]);
+  //           return Card(
+  //             child: InkWell(
+  //               child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 crossAxisAlignment: CrossAxisAlignment.center,
+  //                 children: <Widget>[
+  //                   //_billTypeMenuList[index].icon!,
+  //                   Text("${_billTypeMenuList[index].iconData.name}",
+  //                       style: TextStyle(
+  //                           fontSize: 25,
+  //                           fontFamily:
+  //                               _billTypeMenuList[index].iconData.fontfamily,
+  //                           color: Color(
+  //                               _billTypeMenuList[index].iconData.color ?? 0))),
+  //                   const SizedBox(height: 10),
+  //                   Text(_billTypeMenuList[index].location,
+  //                       textAlign: TextAlign.center,
+  //                       overflow: TextOverflow.ellipsis)
+  //                 ],
+  //               ),
+  //               onTap: () {
+  //                 _setAllFalse();
+  //                 setState(() {
+  //                   _billTypeMenuList[index].isSelected = true;
+  //                 });
+  //                 _openBills(context, _billTypeMenuList[index].view);
+  //               },
+  //             ),
+  //           );
+  //         },
+  //       )
+  //     ],
+  //   );
+  // }
+
+  Widget _buildCoinsWidget() {
+    String errorMsg = "";
+    bool hasError = false;
+    num coins = 0.00;
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: _ffInstance
+          .collection("coins")
+          //.where("payerid_deleted", isEqualTo: "${_selectedUserId}_0")
+          .where("user_ids", arrayContains: _userProfile.id)
+          .where("deleted", isEqualTo: false)
+          .limit(1)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          hasError = true;
+          errorMsg = snapshot.error.toString();
+          ExceptionHandler.printMessage("list error: $errorMsg");
+        }
+        if (snapshot.data!.docs.isNotEmpty) {
+          for (var doc in snapshot.data!.docs) {
+            coins = doc.get("total_amount") ?? 0.00;
+          }
+        }
+        return Card(
+          child: ListTile(
+            dense: true,
+            title: const Text('Coins:', style: TextStyle(fontSize: 15)),
+            subtitle: hasError ? Text(errorMsg) : null,
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                snapshot.connectionState == ConnectionState.waiting
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        (snapshot.data!.docs.isEmpty ? 0.00 : coins)
+                            .formatForDisplay(),
                       ),
-                      onTap: () {
-                        _setAllFalse();
-                        _billTypeMenuList[index].isSelected = true;
-                        _openBills(context, _billTypeMenuList[index].view);
-                      },
-                    ),
-                  );
-                },
-              )
-            ],
-          )
-        : const SizedBox();
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   _openBills(context, view) async {
@@ -803,7 +908,9 @@ class _DashboardState extends State<Dashboard> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SettingsHome(auth: _auth)),
+      MaterialPageRoute(
+          builder: (context) =>
+              SettingsHome(auth: _auth, scaffoldKey: _scaffoldKey)),
     ).whenComplete(() => _scaffoldKey.currentState!.openDrawer());
   }
 

@@ -8,7 +8,7 @@ part of 'meter_readings.dart';
 
 Reading _$ReadingFromJson(Map<String, dynamic> json) => Reading(
       id: json['id'],
-      meterReading: json['meter_reading'] as int? ?? 0,
+      readingCurrent: json['reading_current'] as int? ?? 0,
       date: json['reading_date'] == null
           ? null
           : DateTime.parse(json['reading_date'] as String),
@@ -23,6 +23,7 @@ Reading _$ReadingFromJson(Map<String, dynamic> json) => Reading(
           ? null
           : DateTime.parse(json['modified_on'] as String)
       ..deleted = json['deleted'] as bool?
+      ..readingprevious = json['reading_previous'] as int?
       ..userIdDeleted = (json['userid_deleted'] as List<dynamic>?)
           ?.map((e) => e as String?)
           .toList();
@@ -42,7 +43,8 @@ Map<String, dynamic> _$ReadingToJson(Reading instance) {
   val['modified_by'] = instance.modifiedBy;
   val['modified_on'] = instance.modifiedOn?.toIso8601String();
   val['deleted'] = instance.deleted;
-  val['meter_reading'] = instance.meterReading;
+  val['reading_current'] = instance.readingCurrent;
+  val['reading_previous'] = instance.readingprevious;
   val['reading'] = instance.reading;
   val['reading_date'] = instance.date?.toIso8601String();
   val['reading_type'] = instance.type;

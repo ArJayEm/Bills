@@ -388,7 +388,8 @@ class _ReenterMpinState extends State<ReenterMpin> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SettingsHome(auth: _auth)));
+                    builder: (context) =>
+                        SettingsHome(auth: _auth, scaffoldKey: _scaffoldKey)));
           });
         } else {
           _document.update(

@@ -7,8 +7,10 @@ part 'meter_readings.g.dart';
 
 @JsonSerializable()
 class Reading extends ModelBase {
-  @JsonKey(name: "meter_reading")
-  int? meterReading;
+  @JsonKey(name: "reading_current")
+  int? readingCurrent = 0;
+  @JsonKey(name: "reading_previous")
+  int? readingprevious = 0;
   @JsonKey(name: "reading")
   int? reading = 0;
   @JsonKey(name: "reading_date")
@@ -25,7 +27,7 @@ class Reading extends ModelBase {
   @JsonKey(ignore: true)
   String? payerNames = "";
 
-  Reading({id, this.meterReading = 0, this.date, this.reading = 0, this.type = 0, this.userid = ""});
+  Reading({id, this.readingCurrent = 0, this.date, this.reading = 0, this.type = 0, this.userid = ""});
 
   factory Reading.fromJson(Map<String, dynamic> json) =>
       _$ReadingFromJson(json);

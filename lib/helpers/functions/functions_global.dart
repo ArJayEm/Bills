@@ -1,24 +1,61 @@
+import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:print_color/print_color.dart';
 
 extension FunctionsGlobal on bool {
   bool updateProgressStatus({String? errMsg, String? msg}) {
-    //if ((msg?.isNotEmpty ?? false) && (errMsg?.isNotEmpty ?? false)) {
     if (msg?.isNotEmpty ?? false) {
       Fluttertoast.showToast(msg: msg!);
     }
     if (errMsg?.isNotEmpty ?? false) {
       Fluttertoast.showToast(msg: "Something went wrong.");
-
-      if (kDebugMode) {
-        Print.red("errMsg: $errMsg");
-      }
+      ExceptionHandler.printError(errMsg!);
     }
-    //}
-
+    
     return !this;
+  }
+}
+
+class ExceptionHandler {
+  static void printError(String errMsg) {
+    if (kDebugMode) {
+      Print.red("errMsg: $errMsg");
+    }
+  }
+
+  static void printMessage(String msg) {
+    if (kDebugMode) {
+      Print.green("message: $msg");
+    }
+  }
+
+  static Future<void> writeLogs(String errMsg) async {
+    //Write to logs.txt
+    try {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final file = File('${appDocDir.path}/logs.txt');
+      String text = await file.readAsString();
+      text += "\n" + errMsg;
+      await file.writeAsString(text);
+    } catch (e) {
+      ExceptionHandler.printError("Couldn't read file. $e.");
+    }
+  }
+
+  static Future<String> readLogs() async {
+    try {
+      final Directory directory = await getApplicationDocumentsDirectory();
+      final File file = File('${directory.path}/logs.txt');
+      return await file.readAsString();
+    } catch (e) {
+      String errMsg = "Couldn't read file. $e.";
+      ExceptionHandler.printError(errMsg);
+      return errMsg;
+    }
   }
 }
 

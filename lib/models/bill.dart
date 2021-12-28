@@ -16,9 +16,9 @@ class Bill extends ModelBase {
   @JsonKey(name: "description")
   String? description;
   @JsonKey(name: "amount")
-  num? amount;
+  num amount;
   @JsonKey(name: "quantification")
-  int? quantification;
+  int quantification;
   @JsonKey(name: "payer_ids")
   List<String?>? payerIds = [];
   @JsonKey(name: "payers_billtype")
@@ -36,15 +36,15 @@ class Bill extends ModelBase {
   @JsonKey(ignore: true)
   String computation = "";
   @JsonKey(ignore: true)
-  int currentReading = 0;
+  int currentReading;
   @JsonKey(ignore: true)
-  num rate = 0;
+  num rate;
   @JsonKey(ignore: true)
-  num amountToPay = 0;
+  num amountToPay;
   @JsonKey(ignore: true)
   List<Reading> readings = [];
 
-  Bill();
+  Bill({this.amount = 0, this.currentReading = 0, this.amountToPay = 0, this.rate = 0, this.quantification = 1});
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
   Map<String, dynamic> toJson() => _$BillToJson(this);

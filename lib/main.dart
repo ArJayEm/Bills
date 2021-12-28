@@ -134,7 +134,7 @@ class _InitializerWidgetState extends State<InitializerWidget> {
         }
         //}
       }).whenComplete(() {
-        var view = up.loggedIn == true
+        var view = up.loggedIn ?? false
             ? Dashboard(auth: _auth)
             : PinHome(auth: _auth, displayName: up.name ?? up.name ?? 'User');
         _navigateTo(view);

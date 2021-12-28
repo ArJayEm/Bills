@@ -1,4 +1,5 @@
 import 'package:bills/helpers/extensions/format_extension.dart';
+import 'package:bills/models/members.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/signin/pin/enter.dart';
@@ -347,6 +348,8 @@ class _PinHomeState extends State<PinHome> {
       }).whenComplete(() {
         if (mpin == _pinController.text) {
           _document.update({'logged_in': true});
+          _document
+              .update({'last_logged_in': DateTime.now().toIso8601String()});
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
@@ -372,6 +375,11 @@ class _PinHomeState extends State<PinHome> {
         if (snapshot.exists) {
           userProfile =
               UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+          userProfile.membersArr =
+              List<Members>.from(userProfile.members.map((e) {
+            return Members.fromJson(e);
+          }));
+          userProfile.id = snapshot.id;
 
           ///_document.update({'pin': userProfile.pin});
         } else {
@@ -385,7 +393,14 @@ class _PinHomeState extends State<PinHome> {
           _displayName =
               "${userProfile.phoneNumber ?? userProfile.email ?? userProfile.name}";
         });
-        if (userProfile.loggedIn ?? false) {
+        var ll = userProfile.lastLoggedIn ?? DateTime.now();
+        var timeOut = ll.add(const Duration(minutes: 10));
+        var isLoggedIn =
+            DateTime.now().isBefore(timeOut) && (userProfile.loggedIn ?? false);
+        if (isLoggedIn) {
+          userProfile.lastLoggedIn = DateTime.now();
+          _document.update(
+              {"last_logged_in": userProfile.lastLoggedIn?.toIso8601String()});
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else if (userProfile.pin.isNullOrEmpty()) {
@@ -430,21 +445,4 @@ class _PinHomeState extends State<PinHome> {
     }
     setState(() => _isLoading = isLoading);
   }
-
-  // _showProgressDialog() {
-  //   return _isLoading
-  //       ? showDialog(
-  //           context: context,
-  //           builder: (BuildContext context) {
-  //             return Center(
-  //               child: CircularProgressIndicator(),
-  //             );
-  //           },
-  //         ).whenComplete(
-  //           () {
-  //             Navigator.pop(context);
-  //           },
-  //         )
-  //       : null;
-  // }
 }

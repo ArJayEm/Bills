@@ -1,5 +1,6 @@
 import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill.dart';
+//import 'package:bills/models/members.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
@@ -9,8 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:intl/intl.dart';
+//import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+//import 'package:intl/intl.dart';
 //import 'package:firebase_core/firebase_core.dart' as firebase_core;
 
 class PaymentHistory extends StatefulWidget {
@@ -36,8 +37,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
-  final firebase_storage.FirebaseStorage _fsInstance =
-      firebase_storage.FirebaseStorage.instance;
+  //final firebase_storage.FirebaseStorage _fsInstance = firebase_storage.FirebaseStorage.instance;
 
   @override
   void initState() {
@@ -88,10 +88,14 @@ class _PaymentHistoryState extends State<PaymentHistory> {
       _ffInstance
           .collection("users")
           .where("deleted", isEqualTo: false)
+          .orderBy("name")
           .get()
           .then((snapshots) {
         for (var document in snapshots.docs) {
           UserProfile up = UserProfile.fromJson(document.data());
+          // up.membersArr = List<Members>.from(up.members.map((e) {
+          //   return Members.fromJson(e);
+          // }));
           up.id = document.id;
           ups.add(up);
         }
@@ -226,7 +230,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                       //isThreeLine: true,
                                       //title: Text("${_setSelectedPayersDisplay(reading.payerIds)}${!(reading.description?.isEmpty ?? true) ? " | ${reading.description}" : ""}"),
                                       title: Text(
-                                        "${bill.description.isNullOrEmpty() ? "Payment" : bill.description}",
+                                        "${bill.billDate?.format(dateOnly: true)}",
                                         textAlign: TextAlign.left,
                                         style: const TextStyle(
                                             fontSize: 20,
@@ -245,15 +249,12 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                "${bill.billDate?.format(dateOnly: true)}",
+                                                "${bill.description.isNullOrEmpty() ? "Payment" : bill.description}",
                                                 textAlign: TextAlign.right,
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w300),
                                               ),
                                               Text(
-                                                  "${bill.amount?.formatForDisplay()}",
+                                                  bill.amount
+                                                      .formatForDisplay(),
                                                   textAlign: TextAlign.right,
                                                   style: const TextStyle(
                                                       fontSize: 25,

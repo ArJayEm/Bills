@@ -58,7 +58,7 @@ class _EnterCurrentState extends State<EnterCurrent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SettingsHome(auth: _auth)),
+                  builder: (context) => SettingsHome(auth: _auth, scaffoldKey: _scaffoldKey)),
             );
           },
           child: const Icon(Icons.arrow_back),

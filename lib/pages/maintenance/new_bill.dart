@@ -85,8 +85,8 @@ class _ManagementState extends State<Management> {
 
       _ctrlBillDate.text = _bill.billDate!.format(dateOnly: true);
       _ctrlDesciption.text = _bill.description ?? "";
-      _ctrlAmount.text = (_bill.amount ?? 0).format();
-      _ctrlQuantif.text = (_bill.quantification ?? 1).toString();
+      _ctrlAmount.text = _bill.amount.format();
+      _ctrlQuantif.text = _bill.quantification.toString();
     });
     _onLoad();
   }
@@ -478,7 +478,8 @@ class _ManagementState extends State<Management> {
       try {
         CollectionReference collection = _ffInstance.collection("users");
         UserProfile userProfile = UserProfile();
-        collection.get().then((snapshots) {
+        collection
+          .orderBy("name").get().then((snapshots) {
           for (var document in snapshots.docs) {
             if (_bill.payerIds?.contains(document.id) ?? false) {
               userProfile =
@@ -517,7 +518,8 @@ class _ManagementState extends State<Management> {
     try {
       List<dynamic> users = [];
       CollectionReference _collection = _ffInstance.collection("users");
-      _collection.get().then((snapshots) {
+      _collection
+          .orderBy("name").get().then((snapshots) {
         for (var document in snapshots.docs) {
           //String pbt = "${document.id}_$_billType";
           users.add([document.id, document.get('name')]);

@@ -1,3 +1,4 @@
+import 'package:bills/models/members.dart';
 import 'package:bills/models/model_base.dart';
 
 import 'package:json_annotation/json_annotation.dart';
@@ -20,8 +21,10 @@ class UserProfile extends ModelBase {
   String? phoneNumber = "";
   @JsonKey(name: "logged_in")
   bool? loggedIn = false;
-  @JsonKey(name: "members")
-  int members = 1;
+  @JsonKey(name: "last_logged_in")
+  DateTime? lastLoggedIn = DateTime.now();
+  // @JsonKey(name: "members")
+  // int members = 1;
   @JsonKey(name: "is_admin")
   bool? isAdmin = false;
   @JsonKey(name: "registered_using")
@@ -33,11 +36,16 @@ class UserProfile extends ModelBase {
   @JsonKey(name: "pin")
   String? pin = "";
 
-  @JsonKey(name: "user_ids")
-  List<String>? userIds = [];
+  @JsonKey(name: "members")
+  List<Map<String, dynamic>> members = [];
+  // @JsonKey(name: "user_ids")
+  // List<String?>? userIds = [];
 
   @JsonKey(ignore: true)
   List<UserProfile> users = [];
+  @JsonKey(ignore: true)
+  @JsonKey(name: "membersArr")
+  List<Members> membersArr = [];
 
   UserProfile();
 
