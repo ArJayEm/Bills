@@ -67,6 +67,7 @@ dependencies:
   #flutter_speed_dial: ^5.0.0+1
   flutter_holo_date_picker: ^1.0.1+2
   printing: ^5.6.6
+  shimmer: ^2.0.0
 
   flutter_localizations:
     sdk: flutter

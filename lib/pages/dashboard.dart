@@ -2,7 +2,7 @@ import 'package:badges/badges.dart';
 import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/billing.dart';
-import 'package:bills/models/coins.dart';
+//import 'package:bills/models/coins.dart';
 import 'package:bills/models/menu.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
@@ -12,18 +12,19 @@ import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:bills/pages/user/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
 import 'package:bills/pages/test/dropdown_test.dart';
-import 'package:bills/pages/maintenance/bills_generate.dart';
+import 'package:bills/pages/maintenance/new_billing.dart';
 import 'package:bills/pages/user/history_bills.dart';
-import 'package:bills/pages/maintenance/users_list.dart';
+import 'package:bills/pages/maintenance/listview_users.dart';
 import 'package:bills/pages/user/history_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:global_configuration/global_configuration.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
+//import 'package:global_configuration/global_configuration.dart';
 import 'package:print_color/print_color.dart';
+import 'package:shimmer/shimmer.dart';
 
-import 'maintenance/bills_listview.dart';
+import 'maintenance/listview_bills.dart';
 
 class Dashboard extends StatefulWidget {
   static const String route = '/';
@@ -36,12 +37,12 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  bool _isDebug = false;
-  String _collectorId = "";
+  //bool _isDebug = false;
+  //String _collectorId = "";
   _DashboardState() {
-    GlobalConfiguration cfg = GlobalConfiguration();
-    _isDebug = cfg.get("isDebug");
-    _collectorId = cfg.get("collectorId");
+    //GlobalConfiguration cfg = GlobalConfiguration();
+    //_isDebug = cfg.get("isDebug");
+    //_collectorId = cfg.get("collectorId");
   }
 
   late FirebaseAuth _auth;
@@ -50,17 +51,18 @@ class _DashboardState extends State<Dashboard> {
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
   late CollectionReference _collection;
 
-  String? _displayname;
   Billing? _billingCurrent = Billing();
 
-  bool _isPayer = false;
   bool _isLoadingGetAmountToPay = false;
   // ignore: unused_field
-  bool _isLoadingUser = false;
+  final bool _isLoading = false;
+  final bool _isLoadingUser = false;
+  final bool _isLoggingOut = false;
 
   //int _selectedIndex = 0;
   bool _isNewUser = false;
-  bool _hasRequiredFields = false;
+  //bool _isPayer = false;
+  //bool _hasRequiredFields = false;
 
   final List<Menu> _billTypeMenuList = [];
 
@@ -90,7 +92,7 @@ class _DashboardState extends State<Dashboard> {
       key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
       onDrawerChanged: (isOpen) {
-        if (!isOpen && _hasRequiredFields) {
+        if (!isOpen && _isNewUser) {
           _getCurrentUser();
         }
       },
@@ -105,7 +107,7 @@ class _DashboardState extends State<Dashboard> {
                 child: ListTile(
                   tileColor: Colors.yellow.shade800,
                   contentPadding: const EdgeInsets.fromLTRB(18, 20, 15, 15),
-                  leading: _hasRequiredFields
+                  leading: _isNewUser
                       ? Badge(
                           badgeContent: const Text(''),
                           animationType: BadgeAnimationType.scale,
@@ -113,7 +115,7 @@ class _DashboardState extends State<Dashboard> {
                         )
                       : _getUserImage(),
                   title: Text(
-                    "$_displayname",
+                    "${_userProfile.name}",
                     style: const TextStyle(fontSize: 20.0),
                   ),
                   subtitle:
@@ -179,6 +181,7 @@ class _DashboardState extends State<Dashboard> {
                     //const Divider(),
                     if (_userProfile.isAdmin ?? false) _getBillsWidgets(),
                     if (_userProfile.isAdmin ?? false) _getTestWidgets(),
+                    if (_userProfile.isAdmin ?? false) _getMaintenanceWidget(),
                     // const Divider(indent: 15, endIndent: 15, thickness: 1),
                     Align(
                       alignment: Alignment.center,
@@ -230,8 +233,8 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         iconTheme: Theme.of(context).iconTheme,
         //titleTextStyle: Theme.of(context).textTheme,
-        title: Text('Hi, $_displayname!'),
-        leading: _hasRequiredFields
+        title: Text('Hi, $_userProfile.name!'),
+        leading: _isNewUser
             ? IconButton(
                 icon: Badge(
                     badgeContent: const Text(''),
@@ -337,6 +340,26 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _getMaintenanceWidget() {
+    return ExpansionTile(
+      title: const Text("Maintenance"),
+      collapsedTextColor: Colors.white,
+      leading: const Icon(Icons.settings_applications),
+      childrenPadding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
+      children: <Widget>[
+        ListTile(
+          leading: const Icon(Icons.list_alt),
+          //minLeadingWidth: 0,
+          title: const Text('Bill Types'),
+          onTap: () {
+            Navigator.pop(context);
+            _openBills(context, const DropdDownTest());
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _getBillsWidgets() {
     return ExpansionTile(
       title: const Text("Bills"),
@@ -378,48 +401,29 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _getCurrentUser() async {
-    _showProgressUi(true, "");
+    _isLoading.updateProgressStatus(msg: "");
 
     try {
       if (_auth.currentUser != null) {
-        DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-        UserProfile up = UserProfile();
+        DocumentReference doc = _collection.doc(_auth.currentUser!.uid);
+        UserProfile up = UserProfile.fromJson(doc as Map<String, dynamic>);
+        up.id = doc.id;
 
-        _collection.get().then((snapshots) {
-          for (var document in snapshots.docs) {
-            if (document.id == _auth.currentUser!.uid) {
-              up =
-                  UserProfile.fromJson(document.data() as Map<String, dynamic>);
-              up.id = document.id;
-            }
-          }
-        }).whenComplete(() {
-          setState(() {
-            _userProfile = up;
-            _displayname = up.name ?? "No Name";
-            _isNewUser =
-                (up.userType.isNullOrEmpty()) && up.membersArr.last.count == 0;
-            _hasRequiredFields = (up.userType.isNullOrEmpty()) ||
-                (_userProfile.name.isNullOrEmpty()) ||
-                up.membersArr.last.count == 0;
-            _isPayer = !_userProfile.userType.isNullOrEmpty() &&
-                _userProfile.userType != _collectorId;
-          });
-          if (_auth.currentUser?.email == up.email) {
-            _document.update(
-                {'name': _displayname ?? _auth.currentUser!.displayName});
-          }
-          _showProgressUi(false, "");
-          Fluttertoast.showToast(msg: _isPayer.toString());
-          if (_isNewUser) {
-            _welcomeDialog();
-          }
+        setState(() {
+          _userProfile = up;
+          _isNewUser = (up.userType.isNullOrEmpty()) ||
+              (_userProfile.name.isNullOrEmpty()) ||
+              up.membersArr.last.count == 0;
         });
+    _isLoading.updateProgressStatus(msg: "");
+        if (_isNewUser) {
+          _welcomeDialog();
+        }
       }
     } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
+      _isLoadingUser.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
-      _showProgressUi(false, "$e.");
+      _isLoadingUser.updateProgressStatus(errMsg: "$e.");
     }
   }
 
@@ -427,9 +431,6 @@ class _DashboardState extends State<Dashboard> {
     // setState(() {
     //   _currentAmount = _isLoadingGetAmountToPay ? 100 : 0;
     // });
-    setState(() {
-      _isLoadingGetAmountToPay = true;
-    });
     _getAmountToPay();
   }
 
@@ -479,6 +480,30 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _loadingWidget() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey,
+      highlightColor: Colors.grey.shade100,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
+          child: Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  width: double.infinity,
+                  height: 18.0,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _billingPayment() {
     return Card(
       child: Column(
@@ -516,8 +541,11 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _getAmountToPay() async {
     Billing billing = Billing();
-
     try {
+      setState(() {
+        _isLoadingGetAmountToPay = true;
+      });
+
       _ffInstance
           .collection("billings")
           .where("user_id", arrayContains: _auth.currentUser!.uid)
@@ -533,9 +561,9 @@ class _DashboardState extends State<Dashboard> {
         setState(() {
           _billingCurrent = billing;
         });
-      });
-      setState(() {
-        _isLoadingGetAmountToPay = false;
+        setState(() {
+          _isLoadingGetAmountToPay = false;
+        });
       });
     } on FirebaseAuthException catch (e) {
       _isLoadingGetAmountToPay.updateProgressStatus(errMsg: "${e.message}.");
@@ -545,66 +573,69 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _amountToPay() {
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-              title:
-                  const Text('Amount to pay', style: TextStyle(fontSize: 20)),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "${_billingCurrent?.totalPayment.formatForDisplay()}",
-                    style: const TextStyle(fontSize: 22),
-                  ),
-                  if ((_billingCurrent?.totalPayment ?? 0) > 0)
-                    Text(
-                      "Due on: ${_billingCurrent?.dueDate?.formatDate(dateOnly: true)}",
-                      style: TextStyle(
-                          color: _billingCurrent!.dueDate!
-                                      .compareTo(DateTime.now()) >
-                                  0
-                              ? Colors.redAccent
-                              : Colors.white),
+    return _isLoadingGetAmountToPay
+        ? _loadingWidget()
+        : Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                    title: const Text('Amount to pay',
+                        style: TextStyle(fontSize: 20)),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "${_billingCurrent?.totalPayment.formatForDisplay()}",
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                        if ((_billingCurrent?.totalPayment ?? 0) > 0)
+                          Text(
+                            "Due on: ${_billingCurrent?.dueDate?.formatDate(dateOnly: true)}",
+                            style: TextStyle(
+                                color: _billingCurrent!.dueDate!
+                                            .compareTo(DateTime.now()) >
+                                        0
+                                    ? Colors.redAccent
+                                    : Colors.white),
+                          ),
+                      ],
+                    )),
+                if ((_billingCurrent?.totalPayment ?? 0) == 0)
+                  const CustomDivider(),
+                if ((_billingCurrent?.totalPayment ?? 0) == 0)
+                  const ListTile(
+                    dense: true,
+                    title: Text(
+                      'Thank you for your payment!',
+                      style: TextStyle(fontSize: 15),
+                      textAlign: TextAlign.center,
                     ),
-                ],
-              )),
-          if ((_billingCurrent?.totalPayment ?? 0) == 0) const CustomDivider(),
-          if ((_billingCurrent?.totalPayment ?? 0) == 0)
-            const ListTile(
-              dense: true,
-              title: Text(
-                'Thank you for your payment!',
-                style: TextStyle(fontSize: 15),
-                textAlign: TextAlign.center,
-              ),
+                  ),
+                // const ListTile(
+                //   leading: Icon(Icons.album),
+                //   title: Text('The Enchanted Nightingale'),
+                //   subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.end,
+                //   children: <Widget>[
+                //     TextButton(
+                //       child: const Text('BUY TICKETS'),
+                //       onPressed: () {/* ... */},
+                //     ),
+                //     const SizedBox(width: 8),
+                //     TextButton(
+                //       child: const Text('LISTEN'),
+                //       onPressed: () {/* ... */},
+                //     ),
+                //     const SizedBox(width: 8),
+                //   ],
+                // ),
+              ],
             ),
-          // const ListTile(
-          //   leading: Icon(Icons.album),
-          //   title: Text('The Enchanted Nightingale'),
-          //   subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: <Widget>[
-          //     TextButton(
-          //       child: const Text('BUY TICKETS'),
-          //       onPressed: () {/* ... */},
-          //     ),
-          //     const SizedBox(width: 8),
-          //     TextButton(
-          //       child: const Text('LISTEN'),
-          //       onPressed: () {/* ... */},
-          //     ),
-          //     const SizedBox(width: 8),
-          //   ],
-          // ),
-        ],
-      ),
-    );
+          );
   }
 
   // Widget _menuButtons() {
@@ -681,6 +712,9 @@ class _DashboardState extends State<Dashboard> {
             coins = doc.get("total_amount") ?? 0.00;
           }
         }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _loadingWidget();
+        }
         return Card(
           child: ListTile(
             dense: true,
@@ -690,12 +724,10 @@ class _DashboardState extends State<Dashboard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                snapshot.connectionState == ConnectionState.waiting
-                    ? const CircularProgressIndicator()
-                    : Text(
-                        (snapshot.data!.docs.isEmpty ? 0.00 : coins)
-                            .formatForDisplay(),
-                      ),
+                Text(
+                  (snapshot.data!.docs.isEmpty ? 0.00 : coins)
+                      .formatForDisplay(),
+                ),
               ],
             ),
           ),
@@ -751,9 +783,9 @@ class _DashboardState extends State<Dashboard> {
         });
       });
     } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
+      _isLoading.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
-      _showProgressUi(false, "$e.");
+      _isLoading.updateProgressStatus(errMsg: "$e.");
     }
   }
 
@@ -809,88 +841,22 @@ class _DashboardState extends State<Dashboard> {
   }
 
   _logout() {
-    _showProgressUi(true, "Logging Out.");
+    _isLoggingOut.updateProgressStatus(msg: "Logging Out.");
 
-    try {
-      DocumentReference _document = _collection.doc(_auth.currentUser!.uid);
-      UserProfile userProfile = UserProfile();
-
-      _document.get().then((snapshot) {
-        if (snapshot.exists) {
-          userProfile =
-              UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          userProfile.id = snapshot.id;
-          //userProfile.displayName = snapshot.get('name');
-          _document.update({'logged_in': false});
-        }
-      }).whenComplete(() {
-        setState(() {
-          _displayname = userProfile.name;
-        });
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    PinHome(auth: _auth, displayName: _displayname!)));
-      });
-    } on FirebaseAuthException catch (e) {
-      _showProgressUi(false, "${e.message}.");
-    } catch (e) {
-      _showProgressUi(false, "$e.");
-    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                PinHome(auth: _auth, displayName: "${_userProfile.name}")));
   }
 
-  // Future<void> _updateBillType(Menu menu) async {
-  //   List<String?> list = [];
-  //   try {
-  //     CollectionReference collection =
-  //         FirebaseFirestore.instance.collection("bill_types");
-  //     collection.get().then((snapshots) {
-  //       snapshots.docs.forEach((document) {
-  //         BillType billType =
-  //             BillType.fromJson(document.data() as Map<String, dynamic>);
-  //         if (billType.description == menu.location) {
-  //           Map<String, dynamic> icondata = {
-  //             "code_point": menu.icon?.icon?.codePoint,
-  //             "font_family": menu.icon?.icon?.fontFamily,
-  //             "color": menu.icon?.color?.value
-  //           };
-  //           collection.doc(document.id).update({
-  //             "icon_data": icondata
-  //             //'billing_date': billType.billdate?.toIso8601String();
-  //           }).whenComplete(() {
-  //             list.add(document.id);
-  //           });
-  //         }
-  //       });
-  //     }).whenComplete(() {
-  //       setState(() {
-  //         //_payers.clear();
-  //         //_payers.addAll(payers);
-  //         //_listStream = stream;
-  //       });
-  //       print("list: $list");
-  //       _showProgressUi(false, "");
-  //     });
-  //   } on FirebaseAuthException catch (e) {
-  //     _showProgressUi(false, "${e.message}.");
-  //   } catch (e) {}
-  // }
-
   Future<void> _onLoad() async {
-    await _getCurrentUser();
     setState(() {
       _billTypeMenuList.clear();
     });
+    await _getCurrentUser();
     await _getBillTypes();
     await _loadLandingPage();
-  }
-
-  _showProgressUi(bool isLoading, String msg) {
-    if (msg.isNotEmpty) {
-      Fluttertoast.showToast(msg: msg);
-    }
-    setState(() => _isLoadingUser = isLoading);
   }
 
   void _profile() {

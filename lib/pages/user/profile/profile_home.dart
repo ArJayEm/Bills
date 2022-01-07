@@ -47,7 +47,6 @@ class _ProfileHomeState extends State<ProfileHome> {
   int _members = 0;
   bool _isLoading = false;
   bool _isUpdate = false;
-  bool _hasRequiredFields = false;
   //bool _mobileUser = false;
 
   final TextStyle _hint = const TextStyle(fontSize: 15, color: Colors.white30);
@@ -166,24 +165,17 @@ class _ProfileHomeState extends State<ProfileHome> {
                 leading: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _hasRequiredFields
-                        ? Badge(
-                            badgeContent: const Text(''),
-                            child: _getUserImage(),
-                          )
-                        : _getUserImage()
+                        _getUserImage()
                   ],
                 ),
                 minLeadingWidth: 0,
                 title: Text(_displayNameController.text),
                 subtitle: const Text("Name"),
-                trailing: _hasRequiredFields &&
-                        _isUpdate &&
+                trailing: _isUpdate &&
                         (_userProfile.name.isNullOrEmpty())
                     ? const Icon(Icons.edit)
                     : const Icon(Icons.info_outline),
-                onTap: () => _hasRequiredFields &&
-                        _isUpdate &&
+                onTap: () => _isUpdate &&
                         (_userProfile.name.isNullOrEmpty())
                     ? showDialog(
                         context: context,
@@ -380,10 +372,10 @@ class _ProfileHomeState extends State<ProfileHome> {
                 minLeadingWidth: 0,
                 title: Text(_membersController.text),
                 subtitle: const Text("Members"),
-                trailing: _hasRequiredFields && _isUpdate && _members < 1
+                trailing: _isUpdate && _members < 1
                     ? const Icon(Icons.edit)
                     : const Icon(Icons.info_outline),
-                onTap: () => _hasRequiredFields && _isUpdate && _members < 1
+                onTap: () => _isUpdate && _members < 1
                     ? showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -522,12 +514,12 @@ class _ProfileHomeState extends State<ProfileHome> {
                 minLeadingWidth: 0,
                 title: Text(_userTypeController.text),
                 subtitle: const Text("User Type"),
-                trailing: _hasRequiredFields &&
+                trailing: 
                         _isUpdate &&
                         (_userProfile.userType.isNullOrEmpty())
                     ? const Icon(Icons.edit)
                     : const Icon(Icons.info_outline),
-                onTap: () => _hasRequiredFields &&
+                onTap: () => 
                         _isUpdate &&
                         (_userProfile.userType.isNullOrEmpty())
                     ? showDialog(
@@ -593,7 +585,7 @@ class _ProfileHomeState extends State<ProfileHome> {
           ),
         ),
         const SizedBox(height: 20),
-        if (_hasRequiredFields)
+        if (_isUpdate)
           ElevatedButton(
             onPressed: _confirmSubmit,
             child: _isLoading
@@ -659,16 +651,8 @@ class _ProfileHomeState extends State<ProfileHome> {
                   .format(_userProfile.billingDate!)
                   .toString()
               : "No Billing Generation Date";
-          // _mobileUser =
-          //     _userProfile.registeredUsing?.contains("mobile") == true &&
-          //         _userProfile.phoneNumber?.trim() ==
-          //             _userProfile.displayName?.trim();
-          _hasRequiredFields = //_mobileUser ||
-              (_userProfile.name.isNullOrEmpty()) ||
-                  (_userProfile.userType.isNullOrEmpty()) ||
-                  _members < 1;
 
-          _isUpdate = _hasRequiredFields;
+          _isUpdate = true;
         });
         _showProgressUi(false, "");
       });
