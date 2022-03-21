@@ -1,6 +1,7 @@
 // ignore_for_file: use_key_in_widget_constructors, unused_import, prefer_final_fields
 
 import 'package:bills/helpers/functions/functions_global.dart';
+import 'package:bills/helpers/values/strings.dart';
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/meter_readings.dart';
@@ -310,20 +311,12 @@ class _ManagementState extends State<Management> {
   }
 
   _getDate() async {
-    // DateTime newDate = await showDatePicker(
-    //   context: context,
-    //   initialDate: _reading.date!,
-    //   firstDate: _firstdate,
-    //   lastDate: _lastdate,
-    // ) ??
-    //     _reading.date ??
-    //     DateTime.now();
     DateTime newDate = await DatePicker.showSimpleDatePicker(
           context,
           initialDate: _reading.date!,
           firstDate: _firstdate,
           lastDate: _lastdate,
-          dateFormat: "yyyy-MMMM-dd",
+          dateFormat: holoDateFormat,
           locale: DateTimePickerLocale.en_us,
           looping: true,
         ) ??
@@ -347,8 +340,6 @@ class _ManagementState extends State<Management> {
 
   _saveRecord() async {
     _isLoading.updateProgressStatus(msg: "Saving");
-    // String? msg;
-    // String? errMsg;
 
     setState(() {
       _reading.userid = _selectedList.first;

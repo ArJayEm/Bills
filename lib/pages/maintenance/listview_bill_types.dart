@@ -1,4 +1,5 @@
 import 'package:bills/helpers/extensions/format_extension.dart';
+//import 'package:bills/helpers/firebase/firebase_helpers.dart';
 import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/user_profile.dart';
@@ -10,11 +11,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class ListViewBillTypes extends StatefulWidget {
   const ListViewBillTypes(
-      {Key? key, required this.auth, required this.billType})
+      {Key? key, required this.auth}) //, required this.billType
       : super(key: key);
 
   final FirebaseAuth auth;
-  final BillType billType;
+  //final BillType billType;
 
   @override
   _ListViewBillTypesState createState() => _ListViewBillTypesState();
@@ -24,9 +25,9 @@ class _ListViewBillTypesState extends State<ListViewBillTypes> {
   late FirebaseAuth _auth;
   late FToast fToast = FToast();
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
-  late CollectionReference _collection;
-  late final String _loggedInId;
-  late String _selectedUserId;
+  //late CollectionReference _collection;
+  //late final String _loggedInId;
+  //late String _selectedUserId;
 
   final bool _isLoading = false;
   UserProfile _userProfile = UserProfile();
@@ -38,7 +39,7 @@ class _ListViewBillTypesState extends State<ListViewBillTypes> {
     //_getSdkVersion();
     setState(() {
       _auth = widget.auth;
-      _collection = _ffInstance.collection('bill_types');
+      //_collection = _ffInstance.collection('users');
     });
     _onLoad();
   }
@@ -47,12 +48,21 @@ class _ListViewBillTypesState extends State<ListViewBillTypes> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      resizeToAvoidBottomInset: false,
-      body: RefreshIndicator(onRefresh: _refresh, child: _buildBillTypes()),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        //leadingWidth: 0,
+        centerTitle: true,
+        title: const Text("Bill Types"),
+        elevation: 1,
+      ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: _buildBillTypes(),
+      ),
     );
   }
 
-  Future<void> _onLoad() async {
+  void _onLoad() async {
     await _getCurrentUser();
   }
 
@@ -105,8 +115,7 @@ class _ListViewBillTypesState extends State<ListViewBillTypes> {
                                       //isThreeLine: true,
                                       title: Text("${billType.description}"),
                                       subtitle: Text(billType.createdOn
-                                          .lastModified(
-                                              modified: billType.modifiedOn)),
+                                          .lastModified(billType.modifiedOn)),
                                       trailing: const Icon(Icons.chevron_right),
                                       onTap: () async {},
                                     ),
@@ -124,19 +133,25 @@ class _ListViewBillTypesState extends State<ListViewBillTypes> {
 
   Future<void> _getCurrentUser() async {
     _isLoading.updateProgressStatus(msg: "");
-
     try {
-      if (_auth.currentUser != null) {
-        DocumentReference doc = _collection.doc(_auth.currentUser!.uid);
-        UserProfile up = UserProfile.fromJson(doc as Map<String, dynamic>);
-        up.id = doc.id;
-
+      UserProfile up = UserProfile();
+      _ffInstance
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .get()
+          .then((snapshot) {
+        if (snapshot.exists) {
+          up = UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+          up.id = snapshot.id;
+          up.mapMembers();
+        }
+      }).whenComplete(() {
         setState(() {
           _userProfile = up;
         });
         _isLoading.updateProgressStatus(msg: "");
-      }
-    } on FirebaseAuthException catch (e) {
+      });
+    } on FirebaseException catch (e) {
       _isLoading.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
       _isLoading.updateProgressStatus(errMsg: "$e.");

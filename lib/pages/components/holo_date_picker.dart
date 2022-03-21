@@ -27,7 +27,6 @@ class HoloDatePicker extends StatefulWidget {
       : super(key: key);
 
   final DateTime? initialDate;
-  final String? dateFormat = "yyyy-MMMM-dd";
   final Function()? onTap;
   final String? label;
   final TextEditingController controller;
@@ -52,9 +51,6 @@ class _HoloDatePickerState extends State<HoloDatePicker> {
   void initState() {
     super.initState();
     setState(() {
-      //_initialDate = widget.initialDate;
-      //_dateFormat = widget.dateFormat ?? "yyyy-MMMM-dd";
-      //_onTap = widget.onTap;
       _label = widget.label ?? "Select Date";
       _controller = widget.controller;
     });

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-pl\\values-pl.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-pl\\values-pl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\29ddef3817c4f5b226bd550cc5ce08b2\\jetified-facebook-login-12.1.0\\res\\values-pl\\values-pl.xml",

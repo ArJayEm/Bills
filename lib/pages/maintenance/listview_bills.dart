@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 //import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:intl/intl.dart';
 
 import '../components/custom_widgets.dart';
 
@@ -263,8 +262,10 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
     return StreamBuilder<QuerySnapshot>(
       stream: _ffInstance
           .collection("bills")
-          .where('payers_billtype',
-              arrayContains: "${_selectedUserId}_$_billTypeId")
+          .where('payers', arrayContains: null)
+          .where("bill_type", isEqualTo: 6)
+          // .where('payers_billtype',
+          //     arrayContains: ["${_selectedUserId}_$_billTypeId"])
           .orderBy('bill_date', descending: true)
           //.limit(10)
           .snapshots(),
@@ -314,8 +315,7 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                           "${_setSelectedPayersDisplay(bill.payerIds)}${!(bill.description?.isEmpty ?? true) ? " | ${bill.description}" : ""}"),
                                       //subtitle: Text('Created On: ${DateTime.fromMillisecondsSinceEpoch(data['created_on']).format()}'),
                                       subtitle: Text(bill.createdOn
-                                          .lastModified(
-                                              modified: bill.modifiedOn)),
+                                          .lastModified(bill.modifiedOn)),
                                       trailing: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
@@ -421,10 +421,8 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
                                 reading.billType = _billTypes.firstWhere(
                                     (element) =>
                                         element?.id == reading.type.toString());
-                                String _lastModified =
-                                    DateFormat('MMM dd, yyyy hh:mm aaa').format(
-                                        reading.modifiedOn ??
-                                            reading.createdOn);
+                                String _lastModified = reading.createdOn
+                                    .lastModified(reading.modifiedOn);
                                 return Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
@@ -548,14 +546,14 @@ class _ListViewPage extends State<ListViewBills> with TickerProviderStateMixin {
   Future<List<UserModel>> getData(filter) async {
     List<UserModel> userModels = [];
     try {
-      var col = _ffInstance
+      _ffInstance
           .collection("bills")
           //.where('payer_ids', arrayContains: _userId)
           .where('name_separated',
               arrayContains: filter.toString().toLowerCase())
-          .orderBy('name');
-
-      col.get().then((snapshots) {
+          .orderBy('name')
+          .get()
+          .then((snapshots) {
         for (var document in snapshots.docs) {
           UserProfile up = UserProfile(); //.fromJson(document.data());
           up.name = document.get("name");

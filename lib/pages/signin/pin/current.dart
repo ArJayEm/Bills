@@ -421,16 +421,6 @@ class _EnterCurrentState extends State<EnterCurrent> {
                   builder: (context) => EnterMpin(
                       auth: _auth, isChange: true, nominatedPin: '')));
         } else {
-          // setState(() {
-          //   _pinControllerFull.clear();
-          //   _pinController1.clear();
-          //   _pinController2.clear();
-          //   _pinController3.clear();
-          //   _pinController4.clear();
-          //   _pinController5.clear();
-          //   _pinController6.clear();
-          //   FocusScope.of(context).requestFocus(_pinFocusNode1);
-          // });
           FocusScope.of(context).requestFocus(_pinFocusNode6);
           _showProgressUi(false, "Incorrect pin.");
         }

@@ -24,6 +24,16 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }
 }
 
+class CustomDivider extends StatelessWidget {
+  const CustomDivider({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(
+        height: 2, indent: 10, endIndent: 10, color: Colors.grey);
+  }
+}
+
 class CustomFloatingActionButton extends StatelessWidget {
   final String title;
   final IconData? icon;
@@ -32,7 +42,12 @@ class CustomFloatingActionButton extends StatelessWidget {
   final Function()? onTap;
 
   const CustomFloatingActionButton(
-      {Key? key, required this.title, required this.color, this.icon, this.onTap}) : super(key: key);
+      {Key? key,
+      required this.title,
+      required this.color,
+      this.icon,
+      this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +60,30 @@ class CustomFloatingActionButton extends StatelessWidget {
   }
 }
 
+class CustomCenterExpanded extends StatelessWidget {
+  final List<Widget> children;
+
+  const CustomCenterExpanded({Key? key, required this.children})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(10),
+      //height: 120,
+      child: Expanded(
+        child: Row(
+          children: [
+            const Spacer(),
+            ...children,
+            const Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CustomIconButton extends StatelessWidget {
   final Color color;
   final Color textColor;
@@ -53,11 +92,13 @@ class CustomIconButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomIconButton(
-      {Key? key, required this.color,
+      {Key? key,
+      required this.color,
       required this.textColor,
       required this.image,
       required this.text,
-      required this.onPressed}) : super(key: key);
+      required this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +148,13 @@ class CustomAppBarButton extends StatelessWidget {
   final bool isChecked;
 
   const CustomAppBarButton(
-      {Key? key, required this.icon,
+      {Key? key,
+      required this.icon,
       required this.onTap,
       required this.uncheckedColor,
       required this.checkedColor,
-      required this.isChecked}) : super(key: key);
+      required this.isChecked})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -137,14 +180,16 @@ class CustomPinWidget extends StatelessWidget {
   final VoidCallback onChanged;
 
   const CustomPinWidget(
-      {Key? key, required this.controllerSingle,
+      {Key? key,
+      required this.controllerSingle,
       required this.controllerAll,
       required this.focusNode,
       required this.focusNodeNext,
       //required this.onTap,
       required this.onChanged,
       required this.isFirst,
-      required this.isLast}) : super(key: key);
+      required this.isLast})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +247,11 @@ class CustomExpandableWidget extends StatefulWidget {
   final bool isExpanded;
 
   const CustomExpandableWidget(
-      {Key? key, required this.title, required this.body, required this.isExpanded}) : super(key: key);
+      {Key? key,
+      required this.title,
+      required this.body,
+      required this.isExpanded})
+      : super(key: key);
 
   @override
   _CustomExpandableWidgetState createState() => _CustomExpandableWidgetState();
@@ -266,7 +315,8 @@ class MultiSelectDialog extends StatelessWidget {
   final List<String> selectedIds = [];
   static Map<String, bool> mappedItem = <String, bool>{};
 
-  MultiSelectDialog({Key? key, required this.payers, required this.question}) : super(key: key);
+  MultiSelectDialog({Key? key, required this.payers, required this.question})
+      : super(key: key);
 
   /// Function that converts the list answer to a map.
   initMap() {
@@ -336,7 +386,8 @@ class GetUserImage extends StatelessWidget {
   final Color borderColor;
   final double borderWidth;
   //final BoxShape shape;
-  final String? imagePath;
+  //final String? imagePath;
+  final ImageProvider image;
 
   const GetUserImage(
       {Key? key,
@@ -345,7 +396,7 @@ class GetUserImage extends StatelessWidget {
       required this.borderColor,
       required this.borderWidth,
       //required this.shape,
-      required this.imagePath})
+      required this.image})
       : super(key: key);
 
   @override
@@ -358,10 +409,8 @@ class GetUserImage extends StatelessWidget {
         shape: BoxShape.circle,
         image: DecorationImage(
             fit: BoxFit.fill,
-            image: imagePath != null
-                ? NetworkImage(imagePath.toString())
-                //: CircleAvatar(child: Icon(Icons.person)) as ImageProvider,
-                : const AssetImage("assets/icons/user.png") as ImageProvider),
+            image:
+                image), //: CircleAvatar(child: Icon(Icons.person)) as ImageProvider,
       ),
     );
   }

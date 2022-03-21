@@ -1,8 +1,9 @@
 import 'package:bills/helpers/extensions/format_extension.dart';
-import 'package:bills/models/members.dart';
+//import 'package:bills/models/members.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/dashboard.dart';
 import 'package:bills/pages/signin/pin/enter.dart';
+//import 'package:bills/pages/signin/pin/enter.dart';
 //import 'package:bills/pages/signin/email.dart';
 import 'package:bills/pages/signin/signin_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,6 +35,7 @@ class PinHome extends StatefulWidget {
 
 class _PinHomeState extends State<PinHome> {
   late FirebaseAuth _auth;
+  final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
   late String _displayName;
 
   final List _mpinButtons = [
@@ -70,7 +72,7 @@ class _PinHomeState extends State<PinHome> {
       _auth = widget.auth;
       _displayName = widget.displayName;
     });
-    _checkIfExistingUser();
+    //_checkIfExistingUser();
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -353,6 +355,10 @@ class _PinHomeState extends State<PinHome> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
         } else {
+          setState(() {
+            _pinController.text = "";
+            _pinControllerLen6 = false;
+          });
           _showProgressUi(false, "Incorrect pin.");
         }
       });
@@ -366,22 +372,16 @@ class _PinHomeState extends State<PinHome> {
   Future<void> _checkIfExistingUser() async {
     _showProgressUi(true, "");
     try {
-      DocumentReference _document = FirebaseFirestore.instance
-          .collection('users')
-          .doc(_auth.currentUser!.uid);
+      DocumentReference _document =
+          _ffInstance.collection('users').doc(_auth.currentUser!.uid);
       UserProfile userProfile = UserProfile();
 
       _document.get().then((snapshot) {
         if (snapshot.exists) {
           userProfile =
               UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
-          userProfile.membersArr =
-              List<Members>.from(userProfile.members.map((e) {
-            return Members.fromJson(e);
-          }));
+          userProfile.mapMembers();
           userProfile.id = snapshot.id;
-
-          ///_document.update({'pin': userProfile.pin});
         } else {
           _auth.signOut();
           _showProgressUi(false, "User not found.");
@@ -395,21 +395,29 @@ class _PinHomeState extends State<PinHome> {
         });
         var ll = userProfile.lastLoggedIn ?? DateTime.now();
         var timeOut = ll.add(const Duration(minutes: 10));
-        var isLoggedIn =
-            DateTime.now().isBefore(timeOut) && (userProfile.loggedIn ?? false);
+        var isLoggedIn = (userProfile.loggedIn ?? false) || DateTime.now().isBefore(timeOut);
+
+        if (userProfile.pin.isNullOrEmpty()) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EnterMpin(
+                      auth: _auth, isChange: false, nominatedPin: '')));
+        }
+
         if (isLoggedIn) {
           userProfile.lastLoggedIn = DateTime.now();
           _document.update(
               {"last_logged_in": userProfile.lastLoggedIn?.toIso8601String()});
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
-        } else if (userProfile.pin.isNullOrEmpty()) {
+        } else {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => EnterMpin(
-                      auth: _auth, isChange: false, nominatedPin: '')));
-        } else {}
+                  builder: (context) =>
+                      PinHome(auth: _auth, displayName: _displayName)));
+        }
 
         _showProgressUi(false, "");
       });

@@ -13,26 +13,32 @@ extension FunctionsGlobal on bool {
     }
     if (errMsg?.isNotEmpty ?? false) {
       Fluttertoast.showToast(msg: "Something went wrong.");
-      ExceptionHandler.printError(errMsg!);
+      printError(errMsg!);
     }
-    
+
     return !this;
   }
 }
 
+void printIfDebug(dynamic msg, {String desc = "message: "}) {
+  if (kDebugMode) {
+    Print.green("$desc$msg");
+  }
+}
+
+void printError(String errMsg) {
+  if (kDebugMode) {
+    Print.red("errMsg: $errMsg");
+  }
+}
+
+void printMessage(String msg, {String desc = "message: "}) {
+  if (kDebugMode) {
+    Print.green("$desc$msg");
+  }
+}
+
 class ExceptionHandler {
-  static void printError(String errMsg) {
-    if (kDebugMode) {
-      Print.red("errMsg: $errMsg");
-    }
-  }
-
-  static void printMessage(String msg) {
-    if (kDebugMode) {
-      Print.green("message: $msg");
-    }
-  }
-
   static Future<void> writeLogs(String errMsg) async {
     //Write to logs.txt
     try {
@@ -42,7 +48,7 @@ class ExceptionHandler {
       text += "\n" + errMsg;
       await file.writeAsString(text);
     } catch (e) {
-      ExceptionHandler.printError("Couldn't read file. $e.");
+      printError("Couldn't read file. $e.");
     }
   }
 
@@ -53,35 +59,33 @@ class ExceptionHandler {
       return await file.readAsString();
     } catch (e) {
       String errMsg = "Couldn't read file. $e.";
-      ExceptionHandler.printError(errMsg);
+      printError(errMsg);
       return errMsg;
     }
   }
 }
 
-class FirebaseStorageErrorMessageForUser {
-  static String getMessage(FirebaseException e) {
-    String msg = e.message.toString();
-    Print.red("File error: $msg");
-    if (e.code == "unknown" ||
-        e.code == "bucket-not-found" ||
-        e.code == "project-not-found" ||
-        e.code == "canceled" ||
-        e.code == "unauthenticated") {
-      msg = e.message.toString();
-    }
-    if (e.code == 'object-not-found') {
-      msg = "File not found.";
-    }
-    if (e.code == "unauthenticated") {
-      msg = "User is unauthenticated.";
-    }
-    if (e.code == "unauthorized") {
-      msg = "User not authorized.";
-    }
-    if (e.code == "quota-exceeded") {
-      msg = "Quota on Cloud Storage has been exceeded.";
-    }
-    return msg;
+String getFirebaseStorageErrorMessage(FirebaseException e) {
+  String msg = e.message.toString();
+  Print.red("File error: $msg");
+  if (e.code == "unknown" ||
+      e.code == "bucket-not-found" ||
+      e.code == "project-not-found" ||
+      e.code == "canceled" ||
+      e.code == "unauthenticated") {
+    msg = e.message.toString();
   }
+  if (e.code == 'object-not-found') {
+    msg = "File not found.";
+  }
+  if (e.code == "unauthenticated") {
+    msg = "User is unauthenticated.";
+  }
+  if (e.code == "unauthorized") {
+    msg = "User not authorized.";
+  }
+  if (e.code == "quota-exceeded") {
+    msg = "Quota on Cloud Storage has been exceeded.";
+  }
+  return msg;
 }

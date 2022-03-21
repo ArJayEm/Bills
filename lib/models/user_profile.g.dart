@@ -34,6 +34,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile()
       : DateTime.parse(json['billing_date'] as String)
   ..userType = json['user_type'] as String?
   ..pin = json['pin'] as String?
+  ..palletteSwatch = json['pallette_swatch'] == null
+      ? null
+      : PalletteSwatch.fromJson(json['pallette_swatch'] as Map<String, dynamic>)
   ..members = (json['members'] as List<dynamic>)
       .map((e) => e as Map<String, dynamic>)
       .toList();
@@ -66,6 +69,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) {
   val['billing_date'] = instance.billingDate?.toIso8601String();
   val['user_type'] = instance.userType;
   val['pin'] = instance.pin;
+  val['pallette_swatch'] = instance.palletteSwatch;
   val['members'] = instance.members;
   return val;
 }

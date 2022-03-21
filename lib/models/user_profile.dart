@@ -1,5 +1,7 @@
 import 'package:bills/models/members.dart';
 import 'package:bills/models/model_base.dart';
+import 'package:bills/models/pallette_swatch.dart';
+import 'package:flutter/material.dart';
 
 import 'package:json_annotation/json_annotation.dart';
 
@@ -35,6 +37,8 @@ class UserProfile extends ModelBase {
   String? userType = "";
   @JsonKey(name: "pin")
   String? pin = "";
+  @JsonKey(name: "pallette_swatch")
+  PalletteSwatch? palletteSwatch = PalletteSwatch();
 
   @JsonKey(name: "members")
   List<Map<String, dynamic>> members = [];
@@ -44,8 +48,10 @@ class UserProfile extends ModelBase {
   @JsonKey(ignore: true)
   List<UserProfile> users = [];
   @JsonKey(ignore: true)
-  @JsonKey(name: "membersArr")
+  //@JsonKey(name: "membersArr")
   List<Members> membersArr = [];
+  @JsonKey(ignore: true)
+  ImageProvider userImage = const AssetImage("assets/icons/user.png");
 
   UserProfile();
 
@@ -53,8 +59,14 @@ class UserProfile extends ModelBase {
       _$UserProfileFromJson(json);
   Map<String, dynamic> toJson() => _$UserProfileToJson(this);
 
-  ///custom comparing function to check if two users are equal
-  bool isEqual(UserProfile? model) {
-    return id == model?.id;
+  //custom functions
+  bool isNewUser() {
+    return userType?.isEmpty ?? false;
+  }
+
+  mapMembers() {
+    membersArr = List<Members>.from(members.map((e) {
+      return Members.fromJson(e);
+    }));
   }
 }

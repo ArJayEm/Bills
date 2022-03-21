@@ -7,10 +7,10 @@ part of 'billing.dart';
 // **************************************************************************
 
 Billing _$BillingFromJson(Map<String, dynamic> json) => Billing(
-      totalPayment: json['total_payment'] as num? ?? 0.00,
-      subtotal: json['subtotal'] as num? ?? 0.00,
-      previousUnpaid: json['previous_unpaid'] as num? ?? 0.00,
-      coins: json['coins'] as num? ?? 0.00,
+      totalPayment: json['total_payment'] as num? ?? 0.0,
+      subtotal: json['subtotal'] as num? ?? 0.0,
+      previousUnpaid: json['previous_unpaid'] as num? ?? 0.0,
+      coins: json['coins'] as num? ?? 0.0,
     )
       ..id = json['id'] as String?
       ..createdBy = json['created_by'] as String?

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values\\values.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\13ba3a2d390e92c714ad608cae0b18ad\\lifecycle-viewmodel-2.3.1\\res\\values\\values.xml",
@@ -224,7 +224,7 @@
             ]
         },
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values\\values.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\13ba3a2d390e92c714ad608cae0b18ad\\lifecycle-viewmodel-2.3.1\\res\\values\\values.xml",

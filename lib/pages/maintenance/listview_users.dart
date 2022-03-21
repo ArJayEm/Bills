@@ -55,7 +55,7 @@ class _PayerListState extends State<PayerList> {
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.grey.shade300),
           //titleTextStyle: TextTheme(headline6: TextStyle(color: Colors.white, fontSize: 25)),
-          title: const Text("Users"),
+          title: const Text("Payers"),
           titleSpacing: 0,
           centerTitle: true,
           backgroundColor: Colors.grey.shade800,
@@ -173,10 +173,8 @@ class _PayerListState extends State<PayerList> {
                                 UserProfile userProfile = UserProfile.fromJson(
                                     document.data() as Map<String, dynamic>);
                                 userProfile.id = document.id;
-                                userProfile.membersArr = List<Members>.from(
-                                    userProfile.members.map((e) {
-                                  return Members.fromJson(e);
-                                }));
+                                userProfile.membersArr =
+                                    userProfile.members.mapMembers();
                                 return Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
@@ -189,8 +187,7 @@ class _PayerListState extends State<PayerList> {
                                       title: Text("${userProfile.name}"),
                                       subtitle: Text(userProfile.createdOn
                                           .lastModified(
-                                              modified:
-                                                  userProfile.modifiedOn)),
+                                              userProfile.modifiedOn)),
                                       // trailing: Text(
                                       //     "${(userProfile.membersArr.last.count)} members"),
                                       trailing: Row(

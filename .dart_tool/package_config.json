@@ -477,9 +477,9 @@
     },
     {
       "name": "js",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/js-0.6.3",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/js-0.6.4",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.16"
     },
     {
       "name": "json_annotation",
@@ -525,7 +525,7 @@
     },
     {
       "name": "material_color_utilities",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/material_color_utilities-0.1.2",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/material_color_utilities-0.1.3",
       "packageUri": "lib/",
       "languageVersion": "2.13"
     },
@@ -554,8 +554,14 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "palette_generator",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/palette_generator-0.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "path",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/path-1.8.0",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/path-1.8.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -849,7 +855,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/test_api-0.4.8",
+      "rootUri": "file:///C:/Users/MIS%203/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/test_api-0.4.9",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -914,7 +920,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-01-03T08:30:09.924949Z",
+  "generated": "2022-02-28T02:12:28.938299Z",
   "generator": "pub",
-  "generatorVersion": "2.16.0-80.1.beta"
+  "generatorVersion": "2.17.0-69.2.beta"
 }

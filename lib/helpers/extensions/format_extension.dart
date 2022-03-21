@@ -1,3 +1,7 @@
+import 'package:bills/helpers/values/strings.dart';
+import 'package:bills/models/icon_data.dart';
+import 'package:bills/models/members.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 extension NumberFormatHelper on num {
@@ -47,9 +51,8 @@ extension DateTimeFormatHelper on DateTime {
     return DateTime(d.year, d.month, d.day);
   }
 
-  String lastModified(
-      {DateTime? modified, bool dateOnly = false}) {
-    bool isModified = modified.toString().isNotEmpty;
+  String lastModified(DateTime? modified, {bool dateOnly = false}) {
+    bool isModified = modified != null;
     String prefix = isModified ? "M: " : "C: ";
     DateTime d = modified ?? this;
     return "$prefix${d.formatDate(dateOnly: dateOnly)}";
@@ -58,7 +61,7 @@ extension DateTimeFormatHelper on DateTime {
 
 extension DateFormatHelper on DateTime {
   String format({bool dateOnly = false}) {
-    return DateFormat(dateOnly ? "MMM dd, yyyy" : "MMM dd, yyyy hh:mm aaa")
+    return DateFormat(dateOnly ? dateOnlyFormat : "MMM dd, yyyy hh:mm aaa")
         .format(this);
   }
 
@@ -124,12 +127,6 @@ extension DateFormatHelper on DateTime {
       return format();
     }
   }
-
-  String lastModifiedDate(
-      {dynamic data, DateTime? modified, bool dateOnly = false}) {
-    String newDate = (modified ?? this).format(dateOnly: dateOnly);
-    return "${(modified.toString().isNotEmpty ? "M: " : "C: ")}$newDate";
-  }
 }
 
 extension StringFormatHelper on String? {
@@ -138,9 +135,22 @@ extension StringFormatHelper on String? {
   }
 }
 
+extension ListFormatHelper on List<Map<String, dynamic>> {
+  List<Members> mapMembers() {
+    return List<Members>.from(map((e) {
+      return Members.fromJson(e);
+    }));
+  }
+}
+
+extension IconFormatHelper on CustomIconData {
+  Icon getIcon() {
+    return Icon(IconData(codepoint!, fontFamily: fontfamily),
+        color: Color(color ?? 0));
+  }
+}
+
 /// Sample documentation
-///
-/// safddsf
 extension ArrayHelper on Iterable<dynamic> {
   dynamic firstOrDefault() => length == 0 ? null : first;
 }

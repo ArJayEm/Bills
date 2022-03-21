@@ -238,7 +238,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                       ),
                                       subtitle: Text(bill.createdOn
                                           .lastModified(
-                                              modified: bill.modifiedOn)),
+                                              bill.modifiedOn)),
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [

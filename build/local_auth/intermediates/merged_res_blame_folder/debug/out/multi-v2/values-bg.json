@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-bg\\values-bg.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values-bg\\values-bg.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\4cd66af54d1f15a777a0a2f275ccac1f\\biometric-1.1.0\\res\\values-bg\\values-bg.xml",
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\local_auth\\intermediates\\res\\merged\\debug\\values-bg\\values-bg.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\local_auth\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-bg\\values-bg.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\4cd66af54d1f15a777a0a2f275ccac1f\\biometric-1.1.0\\res\\values-bg\\values-bg.xml",

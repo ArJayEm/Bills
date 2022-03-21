@@ -2,11 +2,11 @@
 
 import 'dart:io';
 import 'package:bills/helpers/functions/functions_global.dart';
+import 'package:bills/helpers/values/strings.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/billing.dart';
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/coins.dart';
-//import 'package:bills/models/members.dart';
 import 'package:bills/models/meter_readings.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,14 +18,12 @@ import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:print_color/print_color.dart';
-//import 'package:bills/helpers/firebase/exception_messages.dart' as em;
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-//import 'package:firebase_core/firebase_core.dart' as firebase_core;
 
 class GenerateBills extends StatefulWidget {
   const GenerateBills({Key? key, required this.auth}) : super(key: key);
@@ -59,8 +57,6 @@ class _GenerateBillsState extends State<GenerateBills> {
   UserProfile _loggedInUserprofile = UserProfile();
   UserProfile _selectedUserProfile = UserProfile();
   final List<UserProfile?> _userProfiles = [];
-  //final Billing _previousUnpaidBilling = Billing();
-  //Billing _previousBilling = Billing();
   Billing _billingCurrent = Billing();
   Billing _billingPayment = Billing();
   Billing _billingPrevious = Billing();
@@ -68,17 +64,11 @@ class _GenerateBillsState extends State<GenerateBills> {
   Coins _coins = Coins();
 
   final List<Bill?> _billsCurrrent = [];
-  //final List<Bill?> _billsPayments = [];
-  //final List<Bill?> _billsPrevious = [];
   final List<BillType?> _billTypes = [];
   final List<int> _billTypeIds = [];
   final List<int> _currrentBillTypeIds = [];
   final List<int> _paymentBillTypeIds = [];
   final List<Reading?> _readings = [];
-  // final List<int> _debitBillTypeIds = [0];
-  // final List<int> _creditBillTypeIds = [0];
-  // List<Reading?> _currentReading = [];
-  // List<Reading?> _previousReading = [];
 
   final _ctrlBillDate = TextEditingController();
   //final _ctrlCreditAmount = TextEditingController();
@@ -233,7 +223,7 @@ class _GenerateBillsState extends State<GenerateBills> {
               initialDate: _billingCurrent.date!,
               firstDate: firstdate,
               lastDate: lastdate,
-              dateFormat: "yyyy-MMMM-dd",
+              dateFormat: holoDateFormat,
               locale: DateTimePickerLocale.en_us,
               looping: true,
             ) ??
@@ -252,28 +242,11 @@ class _GenerateBillsState extends State<GenerateBills> {
           _prevBillsTo = DateTime(newDate.year, newDate.month, 15);
           _billingCurrent.dueDate = DateTime(dueYear, dueMonth, 15);
           _billingCurrent.billingFrom = _billsFrom;
-          _billingCurrent.billingTo =
-              _prevBillsTo; //DateTime(_billsTo.year, _billsTo.month, _billsTo.day - 1);
+          _billingCurrent.billingTo = _prevBillsTo;
           _billingCurrent.billingPeriod =
               "${_billsFrom.formatToMonthDay()} to ${_prevBillsTo.formatToMonthDay()}";
           _ctrlBillDate.text = newDate.format(dateOnly: true);
         });
-        // var date = await showDatePicker(
-        //   context: context,
-        //   initialDate: _billToPay.billingDate!,
-        //   firstDate: _firstdate,
-        //   lastDate: _lastdate,
-        //   //initialDatePickerMode: DatePickerMode.year
-        // );
-        // if (date != null) {
-        //   setState(() {
-        //     _billToPay.billingDate = DateTime(date.year, date.month, date.day);
-        //     _billsFrom = DateTime(date.year, date.month, 1);
-        //     _billsTo = DateTime(date.year, date.month + 1, 0);
-        //     _ctrlBillDate.text =
-        //         date.formatDate(dateOnly: true, fullMonth: true, hideDay: true);
-        //   });
-        // }
       },
     );
   }
@@ -281,8 +254,6 @@ class _GenerateBillsState extends State<GenerateBills> {
   Future<void> _getBillTypes() async {
     List<BillType?> billTypes = [];
     List<int> billTypeIds = [];
-    //List<int> debitBillTypeIds = [];
-    //List<int> creditBillTypeIds = [];
     List<int> currrentBillTypeIds = [];
     List<int> paymentBillTypeIds = [];
     try {
@@ -295,13 +266,7 @@ class _GenerateBillsState extends State<GenerateBills> {
         for (var document in snapshots.docs) {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
-
-          int bId = int.parse(document.id);
-          // if (b.isdebit ?? false) {
-          //   debitBillTypeIds.add(int.parse(document.id));
-          // } else {
-          //   creditBillTypeIds.add(int.parse(document.id));
-          // }
+          int bId = int.parse(b.id!);
           if (b.includeInBilling ?? false) {
             currrentBillTypeIds.add(bId);
           } else {
@@ -319,13 +284,10 @@ class _GenerateBillsState extends State<GenerateBills> {
           _billTypeIds.clear();
           _currrentBillTypeIds.clear();
           _paymentBillTypeIds.clear();
-          //_debitBillTypeIds.clear();
           _billTypes.addAll(billTypes);
           _billTypeIds.addAll(billTypeIds);
           _currrentBillTypeIds.addAll(currrentBillTypeIds);
           _paymentBillTypeIds.addAll(paymentBillTypeIds);
-          //_debitBillTypeIds.addAll(debitBillTypeIds);
-          //_creditBillTypeIds.addAll(creditBillTypeIds);
         });
 
         if (kDebugMode) {
@@ -358,22 +320,15 @@ class _GenerateBillsState extends State<GenerateBills> {
       }).catchError((onError) {
         _isLoading.updateProgressStatus(errMsg: "${onError.toString()}: $id.");
       }).whenComplete(() {
-        // List<Members> ms = [];
-        // for (var u in ups) {
-        //   for (var member in u!.members) {
-        //     Members m = Members.fromJson(member);
-        //     ms.add(m);
-        //   }
-        //   u.membersArr.addAll(ms);
-        // }
         setState(() {
           _userProfiles.clear();
           _userProfiles.addAll(ups);
-          if (_selectedUserId.isNotEmpty) {
-            _selectedUserId = _selectedUserId;
+          if (_selectedUserId.isEmpty) {
+            _selectedUserId = "${_userProfiles.first?.id}";
           } else {
-            _selectedUserId = _userProfiles.first?.id ?? _selectedUserId;
+            _selectedUserId = _selectedUserId;
           }
+          //_selectedUserId = _userProfiles.first?.id ?? _selectedUserId;
           _selectedUserProfile = _userProfiles
                   .firstWhere((element) => element?.id == _selectedUserId) ??
               UserProfile();
@@ -381,9 +336,7 @@ class _GenerateBillsState extends State<GenerateBills> {
                   .firstWhere((element) => element?.id == _loggedInId) ??
               UserProfile();
         });
-        if (kDebugMode) {
-          print("_userProfiles: ${_userProfiles.toList()}");
-        }
+        printIfDebug(_userProfiles.toList(), desc: "_userProfiles: ");
       });
     } on FirebaseAuthException catch (e) {
       _isLoading.updateProgressStatus(errMsg: "${e.message}.");
@@ -1294,7 +1247,7 @@ class _GenerateBillsState extends State<GenerateBills> {
           .putFile(file);
       Fluttertoast.showToast(msg: "Opening billing...");
     } on firebase_storage.FirebaseException catch (e) {
-      String msg = FirebaseStorageErrorMessageForUser.getMessage(e);
+      String msg = getFirebaseStorageErrorMessage(e);
       Fluttertoast.showToast(msg: msg);
     }
 

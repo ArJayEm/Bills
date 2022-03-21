@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-sk\\values-sk.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\google_sign_in\\intermediates\\res\\merged\\debug\\values-sk\\values-sk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\a0917029506b1ab61b6dd507c79116f3\\jetified-play-services-base-16.0.1\\res\\values-sk\\values.xml",
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "outputFile": "E:\\Development\\source\\apps\\bills\\build\\google_sign_in\\intermediates\\res\\merged\\debug\\values-sk\\values-sk.xml",
+            "outputFile": "E:\\Development\\source\\flutter-apps\\bills\\build\\google_sign_in\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-sk\\values-sk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\MIS 3\\.gradle\\caches\\transforms-2\\files-2.1\\a0917029506b1ab61b6dd507c79116f3\\jetified-play-services-base-16.0.1\\res\\values-sk\\values.xml",

@@ -1,13 +1,16 @@
 import 'package:badges/badges.dart';
+//import 'package:bills/helpers/firebase/firebase_helpers.dart';
 import 'package:bills/helpers/functions/functions_global.dart';
 import 'package:bills/models/bill_type.dart';
 import 'package:bills/models/billing.dart';
 //import 'package:bills/models/coins.dart';
 import 'package:bills/models/menu.dart';
+import 'package:bills/models/pallette_swatch.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/about.dart';
 import 'package:bills/helpers/extensions/format_extension.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
+import 'package:bills/pages/maintenance/listview_bill_types.dart';
 import 'package:bills/pages/signin/pin/pin_home.dart';
 import 'package:bills/pages/user/profile/profile_home.dart';
 import 'package:bills/pages/settings/settings_home.dart';
@@ -23,7 +26,7 @@ import 'package:flutter/material.dart';
 //import 'package:global_configuration/global_configuration.dart';
 import 'package:print_color/print_color.dart';
 import 'package:shimmer/shimmer.dart';
-
+import 'package:palette_generator/palette_generator.dart';
 import 'maintenance/listview_bills.dart';
 
 class Dashboard extends StatefulWidget {
@@ -46,43 +49,35 @@ class _DashboardState extends State<Dashboard> {
   }
 
   late FirebaseAuth _auth;
+  String? _imagePath;
+  String? _loggedInId;
   UserProfile _userProfile = UserProfile();
+  PaletteGenerator? _paletteGenerator;
 
   final FirebaseFirestore _ffInstance = FirebaseFirestore.instance;
-  late CollectionReference _collection;
+  //late CollectionReference _collection;
 
   Billing? _billingCurrent = Billing();
 
-  bool _isLoadingGetAmountToPay = false;
+  bool _isLoadingAmountToPay = false;
   // ignore: unused_field
   final bool _isLoading = false;
-  final bool _isLoadingUser = false;
   final bool _isLoggingOut = false;
-
-  //int _selectedIndex = 0;
-  bool _isNewUser = false;
-  //bool _isPayer = false;
-  //bool _hasRequiredFields = false;
 
   final List<Menu> _billTypeMenuList = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final GlobalKey _drawerKey = GlobalKey();
 
-  //final Icon _iconData = const Icon(Icons.addchart, color: Colors.blueAccent);
-
   @override
   void initState() {
     super.initState();
-    //_getSdkVersion();
     setState(() {
       _auth = widget.auth;
-      _collection = _ffInstance.collection('users');
+      _loggedInId = _auth.currentUser!.uid;
+      _imagePath = _auth.currentUser!.photoURL;
+      //_collection = _ffInstance.collection('users');
     });
-    // if (kDebugMode) {
-    //   print(
-    //       "icondata: {color: ${_iconData.color?.value}, code_point: ${_iconData.icon?.codePoint}, font_family: ${_iconData.icon?.fontFamily}}");
-    // }
     _onLoad();
   }
 
@@ -92,7 +87,7 @@ class _DashboardState extends State<Dashboard> {
       key: _scaffoldKey,
       resizeToAvoidBottomInset: true,
       onDrawerChanged: (isOpen) {
-        if (!isOpen && _isNewUser) {
+        if (!isOpen && _userProfile.isNewUser()) {
           _getCurrentUser();
         }
       },
@@ -105,9 +100,10 @@ class _DashboardState extends State<Dashboard> {
               DrawerHeader(
                 padding: EdgeInsets.zero,
                 child: ListTile(
-                  tileColor: Colors.yellow.shade800,
+                  tileColor: _paletteGenerator?.vibrantColor?.color ??
+                      Colors.white54, // Colors.yellow.shade800,
                   contentPadding: const EdgeInsets.fromLTRB(18, 20, 15, 15),
-                  leading: _isNewUser
+                  leading: _userProfile.isNewUser()
                       ? Badge(
                           badgeContent: const Text(''),
                           animationType: BadgeAnimationType.scale,
@@ -127,19 +123,6 @@ class _DashboardState extends State<Dashboard> {
               Expanded(
                 child: ListView(
                   children: <Widget>[
-                    // _isLoadingUser
-                    //     ? Container(
-                    //         padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                    //         child: Row(
-                    //             mainAxisAlignment: MainAxisAlignment.center,
-                    //             children: [
-                    //               Center(child: CircularProgressIndicator())
-                    //             ]),
-                    //       )
-                    //     :
-                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
-                    // const Divider(),
-                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
                     ListTile(
                       leading: const Icon(Icons.settings),
                       //minLeadingWidth: 0,
@@ -147,42 +130,9 @@ class _DashboardState extends State<Dashboard> {
                       //trailing: const Icon(Icons.chevron_right, size: 20),
                       onTap: _settings,
                     ),
-                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
-                    // ListTile(
-                    //   leading: Icon(Icons.expand),
-                    //   minLeadingWidth: 0,
-                    //   title: Text('New Record'),
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //     _openBills(context, SelectPayers());
-                    //   },
-                    // ),
-                    //Divider(indent: 15, endIndent: 15, thickness: 1),
-                    // ListTile(
-                    //   leading: Icon(Icons.info_outline),
-                    //   minLeadingWidth: 0,
-                    //   title: Text('Dynamic Form'),
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //     _openBills(context, DynamicForm());
-                    //   },
-                    // ),
-                    //Divider(),
-                    //Divider(indent: 15, endIndent: 15, thickness: 1),
-                    // ListTile(
-                    //   leading: Icon(Icons.expand),
-                    //   minLeadingWidth: 0,
-                    //   title: Text('Expandable'),
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //     _openBills(context, ExpandableSample());
-                    //   },
-                    // ),
-                    //const Divider(),
                     if (_userProfile.isAdmin ?? false) _getBillsWidgets(),
                     if (_userProfile.isAdmin ?? false) _getTestWidgets(),
                     if (_userProfile.isAdmin ?? false) _getMaintenanceWidget(),
-                    // const Divider(indent: 15, endIndent: 15, thickness: 1),
                     Align(
                       alignment: Alignment.center,
                       child: Column(
@@ -208,20 +158,6 @@ class _DashboardState extends State<Dashboard> {
                         ],
                       ),
                     ),
-                    // const Expanded(
-                    //   child: Align(
-                    //     alignment: FractionalOffset.bottomCenter,
-                    //     child: ListTile(
-                    //       leading:
-                    //           Icon(Icons.account_box, color: Colors.white, size: 25),
-                    //       //onTap: () {},
-                    //       title: Text(
-                    //         'Account',
-                    //         style: TextStyle(color: Colors.white, fontSize: 20),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -233,21 +169,16 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         iconTheme: Theme.of(context).iconTheme,
         //titleTextStyle: Theme.of(context).textTheme,
-        title: Text('Hi, $_userProfile.name!'),
-        leading: _isNewUser
-            ? IconButton(
-                icon: Badge(
-                    badgeContent: const Text(''),
-                    animationType: BadgeAnimationType.scale,
-                    //child: Icon(Icons.menu)),
-                    child: _getUserImage()),
-                onPressed: () => _scaffoldKey.currentState!.openDrawer(),
-              )
-            : IconButton(
-                //icon: Icon(Icons.menu),
-                icon: _getUserImage(),
-                onPressed: () => _scaffoldKey.currentState!.openDrawer(),
-              ),
+        title: Text('Hi, ${_userProfile.name}'),
+        leading: IconButton(
+          icon: _userProfile.isNewUser()
+              ? Badge(
+                  badgeContent: const Text(''),
+                  animationType: BadgeAnimationType.scale,
+                  child: _getUserImage())
+              : _getUserImage(),
+          onPressed: () => _scaffoldKey.currentState!.openDrawer(),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _onLoad,
@@ -353,7 +284,7 @@ class _DashboardState extends State<Dashboard> {
           title: const Text('Bill Types'),
           onTap: () {
             Navigator.pop(context);
-            _openBills(context, const DropdDownTest());
+            _openBills(context, ListViewBillTypes(auth: _auth));
           },
         ),
       ],
@@ -390,6 +321,26 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Future<void> _getPalletteColor() async {
+    _paletteGenerator = await PaletteGenerator.fromImageProvider(
+        _imagePath != null
+            ? NetworkImage(_imagePath.toString())
+            : _userProfile.userImage);
+    setState(() {
+      PalletteSwatch ps = PalletteSwatch();
+      ps.dominantColor = _paletteGenerator?.dominantColor?.color.value ?? 0;
+      ps.lightVibrantColor =
+          _paletteGenerator?.lightVibrantColor?.color.value ?? 0;
+      ps.vibrantColor = _paletteGenerator?.vibrantColor?.color.value ?? 0;
+      ps.darkVibrantColor =
+          _paletteGenerator?.darkVibrantColor?.color.value ?? 0;
+      ps.lightMutedColor = _paletteGenerator?.lightMutedColor?.color.value ?? 0;
+      ps.mutedColor = _paletteGenerator?.mutedColor?.color.value ?? 0;
+      ps.darkMutedColor = _paletteGenerator?.darkMutedColor?.color.value ?? 0;
+      _userProfile.palletteSwatch = ps;
+    });
+  }
+
   Widget _getUserImage() {
     return GetUserImage(
         height: 50,
@@ -397,40 +348,47 @@ class _DashboardState extends State<Dashboard> {
         borderColor: Colors.white,
         borderWidth: 1.5,
         //shape: BoxShape.circle,
-        imagePath: _auth.currentUser!.photoURL);
+        image: _imagePath != null
+            ? NetworkImage(_imagePath.toString())
+            : _userProfile.userImage);
   }
 
   Future<void> _getCurrentUser() async {
     _isLoading.updateProgressStatus(msg: "");
 
     try {
-      if (_auth.currentUser != null) {
-        DocumentReference doc = _collection.doc(_auth.currentUser!.uid);
-        UserProfile up = UserProfile.fromJson(doc as Map<String, dynamic>);
-        up.id = doc.id;
+      DocumentReference document =
+          _ffInstance.collection('users').doc(_loggedInId);
+      UserProfile up = UserProfile();
 
+      document.get().then((snapshot) {
+        if (snapshot.exists) {
+          up = UserProfile.fromJson(snapshot.data() as Map<String, dynamic>);
+          up.id = snapshot.id;
+          up.mapMembers();
+        }
+      }).whenComplete(() {
+        if (_imagePath.isNullOrEmpty() && up.photoUrl != _imagePath) {
+          document.update({"photo_url": _imagePath});
+          up.photoUrl = _imagePath;
+          up.userImage = _imagePath != null
+              ? NetworkImage(_imagePath.toString())
+              : up.userImage;
+        }
         setState(() {
           _userProfile = up;
-          _isNewUser = (up.userType.isNullOrEmpty()) ||
-              (_userProfile.name.isNullOrEmpty()) ||
-              up.membersArr.last.count == 0;
         });
-    _isLoading.updateProgressStatus(msg: "");
-        if (_isNewUser) {
-          _welcomeDialog();
-        }
-      }
-    } on FirebaseAuthException catch (e) {
-      _isLoadingUser.updateProgressStatus(errMsg: "${e.message}.");
+        _isLoading.updateProgressStatus(msg: "");
+      });
+    } on FirebaseException catch (e) {
+      _isLoading.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
-      _isLoadingUser.updateProgressStatus(errMsg: "$e.");
+      _isLoading.updateProgressStatus(errMsg: "$e.");
     }
+    _welcomeDialog(_userProfile.isNewUser());
   }
 
   Future _loadLandingPage() async {
-    // setState(() {
-    //   _currentAmount = _isLoadingGetAmountToPay ? 100 : 0;
-    // });
     _getAmountToPay();
   }
 
@@ -543,12 +501,12 @@ class _DashboardState extends State<Dashboard> {
     Billing billing = Billing();
     try {
       setState(() {
-        _isLoadingGetAmountToPay = true;
+        _isLoadingAmountToPay = true;
       });
 
       _ffInstance
           .collection("billings")
-          .where("user_id", arrayContains: _auth.currentUser!.uid)
+          .where("user_id", arrayContains: _loggedInId)
           .where("deleted", isEqualTo: false)
           .orderBy("billing_date", descending: true)
           .limit(1)
@@ -562,18 +520,18 @@ class _DashboardState extends State<Dashboard> {
           _billingCurrent = billing;
         });
         setState(() {
-          _isLoadingGetAmountToPay = false;
+          _isLoadingAmountToPay = false;
         });
       });
     } on FirebaseAuthException catch (e) {
-      _isLoadingGetAmountToPay.updateProgressStatus(errMsg: "${e.message}.");
+      _isLoadingAmountToPay.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
-      _isLoadingGetAmountToPay.updateProgressStatus(errMsg: "$e.");
+      _isLoadingAmountToPay.updateProgressStatus(errMsg: "$e.");
     }
   }
 
   Widget _amountToPay() {
-    return _isLoadingGetAmountToPay
+    return _isLoadingAmountToPay
         ? _loadingWidget()
         : Card(
             child: Column(
@@ -690,7 +648,6 @@ class _DashboardState extends State<Dashboard> {
 
   Widget _buildCoinsWidget() {
     String errorMsg = "";
-    bool hasError = false;
     num coins = 0.00;
 
     return StreamBuilder<QuerySnapshot>(
@@ -703,9 +660,8 @@ class _DashboardState extends State<Dashboard> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          hasError = true;
           errorMsg = snapshot.error.toString();
-          ExceptionHandler.printMessage("list error: $errorMsg");
+          printMessage("list error: $errorMsg");
         }
         if (snapshot.data!.docs.isNotEmpty) {
           for (var doc in snapshot.data!.docs) {
@@ -715,11 +671,14 @@ class _DashboardState extends State<Dashboard> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _loadingWidget();
         }
-        return Card(
+        return  Card(
           child: ListTile(
             dense: true,
             title: const Text('Coins:', style: TextStyle(fontSize: 15)),
-            subtitle: hasError ? Text(errorMsg) : null,
+            subtitle: snapshot.hasError
+                ? Text(errorMsg,
+                    style: const TextStyle(color: Colors.redAccent))
+                : null,
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -764,10 +723,7 @@ class _DashboardState extends State<Dashboard> {
           BillType? b = BillType.fromJson(document.data());
           b.id = document.id;
           billTypes.add(b);
-          Icon icon = Icon(
-              IconData(b.iconData?.codepoint ?? 0,
-                  fontFamily: b.iconData?.fontfamily),
-              color: Color(b.iconData?.color ?? 0));
+          Icon icon = b.iconData!.getIcon();
           menu.add(Menu(
               location: "${b.description}",
               iconData: b.iconData!,
@@ -812,32 +768,34 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  _welcomeDialog() {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Welcome to Bills'),
-        content:
-            const Text("Before using this app, let's set up a few things."),
-        actions: <Widget>[
-          // TextButton(
-          //   onPressed: () => Navigator.pop(context, 'Cancel'),
-          //   child: const Text('No'),
-          // ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileHome(auth: _auth)),
-              );
-            },
-            child: const Text("Let's go"),
-          ),
-        ],
-      ),
-    );
+  _welcomeDialog(bool show) {
+    return show
+        ? showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('Welcome to Bills'),
+              content: const Text(
+                  "Before using this app, let's set up a few things."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Later'),
+                  child: const Text('Later'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfileHome(auth: _auth)),
+                    );
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          )
+        : null;
   }
 
   _logout() {
@@ -854,6 +812,7 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _billTypeMenuList.clear();
     });
+    await _getPalletteColor();
     await _getCurrentUser();
     await _getBillTypes();
     await _loadLandingPage();
@@ -865,7 +824,7 @@ class _DashboardState extends State<Dashboard> {
       context,
       MaterialPageRoute(builder: (context) => ProfileHome(auth: _auth)),
     ).whenComplete(() {
-      _getCurrentUser();
+      //_getCurrentUser();
       _scaffoldKey.currentState!.openDrawer();
     });
   }
@@ -878,32 +837,5 @@ class _DashboardState extends State<Dashboard> {
           builder: (context) =>
               SettingsHome(auth: _auth, scaffoldKey: _scaffoldKey)),
     ).whenComplete(() => _scaffoldKey.currentState!.openDrawer());
-  }
-
-  // ignore: unused_element
-  void _home() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => Dashboard(auth: _auth)));
-  }
-}
-
-class CustomDivider extends StatelessWidget {
-  const CustomDivider({Key? key}) : super(key: key);
-
-  // final double height;
-  // final double indent;
-  // final double endIndent;
-  // final Color color;
-
-  // CustomDivider(
-  //     {this.height = 2,
-  //     this.indent = 10,
-  //     this.endIndent = 10,
-  //     this.color = Colors.grey});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Divider(
-        height: 2, indent: 10, endIndent: 10, color: Colors.grey);
   }
 }

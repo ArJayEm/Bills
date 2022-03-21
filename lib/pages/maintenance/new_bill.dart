@@ -1,5 +1,7 @@
 // ignore_for_file: use_key_in_widget_constructors, unused_import, prefer_final_fields
 
+import 'package:bills/helpers/functions/functions_global.dart';
+import 'package:bills/helpers/values/strings.dart';
 import 'package:bills/models/bill.dart';
 import 'package:bills/models/user_profile.dart';
 import 'package:bills/pages/components/custom_widgets.dart';
@@ -69,26 +71,27 @@ class _ManagementState extends State<Management> {
   @override
   void initState() {
     super.initState();
+    _onLoad();
     setState(() {
       _bill = widget.bill;
       _quantification = _bill.billType?.quantification ?? "";
 
       _bill.billTypeId = int.parse(_bill.billType!.id!);
       _selectedUserId = widget.selectedUserId ?? "";
-      _selectedUserList = [_selectedUserId];
-      _selectedUserBillTypeList = ["${_selectedUserId}_${_bill.billTypeId}"];
-      _bill.payerIds?.addAll(_selectedUserList);
-      _bill.payersBillType?.addAll(_selectedUserBillTypeList);
+      _selectedUserList =
+          _bill.id!.isNotEmpty ? _bill.payerIds ?? [] : [_selectedUserId];
+      //_selectedUserBillTypeList = ["${_selectedUserId}_${_bill.billTypeId}"];
+      //_bill.payerIds?.addAll(_selectedUserList);
+      //_bill.payersBillType?.addAll(_selectedUserBillTypeList);
       //_selectedUserList.add(_selectedUserId);
       //_selectedUserBillTypeList.add("${_selectedUserId}_${_bill.billTypeId}");
-      _bill.billDate = _bill.billDate ?? DateTime.now();
 
+      _bill.billDate = _bill.billDate ?? DateTime.now();
       _ctrlBillDate.text = _bill.billDate!.format(dateOnly: true);
       _ctrlDesciption.text = _bill.description ?? "";
       _ctrlAmount.text = _bill.amount.format();
       _ctrlQuantif.text = _bill.quantification.toString();
     });
-    _onLoad();
   }
 
   @override
@@ -227,80 +230,128 @@ class _ManagementState extends State<Management> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    AnimatedContainer(
-                      height: _isExpanded ? 600 : 50,
-                      duration: const Duration(milliseconds: 600),
-                      curve: Curves.fastOutSlowIn,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextFormField(
-                            showCursor: false,
-                            readOnly: true,
-                            controller: _ctrlSelectedPayers,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.all(5),
-                              icon: Icon(Icons.person, color: widget.color),
-                              suffixIcon: _isExpanded
-                                  ? CustomAppBarButton(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedUserList.clear();
-                                          _selectedUserBillTypeList.clear();
-                                          if (!_selectedAll) {
-                                            for (var user in _userList) {
-                                              _selectedUserList.add(user.id);
-                                              _selectedUserBillTypeList.add(
-                                                  "${user.id}_${_bill.billType?.id}");
-                                            }
-                                          }
-                                          _selectedAll = !_selectedAll;
-                                        });
-                                        _setSelectedPayersDisplay();
-                                      },
-                                      icon: Icons.select_all,
-                                      checkedColor: Colors.teal,
-                                      uncheckedColor: Colors.white,
-                                      isChecked: _selectedAll,
-                                    )
-                                  : const SizedBox(),
-                              labelText: 'Select Payer(s)',
-                              hintText: 'Select Payer(s)',
-                            ),
-                            onTap: () async {
-                              setState(() {
-                                if (_isExpanded) {
-                                  _isExpanded = false;
-                                  SystemChrome.setEnabledSystemUIMode(
-                                      SystemUiMode.manual,
-                                      overlays: SystemUiOverlay.values);
-                                } else {
-                                  _isExpanded = true;
-                                  SystemChrome.setEnabledSystemUIMode(
-                                      SystemUiMode.manual,
-                                      overlays: [SystemUiOverlay.bottom]);
-                                }
-                              });
-                            },
-                            onChanged: (value) {},
-                            validator: (value) {
-                              if (_selectedUserList.isEmpty) {
-                                return 'Must select at least 1';
-                              }
-                              return null;
-                            },
-                          ),
-                          ..._isExpanded
-                              ? <Widget>[
-                                  const Divider(thickness: 1, height: 0),
-                                  _payersSelectionWidget()
-                                ]
-                              : <Widget>[]
-                        ],
+                    ExpansionTile(
+                      title: TextFormField(
+                        showCursor: false,
+                        readOnly: true,
+                        controller: _ctrlSelectedPayers,
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.all(5),
+                          icon: Icon(Icons.person, color: widget.color),
+                          labelText: 'Select Payer(s)',
+                          hintText: 'Select Payer(s)',
+                        ),
+                        onChanged: (value) {},
+                        validator: (value) {
+                          if (_selectedUserList.isEmpty) {
+                            return 'Must select at least 1';
+                          }
+                          return null;
+                        },
                       ),
+                      tilePadding: const EdgeInsets.all(-4),
+                      collapsedTextColor: Colors.white,
+                      //leading: Icon(Icons.person, color: widget.color),
+                      //childrenPadding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
+                      children: <Widget>[
+                        ListTile(
+                          title: const Text("Select All"),
+                          leading: const Icon(Icons.select_all),
+                          onTap: () {
+                            setState(() {
+                              _selectedUserList.clear();
+                              _selectedUserBillTypeList.clear();
+                              if (!_selectedAll) {
+                                for (var user in _userList) {
+                                  String id = user[0];
+                                  _selectedUserList.add(id);
+                                  _selectedUserBillTypeList
+                                      .add("${id}_${_bill.billType?.id}");
+                                }
+                              }
+                              _selectedAll = !_selectedAll;
+                            });
+                            _setSelectedPayersDisplay();
+                          },
+                        ),
+                        const Divider(),
+                        _payersSelectionWidget()
+                      ],
                     ),
+                    // AnimatedContainer(
+                    //   height: _isExpanded ? 600 : 50,
+                    //   duration: const Duration(milliseconds: 600),
+                    //   curve: Curves.fastOutSlowIn,
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //     mainAxisAlignment: MainAxisAlignment.start,
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: [
+                    //       TextFormField(
+                    //         showCursor: false,
+                    //         readOnly: true,
+                    //         controller: _ctrlSelectedPayers,
+                    //         decoration: InputDecoration(
+                    //           contentPadding: const EdgeInsets.all(5),
+                    //           icon: Icon(Icons.person, color: widget.color),
+                    //           suffixIcon: _isExpanded
+                    //               ? CustomAppBarButton(
+                    //                   onTap: () {
+                    //                     setState(() {
+                    //                       _selectedUserList.clear();
+                    //                       _selectedUserBillTypeList.clear();
+                    //                       if (!_selectedAll) {
+                    //                         for (var user in _userList) {
+                    //                           _selectedUserList.add(user.id);
+                    //                           _selectedUserBillTypeList.add(
+                    //                               "${user.id}_${_bill.billType?.id}");
+                    //                         }
+                    //                       }
+                    //                       _selectedAll = !_selectedAll;
+                    //                     });
+                    //                     _setSelectedPayersDisplay();
+                    //                   },
+                    //                   icon: Icons.select_all,
+                    //                   checkedColor: Colors.teal,
+                    //                   uncheckedColor: Colors.white,
+                    //                   isChecked: _selectedAll,
+                    //                 )
+                    //               : const SizedBox(),
+                    //           labelText: 'Select Payer(s)',
+                    //           hintText: 'Select Payer(s)',
+                    //         ),
+                    //         onTap: () async {
+                    //           setState(() {
+                    //             if (_isExpanded) {
+                    //               _isExpanded = false;
+                    //               SystemChrome.setEnabledSystemUIMode(
+                    //                   SystemUiMode.manual,
+                    //                   overlays: SystemUiOverlay.values);
+                    //             } else {
+                    //               _isExpanded = true;
+                    //               SystemChrome.setEnabledSystemUIMode(
+                    //                   SystemUiMode.manual,
+                    //                   overlays: [SystemUiOverlay.bottom]);
+                    //             }
+                    //           });
+                    //         },
+                    //         onChanged: (value) {},
+                    //         validator: (value) {
+                    //           if (_selectedUserList.isEmpty) {
+                    //             return 'Must select at least 1';
+                    //           }
+                    //           return null;
+                    //         },
+                    //       ),
+                    //       ..._isExpanded
+                    //           ? <Widget>[
+                    //               const Divider(thickness: 1, height: 0),
+                    //               _payersSelectionWidget()
+                    //             ]
+                    //           : <Widget>[]
+                    //     ],
+                    //   ),
+                    // ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       child: _isLoading
@@ -372,7 +423,7 @@ class _ManagementState extends State<Management> {
           initialDate: _bill.billDate!,
           firstDate: _firstdate,
           lastDate: _lastdate,
-          dateFormat: "yyyy-MMMM-dd",
+          dateFormat: holoDateFormat,
           locale: DateTimePickerLocale.en_us,
           looping: true,
         ) ??
@@ -386,50 +437,56 @@ class _ManagementState extends State<Management> {
   }
 
   _saveRecord() async {
-    _showProgressUi(msg: "Saving");
-    setState(() {
-      _isExpanded = false;
-      _bill.payerIds?.clear();
-      _bill.payersBillType?.clear();
-      _bill.payerIds?.addAll(_selectedUserList);
-      _bill.payersBillType?.addAll(_selectedUserBillTypeList);
-    });
-
     if (_formKey.currentState!.validate()) {
       try {
-        CollectionReference list = _ffInstance.collection("bills");
+        _isLoading.updateProgressStatus(msg: "Saving...");
+        //bool forUpdate = _isPayerIdsListForUpdate();
+        //if (forUpdate) {
+        setState(() {
+          _isExpanded = false;
+          _bill.payerIds?.clear();
+          _bill.payersBillType?.clear();
+          _bill.payerIds?.addAll(_selectedUserList);
+          _bill.payersBillType?.addAll(_selectedUserBillTypeList);
+        });
+        //}
+
+        CollectionReference billsCollection = _ffInstance.collection("bills");
         if (_bill.id.isNullOrEmpty()) {
           _bill.createdBy = widget.loggedInId;
           var data = _bill.toJson();
-          list.add(data).then((document) {
+          billsCollection.add(data).then((document) {
             setState(() {
               _bill.id = document.id;
             });
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-                overlays: SystemUiOverlay.values);
-            _updateBillingDates();
-            _showProgressUi(msg: "Bill saved!");
+            billsCollection.doc(_bill.id).update({"id": _bill.id});
+            _isLoading.updateProgressStatus(msg: "Bill saved!");
+            // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+            //     overlays: SystemUiOverlay.values);
             //Navigator.pop(context);
           }).catchError((error) {
-            _showProgressUi(errMsg: error, msg: "Failed to add bill.");
+            _isLoading.updateProgressStatus(
+                errMsg: error, msg: "Failed to add bill.");
           });
         } else {
           _bill.modifiedBy = widget.loggedInId;
           _bill.modifiedOn = DateTime.now();
-          list.doc(_bill.id).update(_bill.toJson()).then((value) {
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-                overlays: SystemUiOverlay.values);
-            Navigator.pop(context);
-            _updateBillingDates();
-            _showProgressUi(msg: "Bill updated!");
+          billsCollection.doc(_bill.id).update(_bill.toJson()).then((value) {
+            _isLoading.updateProgressStatus(msg: "Bill updated!");
+            // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+            //     overlays: SystemUiOverlay.values);
+            // Navigator.pop(context);
           }).catchError((error) {
-            _showProgressUi(errMsg: error, msg: "Failed to update bill.");
+            _isLoading.updateProgressStatus(
+                errMsg: error, msg: "Failed to update bill.");
           });
         }
+
+        _updateBillingDates();
       } on FirebaseAuthException catch (e) {
-        _showProgressUi(errMsg: "${e.message}.");
+        _isLoading.updateProgressStatus(errMsg: "${e.message}.");
       } catch (e) {
-        _showProgressUi(errMsg: "$e.");
+        _isLoading.updateProgressStatus(errMsg: "$e.");
       }
     }
   }
@@ -449,21 +506,21 @@ class _ManagementState extends State<Management> {
           ),
           TextButton(
             onPressed: () async {
-              _showProgressUi(msg: "Deleting record...");
+              _isLoading.updateProgressStatus(msg: "Deleting record...");
               try {
                 _ffInstance
                     .collection("bills")
                     .doc(_bill.id)
                     .delete()
                     .then((value) {
-                  _showProgressUi(msg: "Bill deleted!");
+                  _isLoading.updateProgressStatus(msg: "Bill deleted!");
                   Navigator.pop(context);
                   Navigator.pop(context);
                 });
               } on FirebaseAuthException catch (e) {
-                _showProgressUi(errMsg: "${e.message}.");
+                _isLoading.updateProgressStatus(errMsg: "${e.message}.");
               } catch (e) {
-                _showProgressUi(errMsg: "$e.");
+                _isLoading.updateProgressStatus(errMsg: "$e.");
               }
             },
             child: const Text('Ok'),
@@ -473,13 +530,21 @@ class _ManagementState extends State<Management> {
     );
   }
 
+  bool _isPayerIdsListForUpdate() {
+    Function eq = const ListEquality().equals;
+    bool eq1 = eq(_bill.payerIds, _selectedUserList);
+    bool eq2 = eq(_bill.payersBillType, _selectedUserBillTypeList);
+    bool eq3 = _bill.payerIds?.length != _selectedUserList.length;
+    bool eq4 = _bill.payersBillType?.length != _selectedUserBillTypeList.length;
+    return !(eq1 && eq2) || (eq3 && eq4);
+  }
+
   _updateBillingDates() {
     if (_bill.billType?.description?.toLowerCase() != 'payment') {
       try {
         CollectionReference collection = _ffInstance.collection("users");
         UserProfile userProfile = UserProfile();
-        collection
-          .orderBy("name").get().then((snapshots) {
+        collection.orderBy("name").get().then((snapshots) {
           for (var document in snapshots.docs) {
             if (_bill.payerIds?.contains(document.id) ?? false) {
               userProfile =
@@ -493,12 +558,12 @@ class _ManagementState extends State<Management> {
             }
           }
         }).whenComplete(() {
-          _showProgressUi();
+          _isLoading.updateProgressStatus(msg: "");
         });
       } on FirebaseAuthException catch (e) {
-        _showProgressUi(errMsg: "${e.message}.");
+        _isLoading.updateProgressStatus(errMsg: "${e.message}.");
       } catch (e) {
-        _showProgressUi(errMsg: "$e.");
+        _isLoading.updateProgressStatus(errMsg: "$e.");
       }
     }
   }
@@ -513,15 +578,11 @@ class _ManagementState extends State<Management> {
   }
 
   Future<void> _getPayers() async {
-    //_showProgressUi(true);
-
     try {
+      _isLoading.updateProgressStatus(msg: "");
       List<dynamic> users = [];
-      CollectionReference _collection = _ffInstance.collection("users");
-      _collection
-          .orderBy("name").get().then((snapshots) {
+      _ffInstance.collection("users").orderBy("name").get().then((snapshots) {
         for (var document in snapshots.docs) {
-          //String pbt = "${document.id}_$_billType";
           users.add([document.id, document.get('name')]);
         }
       }).whenComplete(() {
@@ -529,13 +590,12 @@ class _ManagementState extends State<Management> {
           _userList.clear();
           _userList.addAll(users);
         });
-        //_showProgressUi(false);
-        _setSelectedPayersDisplay();
+        //_setSelectedPayersDisplay();
       });
     } on FirebaseAuthException catch (e) {
-      _showProgressUi(errMsg: "${e.message}.");
+      _isLoading.updateProgressStatus(errMsg: "${e.message}.");
     } catch (e) {
-      _showProgressUi(errMsg: "$e.");
+      _isLoading.updateProgressStatus(errMsg: "$e.");
     }
   }
 
@@ -546,25 +606,8 @@ class _ManagementState extends State<Management> {
       String displayname = _userList[b][1] ?? "No Name";
       mList.add(CheckboxListTile(
         selected: _selectedUserList.toString().contains(id),
-        //selected: _selectedList.contains(id),
-        //selected: _selectedList.contains((value) => value[0] == id),
-        //selected: _selectedList.contains((value) => value.contains(id)),
         onChanged: (bool? value) {
-          setState(() {
-            if (value as bool) {
-              _selectedUserList.add(id);
-              _bill.payerIds?.add(id);
-              _bill.payersBillType?.add("${id}_1");
-            } else {
-              _selectedUserList.remove(id);
-              _bill.payerIds?.remove(id);
-              _bill.payersBillType?.remove("${id}_1");
-            }
-          });
-          if (kDebugMode) {
-            print(_selectedUserList);
-          }
-          _setSelectedPayersDisplay();
+          _updatePayerList(value ?? false, id);
         },
         value: _selectedUserList.toString().contains(id),
         title: Text(displayname),
@@ -572,6 +615,30 @@ class _ManagementState extends State<Management> {
       ));
     }
     return ListView(shrinkWrap: true, children: mList);
+  }
+
+  _updatePayerList(bool add, String id) {
+    String userBillType = "${id}_1";
+    bool isExists =
+        _selectedUserList.where((element) => element == id).isNotEmpty ||
+            _selectedUserBillTypeList
+                .where((element) => element == userBillType)
+                .isNotEmpty;
+    setState(() {
+      if (add) {
+        if (!isExists) {
+          _selectedUserList.add(id);
+          _selectedUserBillTypeList.add(userBillType);
+        }
+      } else {
+        _selectedUserList.remove(id);
+        _selectedUserBillTypeList.remove(userBillType);
+      }
+    });
+    if (kDebugMode) {
+      print(_selectedUserList);
+    }
+    _setSelectedPayersDisplay();
   }
 
   _setSelectedPayersDisplay() {
@@ -593,20 +660,5 @@ class _ManagementState extends State<Management> {
       _ctrlSelectedPayers.text = selectedPayers;
       _selectedAll = _userList.length == _selectedUserList.length;
     });
-  }
-
-  _showProgressUi({String? errMsg, String? msg}) {
-    if (!msg.isNullOrEmpty()) {
-      Fluttertoast.showToast(msg: msg!);
-      setState(() => _isLoading = !_isLoading);
-    }
-    if (!errMsg.isNullOrEmpty()) {
-      Fluttertoast.showToast(msg: "Something went wrong.");
-
-      if (kDebugMode) {
-        Print.red("msg: $errMsg");
-      }
-      setState(() => _isLoading = !_isLoading);
-    }
   }
 }
